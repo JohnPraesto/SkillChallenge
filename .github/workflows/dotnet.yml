@@ -5,9 +5,9 @@ name: .NET with Csharpier Format Check
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "**" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "**" ]
 
 jobs:
   build-and-check-format:
