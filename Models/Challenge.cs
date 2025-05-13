@@ -9,6 +9,6 @@
         public string Description { get; set; } = string.Empty;
         public bool IsPublic { get; set; }
         public ICollection<User> Users { get; set; }
-        public UnderCategory UnderCategory { get; set; }
+        public UnderCategory? UnderCategory { get; set; }
     }
 }

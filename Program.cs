@@ -1,3 +1,5 @@
+using SkillChallenge.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -28,6 +30,39 @@ var summaries = new[]
     "Hot",
     "Sweltering",
     "Scorching",
+};
+
+// TEST
+var users = new List<User>
+{
+    new User
+    {
+        UserId = 1,
+        UserName = "Oskar",
+        Password = "Oskar",
+        ProfilePicture = "test",
+    },
+    new User
+    {
+        UserId = 2,
+        UserName = "John",
+        Password = "John",
+        ProfilePicture = "test",
+    },
+    new User
+    {
+        UserId = 3,
+        UserName = "Kalle",
+        Password = "Kalle",
+        ProfilePicture = "test",
+    },
+    new User
+    {
+        UserId = 4,
+        UserName = "Kulan",
+        Password = "Kulan",
+        ProfilePicture = "test",
+    },
 };
 
 app.MapGet(
