@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SkillChallenge.Interfaces;
-using SkillChallenge.Models;
 
 namespace SkillChallenge.Controllers
 {
@@ -13,7 +12,7 @@ namespace SkillChallenge.Controllers
             _userRepo = userRepo;
         }
 
-        [HttpGet]
-        public async Task<User> GetAllUsers() { }
+        //[HttpGet]
+        //public async Task<User> GetAllUsers() { }
     }
 }
