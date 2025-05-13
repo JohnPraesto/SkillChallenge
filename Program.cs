@@ -23,6 +23,14 @@ var summaries = new[]
     "Chilly",
     "Cool",
     "Mild",
+
+
+
+
+
+
+
+
     "Warm",
     "Balmy",
     "Hot",
