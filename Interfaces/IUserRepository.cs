@@ -8,7 +8,7 @@ namespace SkillChallenge.Interfaces
         Task<User?> GetUserByIdAsync(int id);
         Task<User> CreateUserAsync(User user);
 
-        Task<User?> UpdateUserAsync(int id);
+        Task<User?> UpdateUserAsync(int id, User updatedUser);
         Task<User?> DeleteUserAsync(int id);
         Task<bool> UserExists(int id);
     }

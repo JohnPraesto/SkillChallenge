@@ -1,38 +1,62 @@
-﻿using SkillChallenge.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using SkillChallenge.Data;
+using SkillChallenge.Interfaces;
 using SkillChallenge.Models;
 
 namespace SkillChallenge.Repositories
 {
     public class UserRepository : IUserRepository
     {
-        public Task<User> CreateUserAsync(User user)
+        private readonly AppDbContext _context;
+
+        public UserRepository(AppDbContext context)
         {
-            throw new NotImplementedException();
+            _context = context;
         }
 
-        public Task<User?> DeleteUserAsync(int id)
+        public async Task<User> CreateUserAsync(User user)
         {
-            throw new NotImplementedException();
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+            return user;
         }
 
-        public Task<List<User>> GetAllUsersAsync()
+        public async Task<User?> DeleteUserAsync(int id)
         {
-            throw new NotImplementedException();
+            var user = await _context.Users.FindAsync(id);
+            if (user == null) return null;
+
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+            return user;
         }
 
-        public Task<User?> GetUserByIdAsync(int id)
+        public async Task<List<User>> GetAllUsersAsync()
         {
-            throw new NotImplementedException();
+            return await _context.Users.ToListAsync();
         }
 
-        public Task<User?> UpdateUserAsync(int id)
+        public async Task<User?> GetUserByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            return await _context.Users.FindAsync(id);
         }
 
-        public Task<bool> UserExists(int id)
+        public async Task<User?> UpdateUserAsync(int id, User updatedUser)
         {
-            throw new NotImplementedException();
+            var user = await _context.Users.FindAsync(id);
+            if (user == null) return null;
+
+            user.UserName = updatedUser.UserName;
+            user.Password = updatedUser.Password;
+            user.ProfilePicture = updatedUser.ProfilePicture;
+
+            await _context.SaveChangesAsync();
+            return user;
+        }
+
+        public async Task<bool> UserExists(int id)
+        {
+            return await _context.Users.AnyAsync(u => u.UserId == id);
         }
     }
 }
