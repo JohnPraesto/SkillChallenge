@@ -24,8 +24,8 @@ namespace SkillChallenge.Repositories
         public async Task<User?> DeleteUserAsync(int id)
         {
             var user = await _context.Users.FindAsync(id);
-            if (user == null) return null;
-
+            if (user == null)
+                return null;
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
             return user;
@@ -44,7 +44,8 @@ namespace SkillChallenge.Repositories
         public async Task<User?> UpdateUserAsync(int id, User updatedUser)
         {
             var user = await _context.Users.FindAsync(id);
-            if (user == null) return null;
+            if (user == null)
+                return null;
 
             user.UserName = updatedUser.UserName;
             user.Password = updatedUser.Password;
