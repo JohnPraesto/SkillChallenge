@@ -87,6 +87,8 @@ public class UserIntegrationTests : IClassFixture<WebApplicationFactory<Program>
     public async Task TestCreateUser()
     {
         // Arrange
+        IServiceProvider? testServiceProvider = null;
+
         var client = _factory
             .WithWebHostBuilder(builder =>
             {
@@ -113,6 +115,7 @@ public class UserIntegrationTests : IClassFixture<WebApplicationFactory<Program>
 
                     // Seed data
                     var sp = services.BuildServiceProvider();
+                    testServiceProvider = sp;
                     using var scope = sp.CreateScope();
                     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
                     db.Database.EnsureDeleted();
@@ -158,7 +161,8 @@ public class UserIntegrationTests : IClassFixture<WebApplicationFactory<Program>
         Assert.Equal("TestUser3", result!.UserName);
 
         // Verify it was stored in the DB
-        using var scope = _factory.Services.CreateScope();
+        //using var scope = _factory.Services.CreateScope();
+        using var scope = testServiceProvider!.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var userInDb = await db.Users.FindAsync(3);
         Assert.NotNull(userInDb);
