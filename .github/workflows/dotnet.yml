@@ -15,22 +15,25 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
 
       - name: Restore tools
+        working-directory: SkillChallenge
         run: dotnet tool restore
 
       - name: Check formatting with Csharpier
+        working-directory: SkillChallenge
         run: dotnet csharpier check .
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore SkillChallenge.sln
 
       - name: Build
-        run: dotnet build --no-restore
+        run: dotnet build SkillChallenge.sln --no-restore
 
       - name: Run Tests
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test SkillChallenge.sln --no-build --verbosity normal
