@@ -142,4 +142,40 @@ public class UserIntegrationTests : IClassFixture<WebApplicationFactory<Program>
         var content = await response.Content.ReadAsStringAsync();
         Assert.Contains($"User with id {testId} was not found in the database", content);
     }
+
+    [Fact]
+    public async Task TestDeleteUser()
+    {
+        // Arrange
+        var (client, services) = await SetupTestClient();
+        int testId = 1;
+
+        // Act
+        var response = await client.DeleteAsync($"/users/{testId}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+
+        // Verify user is deleted from the database
+        using var scope = services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var userInDb = await db.Users.FindAsync(testId);
+        Assert.Null(userInDb);
+    }
+
+    [Fact]
+    public async Task TestDeleteUserNotFound()
+    {
+        // Arrange
+        var (client, _) = await SetupTestClient();
+        int testId = 999;
+
+        // Act
+        var response = await client.DeleteAsync($"/users/{testId}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        var content = await response.Content.ReadAsStringAsync();
+        Assert.Contains($"User with id {testId} was not found in the database", content);
+    }
 }
