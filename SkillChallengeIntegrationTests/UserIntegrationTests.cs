@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SkillChallenge.Data;
 using SkillChallenge.Models;
+using System.Net;
 using System.Net.Http.Json;
 
 public class UserIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
@@ -14,7 +15,7 @@ public class UserIntegrationTests : IClassFixture<WebApplicationFactory<Program>
         _factory = factory;
     }
 
-    private async Task<(HttpClient client, IServiceProvider serviceProvider)> SetupTestClientWithSeedData(Action<AppDbContext>? customSeed = null)
+    private async Task<(HttpClient client, IServiceProvider serviceProvider)> SetupTestClient(Action<AppDbContext>? customSeed = null)
     {
         IServiceProvider? testServiceProvider = null;
 
@@ -62,7 +63,7 @@ public class UserIntegrationTests : IClassFixture<WebApplicationFactory<Program>
     public async Task TestGetAllUsers()
     {
         // Arrange
-        var (client, _) = await SetupTestClientWithSeedData();
+        var (client, _) = await SetupTestClient();
 
         // Act
         var response = await client.GetAsync("/users");
@@ -80,7 +81,7 @@ public class UserIntegrationTests : IClassFixture<WebApplicationFactory<Program>
     public async Task TestCreateUser()
     {
         // Arrange
-        var (client, services) = await SetupTestClientWithSeedData();
+        var (client, services) = await SetupTestClient();
 
         var newUser = new User
         {
@@ -103,5 +104,42 @@ public class UserIntegrationTests : IClassFixture<WebApplicationFactory<Program>
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var userInDb = await db.Users.FindAsync(3);
         Assert.NotNull(userInDb);
+        Assert.Equal(3, userInDb.UserId);
+        Assert.Equal("TestPassword3", userInDb.Password);
+        // Future test should assert that password is hidden!
+        // Hmm, but when a user is returned password should not be included
+        // ... in the ReturnUserDTO
+    }
+
+    [Fact]
+    public async Task TestGetUserById()
+    {
+        // Arrange
+        var (client, _) = await SetupTestClient();
+
+        // Act
+        var response = await client.GetAsync("/users/1");
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+        var user = await response.Content.ReadFromJsonAsync<User>();
+        Assert.NotNull(user);
+        Assert.Equal("TestUser1", user!.UserName);
+    }
+
+    [Fact]
+    public async Task TestGetUserByIdNotFound()
+    {
+        // Arrange
+        var (client, _) = await SetupTestClient();
+        int testId = 999;
+
+        // Act
+        var response = await client.GetAsync($"/users/{testId}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        var content = await response.Content.ReadAsStringAsync();
+        Assert.Contains($"User with id {testId} was not found in the database", content);
     }
 }
