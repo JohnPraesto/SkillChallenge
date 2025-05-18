@@ -22,6 +22,19 @@ namespace SkillChallenge.Controllers
             return Ok(users);
         }
 
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetUserById([FromRoute] int id)
+        {
+            var user = await _userRepo.GetUserByIdAsync(id);
+
+            if (user == null)
+            {
+                return NotFound($"User with id {id} was not found in the database");
+            }
+
+            return Ok(user);
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] User user)
         {
