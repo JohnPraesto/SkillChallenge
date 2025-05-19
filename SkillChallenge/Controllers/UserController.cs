@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SkillChallenge.DTOs;
 using SkillChallenge.Interfaces;
+using SkillChallenge.Mappers;
 using SkillChallenge.Models;
 
 namespace SkillChallenge.Controllers
@@ -36,10 +38,11 @@ namespace SkillChallenge.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] User user)
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserDTO newUser)
         {
-            var createdUser = await _userRepo.CreateUserAsync(user);
-            return Ok(user);
+            var user = newUser.ToUserFromCreateUserDTO();
+            await _userRepo.CreateUserAsync(user);
+            return CreatedAtAction(nameof(GetUserById), new { id = user.UserId }, user);
         }
 
         [HttpPut]
