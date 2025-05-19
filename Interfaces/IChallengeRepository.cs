@@ -4,11 +4,20 @@ namespace SkillChallenge.Interfaces
 {
     public interface IChallengeRepository
     {
-        Task<List<Challenge>> GetAllChallengesAsync();
-        Task<Challenge?> GetChallengeByIdAsync(int id);
-        Task<Challenge> CreateChallengeAsync(Challenge challenge);
-        Task<Challenge?> UpdateChallengeAsync(int id, Challenge updatedChallenge);
-        Task<Challenge?> DeleteChallengeAsync(int id);
-        Task<bool> ChallengeExistsAsync(int id);
+        Task<List<Challenge>> GetAllChallengesAsync(CancellationToken ct = default);
+
+        Task<Challenge?> GetChallengeByIdAsync(int id, CancellationToken ct = default);
+
+        Task<Challenge> CreateChallengeAsync(Challenge challenge, CancellationToken ct = default);
+
+        Task<Challenge?> UpdateChallengeAsync(
+            int id,
+            Challenge updatedChallenge,
+            CancellationToken ct = default
+        );
+
+        Task<Challenge?> DeleteChallengeAsync(int id, CancellationToken ct = default);
+
+        Task<bool> ChallengeExistsAsync(int id, CancellationToken ct = default);
     }
 }
