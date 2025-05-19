@@ -1,10 +1,10 @@
+using System.Net;
+using System.Net.Http.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SkillChallenge.Data;
 using SkillChallenge.Models;
-using System.Net;
-using System.Net.Http.Json;
 
 public class UserIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
 {
@@ -15,38 +15,45 @@ public class UserIntegrationTests : IClassFixture<WebApplicationFactory<Program>
         _factory = factory;
     }
 
-    private async Task<(HttpClient client, IServiceProvider serviceProvider)> SetupTestClient(Action<AppDbContext>? customSeed = null)
+    private async Task<(HttpClient client, IServiceProvider serviceProvider)> SetupTestClient(
+        Action<AppDbContext>? customSeed = null
+    )
     {
         IServiceProvider? testServiceProvider = null;
 
-        var client = _factory.WithWebHostBuilder(builder =>
-        {
-            builder.ConfigureServices(services =>
+        var client = _factory
+            .WithWebHostBuilder(builder =>
             {
-                var descriptors = services
-                    .Where(d => d.ServiceType == typeof(DbContextOptions<AppDbContext>)
-                             || d.ServiceType!.FullName!.Contains("DbContextOptions"))
-                    .ToList();
+                builder.ConfigureServices(services =>
+                {
+                    var descriptors = services
+                        .Where(d =>
+                            d.ServiceType == typeof(DbContextOptions<AppDbContext>)
+                            || d.ServiceType!.FullName!.Contains("DbContextOptions")
+                        )
+                        .ToList();
 
-                foreach (var d in descriptors)
-                    services.Remove(d);
+                    foreach (var d in descriptors)
+                        services.Remove(d);
 
-                services.AddDbContext<AppDbContext>(options =>
-                    options.UseInMemoryDatabase("TestDb"));
+                    services.AddDbContext<AppDbContext>(options =>
+                        options.UseInMemoryDatabase("TestDb")
+                    );
 
-                var sp = services.BuildServiceProvider();
-                testServiceProvider = sp;
+                    var sp = services.BuildServiceProvider();
+                    testServiceProvider = sp;
 
-                using var scope = sp.CreateScope();
-                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                db.Database.EnsureDeleted();
-                db.Database.EnsureCreated();
+                    using var scope = sp.CreateScope();
+                    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                    db.Database.EnsureDeleted();
+                    db.Database.EnsureCreated();
 
-                // Use default seed if no custom seed provided
-                (customSeed ?? DefaultSeed)(db);
-                db.SaveChanges();
-            });
-        }).CreateClient();
+                    // Use default seed if no custom seed provided
+                    (customSeed ?? DefaultSeed)(db);
+                    db.SaveChanges();
+                });
+            })
+            .CreateClient();
 
         return (client, testServiceProvider!);
     }
@@ -54,8 +61,20 @@ public class UserIntegrationTests : IClassFixture<WebApplicationFactory<Program>
     private void DefaultSeed(AppDbContext db)
     {
         db.Users.AddRange(
-            new User { UserId = 1, UserName = "TestUser1", Password = "TestPassword1", ProfilePicture = "Pic1" },
-            new User { UserId = 2, UserName = "TestUser2", Password = "TestPassword2", ProfilePicture = "Pic2" }
+            new User
+            {
+                UserId = 1,
+                UserName = "TestUser1",
+                Password = "TestPassword1",
+                ProfilePicture = "Pic1",
+            },
+            new User
+            {
+                UserId = 2,
+                UserName = "TestUser2",
+                Password = "TestPassword2",
+                ProfilePicture = "Pic2",
+            }
         );
     }
 
@@ -88,7 +107,7 @@ public class UserIntegrationTests : IClassFixture<WebApplicationFactory<Program>
             UserId = 3,
             UserName = "TestUser3",
             Password = "TestPassword3",
-            ProfilePicture = "Pic3"
+            ProfilePicture = "Pic3",
         };
 
         // Act
@@ -172,6 +191,62 @@ public class UserIntegrationTests : IClassFixture<WebApplicationFactory<Program>
 
         // Act
         var response = await client.DeleteAsync($"/users/{testId}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        var content = await response.Content.ReadAsStringAsync();
+        Assert.Contains($"User with id {testId} was not found in the database", content);
+    }
+
+    [Fact]
+    public async Task TestUpdateUser()
+    {
+        // Arrange
+        var (client, services) = await SetupTestClient();
+        int testId = 1;
+
+        var userUpdate = new User
+        {
+            UserId = testId,
+            UserName = "UpdatedUser",
+            Password = "UpdatedPassword",
+            ProfilePicture = "UpdatedPicture",
+        };
+
+        // Act
+        var response = await client.PutAsJsonAsync($"/users/{testId}", userUpdate);
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+        var result = await response.Content.ReadFromJsonAsync<User>();
+        Assert.NotNull(result);
+        Assert.Equal("UpdatedUser", result.UserName);
+
+        // Verify it was updated in the DB
+        using var scope = services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var userInDb = await db.Users.FindAsync(testId);
+        Assert.NotNull(userInDb);
+        Assert.Equal("UpdatedPicture", userInDb.ProfilePicture);
+    }
+
+    [Fact]
+    public async Task TestUpdateUserNotFound()
+    {
+        // Arrange
+        var (client, services) = await SetupTestClient();
+        int testId = 999;
+
+        var userUpdate = new User
+        {
+            UserId = testId,
+            UserName = "UpdatedUser",
+            Password = "UpdatedPassword",
+            ProfilePicture = "UpdatedPicture",
+        };
+
+        // Act
+        var response = await client.PutAsJsonAsync($"/users/{testId}", userUpdate);
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
