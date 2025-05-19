@@ -42,6 +42,20 @@ namespace SkillChallenge.Controllers
             return Ok(user);
         }
 
+        [HttpPut]
+        [Route("{id:int}")]
+        public async Task<IActionResult> UpdateUser([FromRoute] int id, [FromBody] User updatedUser)
+        {
+            var user = await _userRepo.UpdateUserAsync(id, updatedUser);
+
+            if (user == null)
+            {
+                return NotFound($"User with id {id} was not found in the database");
+            }
+
+            return Ok(user);
+        }
+
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteUser([FromRoute] int id)
         {
