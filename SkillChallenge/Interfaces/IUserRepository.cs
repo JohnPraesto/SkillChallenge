@@ -1,4 +1,5 @@
-﻿using SkillChallenge.Models;
+﻿using SkillChallenge.DTOs;
+using SkillChallenge.Models;
 
 namespace SkillChallenge.Interfaces
 {
@@ -8,7 +9,7 @@ namespace SkillChallenge.Interfaces
         Task<User?> GetUserByIdAsync(int id);
         Task<User> CreateUserAsync(User user);
 
-        Task<User?> UpdateUserAsync(int id, User updatedUser);
+        Task<User?> UpdateUserAsync(int id, UpdateUserDTO updateUser);
         Task<User?> DeleteUserAsync(int id);
         Task<bool> UserExists(int id);
     }
