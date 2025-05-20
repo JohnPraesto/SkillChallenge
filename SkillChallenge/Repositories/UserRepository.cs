@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SkillChallenge.Data;
+using SkillChallenge.DTOs;
 using SkillChallenge.Interfaces;
 using SkillChallenge.Models;
 
@@ -31,15 +32,15 @@ namespace SkillChallenge.Repositories
             return user;
         }
 
-        public async Task<User?> UpdateUserAsync(int id, User updatedUser)
+        public async Task<User?> UpdateUserAsync(int id, UpdateUserDTO updateUser)
         {
             var user = await _context.Users.FindAsync(id);
             if (user == null)
                 return null;
 
-            user.UserName = updatedUser.UserName;
-            user.Password = updatedUser.Password;
-            user.ProfilePicture = updatedUser.ProfilePicture;
+            user.UserName = updateUser.UserName;
+            user.Password = updateUser.Password;
+            user.ProfilePicture = updateUser.ProfilePicture;
 
             await _context.SaveChangesAsync();
             return user;
