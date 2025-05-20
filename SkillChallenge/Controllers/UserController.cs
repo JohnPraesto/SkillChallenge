@@ -2,7 +2,6 @@
 using SkillChallenge.DTOs;
 using SkillChallenge.Interfaces;
 using SkillChallenge.Mappers;
-using SkillChallenge.Models;
 
 namespace SkillChallenge.Controllers
 {
@@ -47,9 +46,12 @@ namespace SkillChallenge.Controllers
 
         [HttpPut]
         [Route("{id:int}")]
-        public async Task<IActionResult> UpdateUser([FromRoute] int id, [FromBody] User updatedUser)
+        public async Task<IActionResult> UpdateUser(
+            [FromRoute] int id,
+            [FromBody] UpdateUserDTO updateUser
+        )
         {
-            var user = await _userRepo.UpdateUserAsync(id, updatedUser);
+            var user = await _userRepo.UpdateUserAsync(id, updateUser);
 
             if (user == null)
             {
