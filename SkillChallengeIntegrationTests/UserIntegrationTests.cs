@@ -228,6 +228,7 @@ public class UserIntegrationTests : IClassFixture<WebApplicationFactory<Program>
         var userInDb = await db.Users.FindAsync(testId);
         Assert.NotNull(userInDb);
         Assert.Equal("UpdatedPicture", userInDb.ProfilePicture);
+        Assert.Equal(1, userInDb.UserId);
     }
 
     [Fact]
