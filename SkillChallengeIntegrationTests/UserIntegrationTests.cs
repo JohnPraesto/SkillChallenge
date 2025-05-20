@@ -1,10 +1,10 @@
-using System.Net;
-using System.Net.Http.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SkillChallenge.Data;
 using SkillChallenge.Models;
+using System.Net;
+using System.Net.Http.Json;
 
 public class UserIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
 {
