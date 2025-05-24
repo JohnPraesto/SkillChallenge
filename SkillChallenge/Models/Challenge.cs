@@ -9,6 +9,9 @@
         public string Description { get; set; } = string.Empty;
         public bool IsPublic { get; set; }
         public ICollection<User> Users { get; set; }
+
+        // Many-to-many relationship med User?
+        // Connection table?
         public UnderCategory? UnderCategory { get; set; }
     }
 }
