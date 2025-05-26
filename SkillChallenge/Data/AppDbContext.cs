@@ -10,7 +10,6 @@ namespace SkillChallenge.Data
         public AppDbContext(DbContextOptions dbContextOptions)
             : base(dbContextOptions) { }
 
-        //public DbSet<User> Users { get; set; } // ???? Ska det inte finnas en tabell med users?
         public DbSet<Challenge> Challenges { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<UnderCategory> UnderCategories { get; set; }
