@@ -1,79 +1,106 @@
-﻿//using Microsoft.AspNetCore.Mvc;
-//using SkillChallenge.DTOs;
-//using SkillChallenge.Interfaces;
+﻿using Microsoft.AspNetCore.Mvc;
+using SkillChallenge.DTOs;
+using SkillChallenge.Interfaces;
 
-//namespace SkillChallenge.Controllers
-//{
-//    [ApiController]
-//    [Route("/users")]
-//    public class UserController : ControllerBase
-//    {
-//        private readonly IUserRepository _userRepo;
+namespace SkillChallenge.Controllers
+{
+    [ApiController]
+    [Route("/users")]
+    public class UserController : ControllerBase
+    {
+        private readonly IUserRepository _userRepo;
 
-//        public UserController(IUserRepository userRepo)
-//        {
-//            _userRepo = userRepo;
-//        }
+        public UserController(IUserRepository userRepo)
+        {
+            _userRepo = userRepo;
+        }
 
-//        [HttpGet]
-//        public async Task<IActionResult> GetAllUsers()
-//        {
-//            var users = await _userRepo.GetAllUsersAsync();
-//            return Ok(users);
-//        }
+        // Vad ska visas? inte password hash?
+        // Hur ska GetAllUsers användas?
+        // Av användare på sidan?
+        // Vilken information vill/får de se?
+        // DisplayUserDTO
+        [HttpGet]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var users = await _userRepo.GetAllUsersAsync();
+            return Ok(users);
+        }
 
-//        [HttpGet("{username:string}")]
-//        public async Task<IActionResult> GetUserByUsername([FromRoute] string username)
-//        {
-//            var user = await _userRepo.GetUserByUsernameAsync(username);
-//            if (user == null)
-//                return NotFound($"User with username '{username}' was not found in the database");
+        // There should also be a GetUserByUsername
 
-//            return Ok(
-//                new DisplayUserDTO
-//                {
-//                    Id = user.Id,
-//                    UserName = user.UserName,
-//                    Email = user.Email,
-//                    ProfilePicture = user.ProfilePicture,
-//                }
-//            );
-//        }
+        [HttpGet("{username}")]
+        public async Task<IActionResult> GetUserByUsername([FromRoute] string username)
+        {
+            var user = await _userRepo.GetUserByUsernameAsync(username);
+            if (user == null)
+                return NotFound($"User with username '{username}' was not found in the database");
 
-//        // A user should only be able to update his or her own profile
-//        // An admin should be able to update all accounts
-//        // This is not yet implemented
-//        [HttpPut]
-//        [Route("{id:int}")]
-//        public async Task<IActionResult> UpdateUser(
-//            [FromRoute] string id,
-//            [FromBody] UpdateUserDTO updateUser
-//        )
-//        {
-//            var user = await _userRepo.UpdateUserAsync(id, updateUser);
+            return Ok(
+                new DisplayUserDTO
+                {
+                    Id = user.Id,
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    ProfilePicture = user.ProfilePicture,
+                }
+            );
+        }
 
-//            if (user == null)
-//            {
-//                return NotFound($"User with id {id} was not found in the database");
-//            }
+        // A user should only be able to update his or her own profile
+        // An admin should be able to update all accounts
+        // An admin should be able to handle user passwords?
+        [HttpPut]
+        [Route("{id}")]
+        public async Task<IActionResult> UpdateUser(
+            [FromRoute] string id,
+            [FromBody] UpdateUserDTO updateUser
+        )
+        {
+            var user = await _userRepo.UpdateUserAsync(id, updateUser);
 
-//            return Ok(user);
-//        }
+            if (user == null)
+            {
+                return NotFound($"User with id {id} was not found in the database");
+            }
 
-//        // A user should only be able to delete his or her own profile
-//        // An admin should be able to delete any account
-//        // This is not yet implemented
-//        [HttpDelete("{id:int}")]
-//        public async Task<IActionResult> DeleteUser([FromRoute] string id)
-//        {
-//            var user = await _userRepo.DeleteUserAsync(id);
+            return Ok(user);
+        }
 
-//            if (user == null)
-//            {
-//                return NotFound($"User with id {id} was not found in the database");
-//            }
+        // Should be for a logged in user changing its own password
+        // Behöver kontrolleras.
+        [HttpPost("{id}/change-password")]
+        public async Task<IActionResult> ChangePassword(string id, [FromBody] ChangePasswordDTO dto)
+        {
+            var result = await _userRepo.ChangePasswordAsync(
+                id,
+                dto.CurrentPassword,
+                dto.NewPassword
+            );
 
-//            return NoContent();
-//        }
-//    }
-//}
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
+            }
+
+            return Ok("Password changed successfully.");
+        }
+
+        // A user should only be able to delete his or her own profile
+        // An admin should be able to delete any account
+        // This is not yet implemented
+        // Something with authorize and roles?
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUser([FromRoute] string id)
+        {
+            var response = await _userRepo.DeleteUserAsync(id);
+
+            if (!response)
+            {
+                return NotFound($"User with id {id} was not found in the database");
+            }
+
+            return NoContent();
+        }
+    }
+}
