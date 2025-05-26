@@ -38,8 +38,9 @@ public class AccountControllerIntegrationTests : IClassFixture<WebApplicationFac
                     foreach (var d in descriptors)
                         services.Remove(d);
 
+                    var dbName = Guid.NewGuid().ToString();
                     services.AddDbContext<AppDbContext>(options =>
-                        options.UseInMemoryDatabase("TestDb")
+                        options.UseInMemoryDatabase(dbName)
                     );
 
                     var sp = services.BuildServiceProvider();
