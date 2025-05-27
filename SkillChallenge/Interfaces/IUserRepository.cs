@@ -1,4 +1,5 @@
-﻿using SkillChallenge.DTOs;
+﻿using Microsoft.AspNetCore.Identity;
+using SkillChallenge.DTOs;
 using SkillChallenge.Models;
 
 namespace SkillChallenge.Interfaces
@@ -6,11 +7,16 @@ namespace SkillChallenge.Interfaces
     public interface IUserRepository
     {
         Task<List<User>> GetAllUsersAsync();
-        Task<User?> GetUserByIdAsync(int id);
-        Task<User> CreateUserAsync(User user);
 
-        Task<User?> UpdateUserAsync(int id, UpdateUserDTO updateUser);
-        Task<User?> DeleteUserAsync(int id);
-        Task<bool> UserExists(int id);
+        Task<User?> GetUserByUsernameAsync(string username);
+
+        Task<User?> UpdateUserAsync(string id, UpdateUserDTO updateUser);
+        Task<IdentityResult> ChangePasswordAsync(
+            string userId,
+            string currentPassword,
+            string newPassword
+        );
+        Task<bool> DeleteUserAsync(string id);
+        Task<bool> UserExists(string id);
     }
 }

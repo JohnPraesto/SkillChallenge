@@ -1,10 +1,10 @@
-﻿namespace SkillChallenge.Models
+﻿using Microsoft.AspNetCore.Identity;
+
+namespace SkillChallenge.Models
 {
-    public class User
+    public class User : IdentityUser
     {
-        public int UserId { get; set; }
-        public string UserName { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
         public string ProfilePicture { get; set; } = string.Empty;
+        // Tror det ska tillsättas relationstabell prop här..
     }
 }

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SkillChallenge.DTOs;
 using SkillChallenge.Interfaces;
-using SkillChallenge.Mappers;
 
 namespace SkillChallenge.Controllers
 {
@@ -16,6 +15,11 @@ namespace SkillChallenge.Controllers
             _userRepo = userRepo;
         }
 
+        // Vad ska visas? inte password hash?
+        // Hur ska GetAllUsers användas?
+        // Av användare på sidan?
+        // Vilken information vill/får de se?
+        // DisplayUserDTO
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -23,31 +27,33 @@ namespace SkillChallenge.Controllers
             return Ok(users);
         }
 
-        [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetUserById([FromRoute] int id)
-        {
-            var user = await _userRepo.GetUserByIdAsync(id);
+        // There should also be a GetUserByUsername
 
+        [HttpGet("{username}")]
+        public async Task<IActionResult> GetUserByUsername([FromRoute] string username)
+        {
+            var user = await _userRepo.GetUserByUsernameAsync(username);
             if (user == null)
-            {
-                return NotFound($"User with id {id} was not found in the database");
-            }
+                return NotFound($"User with username '{username}' was not found in the database");
 
-            return Ok(user);
+            return Ok(
+                new DisplayUserDTO
+                {
+                    Id = user.Id,
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    ProfilePicture = user.ProfilePicture,
+                }
+            );
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] CreateUserDTO newUser)
-        {
-            var user = newUser.ToUserFromCreateUserDTO();
-            await _userRepo.CreateUserAsync(user);
-            return CreatedAtAction(nameof(GetUserById), new { id = user.UserId }, user);
-        }
-
+        // A user should only be able to update his or her own profile
+        // An admin should be able to update all accounts
+        // An admin should be able to handle user passwords?
         [HttpPut]
-        [Route("{id:int}")]
+        [Route("{id}")]
         public async Task<IActionResult> UpdateUser(
-            [FromRoute] int id,
+            [FromRoute] string id,
             [FromBody] UpdateUserDTO updateUser
         )
         {
@@ -61,12 +67,35 @@ namespace SkillChallenge.Controllers
             return Ok(user);
         }
 
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeleteUser([FromRoute] int id)
+        // Should be for a logged in user changing its own password
+        // Behöver kontrolleras.
+        [HttpPost("{id}/change-password")]
+        public async Task<IActionResult> ChangePassword(string id, [FromBody] ChangePasswordDTO dto)
         {
-            var user = await _userRepo.DeleteUserAsync(id);
+            var result = await _userRepo.ChangePasswordAsync(
+                id,
+                dto.CurrentPassword,
+                dto.NewPassword
+            );
 
-            if (user == null)
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
+            }
+
+            return Ok("Password changed successfully.");
+        }
+
+        // A user should only be able to delete his or her own profile
+        // An admin should be able to delete any account
+        // This is not yet implemented
+        // Something with authorize and roles?
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUser([FromRoute] string id)
+        {
+            var response = await _userRepo.DeleteUserAsync(id);
+
+            if (!response)
             {
                 return NotFound($"User with id {id} was not found in the database");
             }

@@ -37,3 +37,5 @@ jobs:
 
       - name: Run Tests
         run: dotnet test SkillChallenge.sln --no-build --verbosity normal
+        env:
+          ASPNETCORE_ENVIRONMENT: CI
