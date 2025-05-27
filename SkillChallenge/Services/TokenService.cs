@@ -15,7 +15,10 @@ namespace ASPNET_VisualStudio_Tutorial.Services
         public TokenService(IConfiguration config)
         {
             _config = config;
-            _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT:SigningKey"]));
+            var signingKey = _config["JWT:SigningKey"];
+            if (string.IsNullOrWhiteSpace(signingKey))
+                throw new InvalidOperationException("JWT:SigningKey is not configured.");
+            _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey));
         }
 
         public string CreateToken(User user)
