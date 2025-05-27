@@ -78,6 +78,10 @@ public class Program
             })
             .AddEntityFrameworkStores<AppDbContext>();
 
+        var signingKey = builder.Configuration["JWT:SigningKey"];
+        if (string.IsNullOrWhiteSpace(signingKey))
+            throw new InvalidOperationException("JWT:SigningKey is not configured.");
+
         builder
             .Services.AddAuthentication(options =>
             {
@@ -91,20 +95,17 @@ public class Program
             })
             .AddJwtBearer(options =>
             {
-                options.TokenValidationParameters =
-                    new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidIssuer = builder.Configuration["JWT:Issuer"],
-                        ValidateAudience = true,
-                        ValidAudience = builder.Configuration["JWT:Audience"],
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(
-                            System.Text.Encoding.UTF8.GetBytes(
-                                builder.Configuration["JWT:SigningKey"]
-                            )
-                        ),
-                    };
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = builder.Configuration["JWT:Issuer"],
+                    ValidateAudience = true,
+                    ValidAudience = builder.Configuration["JWT:Audience"],
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        System.Text.Encoding.UTF8.GetBytes(signingKey)
+                    ),
+                };
             });
 
         builder.Services.AddScoped<IUserRepository, UserRepository>();
