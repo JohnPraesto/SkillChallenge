@@ -109,6 +109,7 @@ public class Program
 
         builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<ITokenService, TokenService>();
+        builder.Services.AddScoped<IChallengeRepository, ChallengeRepository>();
 
         var app = builder.Build();
 
