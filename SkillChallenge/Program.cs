@@ -54,9 +54,20 @@ public class Program
             );
         });
 
-        builder.Services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
-        );
+        var useSqlite = builder.Environment.IsEnvironment("CI");
+
+        if (useSqlite)
+        {
+            builder.Services.AddDbContext<AppDbContext>(options =>
+                options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"))
+            );
+        }
+        else
+        {
+            builder.Services.AddDbContext<AppDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+            );
+        }
 
         builder
             .Services.AddIdentity<User, IdentityRole>(options =>
