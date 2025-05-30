@@ -27,8 +27,7 @@ namespace SkillChallenge.Controllers
             return Ok(users);
         }
 
-        // There should also be a GetUserByUsername
-
+        // Ska DisplayUserDTO endast ha username och bild kanske?
         [HttpGet("{username}")]
         public async Task<IActionResult> GetUserByUsername([FromRoute] string username)
         {
