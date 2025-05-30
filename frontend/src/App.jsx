@@ -11,7 +11,7 @@ function Home() {
   return (
     <div>
       <div style={{ textAlign: "center", marginTop: "30vh", fontSize: "2em" }}>
-        welcome to skillchallenge.com
+        One list of Open Challenges. One list of Closed Challenges.
       </div>
     </div>
   );
@@ -32,7 +32,8 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/auth" element={<Auth />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/users" element={<Users />} />
         <Route path="/users/:userName" element={<UserDetail />} />
       </Routes>
