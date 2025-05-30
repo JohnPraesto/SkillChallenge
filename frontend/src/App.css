@@ -19,3 +19,16 @@
   border-bottom: 1px solid #ccc;
   box-sizing: border-box;
 }
+
+.my-profile{
+  background: "none";
+  border: "none";
+  padding: 0;
+  margin-left: "1em";
+}
+
+.user-icon{
+  width: 32px;
+  height: 32px;
+  border-radius: 50%; 
+}
