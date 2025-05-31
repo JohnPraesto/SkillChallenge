@@ -6,13 +6,13 @@ import { useAuth } from "./AuthContext";
 
 function Navbar() {
   const navigate = useNavigate();
-  const { userName, logout } = useAuth();
+  const { user, logout } = useAuth();
 
   return (
     <nav className="navbar">
       <button onClick={() => navigate("/users")}>Users</button>
       <button onClick={() => navigate("/")}>Challenges</button>
-      {userName ? (
+      {user?.userName ? (
         <>
           <button onClick={() => { logout(); navigate("/login"); }}>Log out</button>
           <button

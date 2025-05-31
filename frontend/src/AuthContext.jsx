@@ -1,28 +1,46 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [userName, setUserName] = useState(localStorage.getItem("userName"));
+  const [token, setToken] = useState(localStorage.getItem("token"));
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const onStorage = () => setUserName(localStorage.getItem("userName"));
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setUser({
+          userName: decoded.userName || decoded.sub || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],
+          roles: decoded.role || decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || []
+        });
+      } catch {
+        setUser(null);
+      }
+    } else {
+      setUser(null);
+    }
+  }, [token]);
+
+  useEffect(() => {
+    const onStorage = () => setToken(localStorage.getItem("token"));
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
-  const login = (name) => {
-    localStorage.setItem("userName", name);
-    setUserName(name);
+  const login = (jwtToken) => {
+    localStorage.setItem("token", jwtToken);
+    setToken(jwtToken);
   };
 
   const logout = () => {
-    localStorage.removeItem("userName");
-    setUserName(null);
+    localStorage.removeItem("token");
+    setToken(null);
   };
 
   return (
-    <AuthContext.Provider value={{ userName, login, logout }}>
+    <AuthContext.Provider value={{ user, token, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
