@@ -228,6 +228,37 @@ public class UserControllerIntegrationTests : IClassFixture<WebApplicationFactor
     }
 
     [Fact]
+    public async Task TestUpdateUserOnlyPicture()
+    {
+        // Arrange
+        var (client, services) = await SetupTestClient();
+        using var scope = services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var user = await db.Users.FirstAsync(u => u.UserName == "testuser1");
+        string userId = user.Id;
+
+        var userUpdate = new UpdateUserDTO { ProfilePicture = "UpdatedPicture" };
+
+        // Act
+        var response = await client.PutAsJsonAsync($"/users/{userId}", userUpdate);
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+        var result = await response.Content.ReadFromJsonAsync<User>();
+        Assert.NotNull(result);
+        Assert.Equal("testuser1", result.UserName);
+        Assert.Equal("UpdatedPicture", result.ProfilePicture);
+
+        // Verify it was updated in the DB
+        using var verifyScope = services.CreateScope();
+        var verifyDb = verifyScope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var userInDb = await verifyDb.Users.FindAsync(userId);
+        Assert.NotNull(userInDb);
+        Assert.Equal("UpdatedPicture", userInDb.ProfilePicture);
+        Assert.Equal("testuser1", userInDb.UserName);
+    }
+
+    [Fact]
     public async Task TestChangePassword()
     {
         // Arrange
