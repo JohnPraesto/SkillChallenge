@@ -84,7 +84,7 @@ public class AccountControllerIntegrationTests : IClassFixture<WebApplicationFac
     public async Task TestRegisterNewUserSuccessfully()
     {
         // Arrange
-        var (client, _) = await SetupTestClient();
+        var (client, services) = await SetupTestClient();
 
         var newUser = new RegisterUserDTO
         {
@@ -103,6 +103,14 @@ public class AccountControllerIntegrationTests : IClassFixture<WebApplicationFac
         Assert.Equal("newuser", user!.UserName);
         Assert.Equal("newuser@example.com", user.Email);
         Assert.False(string.IsNullOrWhiteSpace(user.Token));
+
+        // Verify in the DB
+        using var verifyScope = services.CreateScope();
+        var verifyDb = verifyScope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var userInDb = await verifyDb.Users.FirstOrDefaultAsync(u => u.UserName == "newuser");
+        Assert.NotNull(userInDb);
+        Assert.False(string.IsNullOrWhiteSpace(userInDb.Id));
+        Assert.Equal("NEWUSER", userInDb.NormalizedUserName);
     }
 
     [Fact]

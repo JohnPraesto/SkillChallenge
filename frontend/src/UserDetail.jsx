@@ -24,7 +24,7 @@ useEffect(() => {
   return (
     <div>
       <h2>User: {user.userName}</h2>
-      <pre>{JSON.stringify(user, null, 2)}</pre>
+      <h2>Profile Picture: {user.profilePicture}</h2>
     </div>
   );
 }

@@ -17,9 +17,8 @@ function Navbar() {
           <button onClick={() => { logout(); navigate("/login"); }}>Log out</button>
           <button
             className="my-profile"
-            onClick={() => navigate(`/users/${userName}`)}
+            onClick={() => navigate("/profile")}
             title="Your profile"
-            style={{ background: "none", border: "none", padding: 0, marginLeft: "1em" }}
           >
             <img src={userIcon} alt="User" className="user-icon" />
           </button>

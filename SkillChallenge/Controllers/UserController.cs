@@ -56,14 +56,23 @@ namespace SkillChallenge.Controllers
             [FromBody] UpdateUserDTO updateUser
         )
         {
-            var user = await _userRepo.UpdateUserAsync(id, updateUser);
+            var (result, updatedUser) = await _userRepo.UpdateUserAsync(id, updateUser);
 
-            if (user == null)
+            if (!result.Succeeded)
             {
-                return NotFound($"User with id {id} was not found in the database");
+                if (result.Errors.Any(e => e.Description.Contains("User not found")))
+                    return NotFound($"User with id {id} was not found in the database");
+
+                return BadRequest(result.Errors);
             }
 
-            return Ok(user);
+            return Ok(
+                new UpdateUserDTO
+                {
+                    UserName = updatedUser.UserName,
+                    ProfilePicture = updatedUser.ProfilePicture,
+                }
+            );
         }
 
         // Should be for a logged in user changing its own password
