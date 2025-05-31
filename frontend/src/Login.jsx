@@ -27,11 +27,12 @@ function Login() {
 
       if (response.ok) {
         const data = await response.json();
+        console.log("Backend login response:", data);
         setMessage("Login successful! Token: " + data.token);
-        localStorage.setItem("userName", data.userName);
-        // Optionally, save token or redirect user here
-        login(data.userName);
-        navigate(`/users/${data.userName}`);
+        localStorage.setItem("token", data.token);
+        login(data.token);
+        console.log("from login.jsx" + data);
+        navigate("/profile");
       } else {
         const error = await response.json();
         setMessage("Login failed: " + JSON.stringify(error));
