@@ -22,7 +22,7 @@ function Users() {
       <ul>
         {users.map((u, i) => (
           <li key={i}>
-            <Link to={`/users/${u.userName}`}>{u.userName}</Link>
+            <Link to={`/users/username/${u.userName}`}>{u.userName}</Link>
           </li>
         ))}
       </ul>
