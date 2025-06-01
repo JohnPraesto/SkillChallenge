@@ -107,7 +107,7 @@ public class UserControllerIntegrationTests : IClassFixture<WebApplicationFactor
         var (client, _) = await SetupTestClient();
 
         // Act
-        var response = await client.GetAsync("/users/testuser2");
+        var response = await client.GetAsync("/users/username/testuser2");
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -121,15 +121,51 @@ public class UserControllerIntegrationTests : IClassFixture<WebApplicationFactor
     {
         // Arrange
         var (client, _) = await SetupTestClient();
-        string testuser = "nonexistinguser";
+        string testuser = "nonexistinguserNAME";
 
         // Act
-        var response = await client.GetAsync($"/users/{testuser}");
+        var response = await client.GetAsync($"/users/username/{testuser}");
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         var content = await response.Content.ReadAsStringAsync();
         Assert.Contains($"User with username '{testuser}' was not found in the database", content);
+    }
+
+    [Fact]
+    public async Task TestGetUserById()
+    {
+        // Arrange
+        var (client, services) = await SetupTestClient();
+        using var scope = services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var user = await db.Users.FirstAsync(u => u.UserName == "testuser2");
+        string userId = user.Id;
+
+        // Act
+        var response = await client.GetAsync($"/users/id/{userId}");
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+        var userAssert = await response.Content.ReadFromJsonAsync<User>();
+        Assert.NotNull(userAssert);
+        Assert.Equal("testuser2", userAssert!.UserName);
+    }
+
+    [Fact]
+    public async Task TestGetUserByIdNotFound()
+    {
+        // Arrange
+        var (client, _) = await SetupTestClient();
+        string testuser = "nonexistinguserID";
+
+        // Act
+        var response = await client.GetAsync($"/users/id/{testuser}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        var content = await response.Content.ReadAsStringAsync();
+        Assert.Contains($"User with id '{testuser}' was not found in the database", content);
     }
 
     [Fact]

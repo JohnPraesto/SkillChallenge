@@ -9,10 +9,12 @@ namespace SkillChallenge.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserRepository _userRepo;
+        private readonly ITokenService _tokenService;
 
-        public UserController(IUserRepository userRepo)
+        public UserController(IUserRepository userRepo, ITokenService tokenService)
         {
             _userRepo = userRepo;
+            _tokenService = tokenService;
         }
 
         // Vad ska visas? inte password hash?
@@ -27,8 +29,26 @@ namespace SkillChallenge.Controllers
             return Ok(users);
         }
 
+        [HttpGet("id/{id}")]
+        public async Task<IActionResult> GetUserById([FromRoute] string id)
+        {
+            var user = await _userRepo.GetUserByIdAsync(id);
+            if (user == null)
+                return NotFound($"User with id '{id}' was not found in the database");
+
+            return Ok(
+                new DisplayUserDTO
+                {
+                    Id = user.Id,
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    ProfilePicture = user.ProfilePicture,
+                }
+            );
+        }
+
         // Ska DisplayUserDTO endast ha username och bild kanske?
-        [HttpGet("{username}")]
+        [HttpGet("username/{username}")]
         public async Task<IActionResult> GetUserByUsername([FromRoute] string username)
         {
             var user = await _userRepo.GetUserByUsernameAsync(username);
@@ -67,10 +87,11 @@ namespace SkillChallenge.Controllers
             }
 
             return Ok(
-                new UpdateUserDTO
+                new
                 {
-                    UserName = updatedUser.UserName,
-                    ProfilePicture = updatedUser.ProfilePicture,
+                    userName = updatedUser.UserName,
+                    profilePicture = updatedUser.ProfilePicture,
+                    token = _tokenService.CreateToken(updatedUser),
                 }
             );
         }
