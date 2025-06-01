@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
 
+// In here the users past and active challenges
+// is to be seen. And their rating.
+
 function Profile() {
-  const { user } = useAuth();
+  const { user, login } = useAuth();
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState("");
   const [showUsernameForm, setShowUsernameForm] = useState(false);
@@ -20,18 +23,19 @@ function Profile() {
 
   // Fetch user info on mount
   useEffect(() => {
-    if (!user?.userName) return;
-    fetch(`https://localhost:7212/users/${user?.userName}`)
+    if (!user?.id) return;
+    fetch(`https://localhost:7212/users/id/${user.id}`) // <-- id in route is new, should not use userName anymore?
       .then(res => res.ok ? res.json() : Promise.reject("Failed to fetch user"))
       .then(data => setUserData(data))
       .catch(err => setError(err));
-  }, [user?.userName]);
+  }, [user?.id]);
 
   // Update username or picture
   const handleUpdateUser = async (field, value) => {
     setMessage("");
     try {
       const res = await fetch(`https://localhost:7212/users/${user.id}`, {
+      // const res = await fetch(`https://localhost:7212/users/${userData.id}`, { // <-- old version
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ [field]: value }),
@@ -42,7 +46,12 @@ function Profile() {
         return;
       }
       const updated = await res.json();
-      setUser({ ...user, ...updated });
+      // setUser({ ...user, ...updated }); <-- old version
+      if (updated.token) {
+        login(updated.token); // Update AuthContext with new token
+        setUserData(null);    // Force refetch with new username
+      }
+      setUserData({ ...userData, ...updated });
       setMessage("Update successful!");
     } catch (err) {
       setMessage("Update failed: " + err.message);
@@ -53,7 +62,7 @@ function Profile() {
   const handleChangePassword = async () => {
     setMessage("");
     try {
-      const res = await fetch(`https://localhost:7212/users/${user.id}/change-password`, {
+      const res = await fetch(`https://localhost:7212/users/${userData.id}/change-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -84,7 +93,7 @@ function Profile() {
         alt="Profile"
         style={{ width: 100, height: 100, borderRadius: "50%", objectFit: "cover" }}
       />
-      <div><strong>Username:</strong> {user.userName}</div>
+      <div><strong>Username:</strong> {userData.userName}</div>
       {message && <div style={{ color: "green", margin: "1em 0" }}>{message}</div>}
 
       <div style={{ marginTop: "2em" }}>

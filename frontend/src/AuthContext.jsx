@@ -12,6 +12,7 @@ export function AuthProvider({ children }) {
       try {
         const decoded = jwtDecode(token);
         setUser({
+          id: decoded.sub,
           userName: decoded.userName || decoded.sub || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],
           roles: decoded.role || decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || []
         });
