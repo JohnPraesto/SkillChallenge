@@ -12,8 +12,8 @@ using SkillChallenge.Data;
 namespace SkillChallenge.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250524164130_Initial")]
-    partial class Initial
+    [Migration("20250530132501_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

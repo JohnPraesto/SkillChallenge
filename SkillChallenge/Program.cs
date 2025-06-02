@@ -11,7 +11,7 @@ using SkillChallenge.Repositories;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
@@ -120,8 +120,24 @@ public class Program
         builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<ITokenService, TokenService>();
         builder.Services.AddScoped<IChallengeRepository, ChallengeRepository>();
-
+        builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+        builder.Services.AddScoped<IUnderCategoryRepository, UnderCategoryRepository>();
         var app = builder.Build();
+
+        using (var scope = app.Services.CreateScope())
+        {
+            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+            if (!await roleManager.RoleExistsAsync("Admin"))
+            {
+                await roleManager.CreateAsync(new IdentityRole("Admin"));
+            }
+
+            if (!await roleManager.RoleExistsAsync("User"))
+            {
+                await roleManager.CreateAsync(new IdentityRole("User"));
+            }
+        }
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
@@ -137,6 +153,6 @@ public class Program
 
         app.MapControllers();
 
-        app.Run();
+        await app.RunAsync();
     }
 }
