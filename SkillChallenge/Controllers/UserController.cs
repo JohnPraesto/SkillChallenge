@@ -22,7 +22,6 @@ namespace SkillChallenge.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllUsers()
         {
             var users = await _userRepo.GetAllUsersAsync();
@@ -59,7 +58,7 @@ namespace SkillChallenge.Controllers
 
         [HttpPost("create-admin")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> CreateAdmin([FromBody] CreateAdminDTO createAdminDTO)
+        public async Task<IActionResult> CreateAdmin([FromBody] RegisterUserDTO createAdminDTO)
         {
             var user = new User
             {
@@ -74,7 +73,6 @@ namespace SkillChallenge.Controllers
                 return BadRequest(result.Errors);
             }
 
-            // Lägg till Admin-rollen
             await _userManager.AddToRoleAsync(user, "Admin");
 
             return Ok(
@@ -98,10 +96,9 @@ namespace SkillChallenge.Controllers
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
-            // Användare kan bara uppdatera sin egen profil, Admin kan uppdatera alla
             if (userRole != "Admin" && currentUserId != id)
             {
-                return Forbid("You can only update your own profile");
+                return Forbid();
             }
 
             var user = await _userRepo.UpdateUserAsync(id, updateUser);
@@ -129,7 +126,6 @@ namespace SkillChallenge.Controllers
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
-            // Användare kan bara ändra sitt eget lösenord, Admin kan ändra alla
             if (userRole != "Admin" && currentUserId != id)
             {
                 return Forbid("You can only change your own password");
@@ -159,7 +155,7 @@ namespace SkillChallenge.Controllers
             // Användare kan bara ta bort sin egen profil, Admin kan ta bort alla
             if (userRole != "Admin" && currentUserId != id)
             {
-                return Forbid("You can only delete your own profile");
+                return Forbid();
             }
 
             var response = await _userRepo.DeleteUserAsync(id);
