@@ -23,6 +23,11 @@ namespace SkillChallenge.Repositories
             return await _context.Users.ToListAsync();
         }
 
+        public async Task<User?> GetUserByIdAsync(string id)
+        {
+            return await _userManager.FindByIdAsync(id);
+        }
+
         public async Task<User?> GetUserByUsernameAsync(string username)
         {
             return await _userManager.FindByNameAsync(username);
@@ -35,20 +40,27 @@ namespace SkillChallenge.Repositories
             return user;
         }
 
-        public async Task<User?> UpdateUserAsync(string id, UpdateUserDTO updateUser)
+        public async Task<(IdentityResult, User?)> UpdateUserAsync(
+            string id,
+            UpdateUserDTO updateUser
+        )
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
-                return null;
+                return (
+                    IdentityResult.Failed(new IdentityError { Description = "User not found." }),
+                    null
+                );
 
-            user.UserName = updateUser.UserName;
-            user.ProfilePicture = updateUser.ProfilePicture;
+            if (!string.IsNullOrEmpty(updateUser.UserName))
+                user.UserName = updateUser.UserName;
+
+            if (!string.IsNullOrEmpty(updateUser.ProfilePicture))
+                user.ProfilePicture = updateUser.ProfilePicture;
 
             var result = await _userManager.UpdateAsync(user);
-            if (!result.Succeeded)
-                return null;
 
-            return user;
+            return (result, user);
         }
 
         public async Task<IdentityResult> ChangePasswordAsync(

@@ -499,3 +499,4 @@ public class UserControllerIntegrationTests : IClassFixture<WebApplicationFactor
         Assert.False(oldPasswordValid);
     }
 }
+
