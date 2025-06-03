@@ -1,8 +1,12 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "./AuthContext";
 
-function Login({ onShowRegister }) {
+function Login() {
   const [form, setForm] = useState({ username: "", password: "" });
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -23,8 +27,12 @@ function Login({ onShowRegister }) {
 
       if (response.ok) {
         const data = await response.json();
+        console.log("Backend login response:", data);
         setMessage("Login successful! Token: " + data.token);
-        // Optionally, save token or redirect user here
+        localStorage.setItem("token", data.token);
+        login(data.token);
+        console.log("from login.jsx" + data);
+        navigate("/profile");
       } else {
         const error = await response.json();
         setMessage("Login failed: " + JSON.stringify(error));
@@ -53,9 +61,6 @@ function Login({ onShowRegister }) {
         required
       />
       <button type="submit">Login</button>
-      <button type="button" onClick={onShowRegister} style={{ marginLeft: "1em" }}>
-        Register new user
-      </button>
       {message && <div>{message}</div>}
     </form>
   );
