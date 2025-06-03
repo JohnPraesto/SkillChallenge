@@ -4,6 +4,6 @@ namespace SkillChallenge.Interfaces
 {
     public interface ITokenService
     {
-        string CreateToken(User user, IList<string> roles);
+        Task<string> CreateToken(User user);
     }
 }
