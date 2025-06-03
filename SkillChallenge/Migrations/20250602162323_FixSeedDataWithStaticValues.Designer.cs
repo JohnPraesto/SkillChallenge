@@ -12,8 +12,8 @@ using SkillChallenge.Data;
 namespace SkillChallenge.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250524164130_Initial")]
-    partial class Initial
+    [Migration("20250602162323_FixSeedDataWithStaticValues")]
+    partial class FixSeedDataWithStaticValues
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,21 @@ namespace SkillChallenge.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("ChallengeUser", b =>
+                {
+                    b.Property<int>("ChallengeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UsersId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("ChallengeId", "UsersId");
+
+                    b.HasIndex("UsersId");
+
+                    b.ToTable("ChallengeUsers", (string)null);
+                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -151,6 +166,18 @@ namespace SkillChallenge.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = "admin-123",
+                            RoleId = "1"
+                        },
+                        new
+                        {
+                            UserId = "user-456",
+                            RoleId = "2"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -201,6 +228,10 @@ namespace SkillChallenge.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -218,6 +249,8 @@ namespace SkillChallenge.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("ChallengeId");
+
+                    b.HasIndex("CreatedBy");
 
                     b.HasIndex("UnderCategoryId");
 
@@ -252,9 +285,6 @@ namespace SkillChallenge.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ChallengeId")
                         .HasColumnType("int");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -307,8 +337,6 @@ namespace SkillChallenge.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ChallengeId");
-
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -318,6 +346,57 @@ namespace SkillChallenge.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "admin-123",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "STATIC-ADMIN-CONCURRENCY-STAMP",
+                            Email = "admin@skillchallenge.com",
+                            EmailConfirmed = true,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "ADMIN@SKILLCHALLENGE.COM",
+                            NormalizedUserName = "ADMIN",
+                            PasswordHash = "AQAAAAIAAYagAAAAEIzZ1ipYa+9PoN6PNCJektB+44UdZJWEv/RnJtum84hmALg1Z4Gl5h9C0nDM2CIXOw==",
+                            PhoneNumberConfirmed = false,
+                            ProfilePicture = "",
+                            SecurityStamp = "STATIC-ADMIN-SECURITY-STAMP",
+                            TwoFactorEnabled = false,
+                            UserName = "admin"
+                        },
+                        new
+                        {
+                            Id = "user-456",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "STATIC-USER-CONCURRENCY-STAMP",
+                            Email = "test@skillchallenge.com",
+                            EmailConfirmed = true,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "TEST@SKILLCHALLENGE.COM",
+                            NormalizedUserName = "TESTUSER",
+                            PasswordHash = "AQAAAAIAAYagAAAAECPJaSFhPkxbqX8QWGU013AN7zVInxVWKQ92xSKUPYH5LK7TTPhZQLFCAmjFOEKumg==",
+                            PhoneNumberConfirmed = false,
+                            ProfilePicture = "",
+                            SecurityStamp = "STATIC-USER-SECURITY-STAMP",
+                            TwoFactorEnabled = false,
+                            UserName = "testuser"
+                        });
+                });
+
+            modelBuilder.Entity("ChallengeUser", b =>
+                {
+                    b.HasOne("SkillChallenge.Models.Challenge", null)
+                        .WithMany()
+                        .HasForeignKey("ChallengeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SkillChallenge.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -373,9 +452,18 @@ namespace SkillChallenge.Migrations
 
             modelBuilder.Entity("SkillChallenge.Models.Challenge", b =>
                 {
+                    b.HasOne("SkillChallenge.Models.User", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("SkillChallenge.Models.UnderCategory", "UnderCategory")
                         .WithMany()
-                        .HasForeignKey("UnderCategoryId");
+                        .HasForeignKey("UnderCategoryId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Creator");
 
                     b.Navigation("UnderCategory");
                 });
@@ -391,21 +479,9 @@ namespace SkillChallenge.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("SkillChallenge.Models.User", b =>
-                {
-                    b.HasOne("SkillChallenge.Models.Challenge", null)
-                        .WithMany("Users")
-                        .HasForeignKey("ChallengeId");
-                });
-
             modelBuilder.Entity("SkillChallenge.Models.Category", b =>
                 {
                     b.Navigation("UnderCategories");
-                });
-
-            modelBuilder.Entity("SkillChallenge.Models.Challenge", b =>
-                {
-                    b.Navigation("Users");
                 });
 #pragma warning restore 612, 618
         }

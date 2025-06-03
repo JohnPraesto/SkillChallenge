@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using SkillChallenge.DTOs;
 using SkillChallenge.Interfaces;
 using SkillChallenge.Models;
 
@@ -19,7 +22,53 @@ namespace SkillChallenge.Controllers
         public async Task<IActionResult> GetAllChallenges(CancellationToken ct)
         {
             var challenges = await _challengeRepo.GetAllChallengesAsync(ct);
-            return Ok(challenges);
+            var challengeDTOs = challenges
+                .Select(c => new ChallengeDTO
+                {
+                    ChallengeId = c.ChallengeId,
+                    ChallengeName = c.ChallengeName,
+                    EndDate = c.EndDate,
+                    TimePeriod = c.TimePeriod,
+                    Description = c.Description,
+                    IsPublic = c.IsPublic,
+                    UnderCategoryId = c.UnderCategoryId,
+                    UserIds = c.Users.Select(u => int.Parse(u.Id)).ToList(),
+                    CreatedBy = c.CreatedBy,
+                    CreatorUserName = c.Creator?.UserName ?? "Unknown",
+                })
+                .ToList();
+
+            return Ok(challengeDTOs);
+        }
+
+        [HttpGet("my-challenges")]
+        [Authorize]
+        public async Task<IActionResult> GetMyChallenges(CancellationToken ct)
+        {
+            var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(currentUserId))
+            {
+                return Unauthorized();
+            }
+
+            var challenges = await _challengeRepo.GetChallengesByCreatorAsync(currentUserId, ct);
+            var challengeDTOs = challenges
+                .Select(c => new ChallengeDTO
+                {
+                    ChallengeId = c.ChallengeId,
+                    ChallengeName = c.ChallengeName,
+                    EndDate = c.EndDate,
+                    TimePeriod = c.TimePeriod,
+                    Description = c.Description,
+                    IsPublic = c.IsPublic,
+                    UnderCategoryId = c.UnderCategoryId,
+                    UserIds = c.Users.Select(u => int.Parse(u.Id)).ToList(),
+                    CreatedBy = c.CreatedBy,
+                    CreatorUserName = c.Creator?.UserName ?? "Unknown",
+                })
+                .ToList();
+
+            return Ok(challengeDTOs);
         }
 
         [HttpGet("{id:int}")]
@@ -30,16 +79,49 @@ namespace SkillChallenge.Controllers
             {
                 return NotFound($"Challenge with id {id} was not found in the database");
             }
-            return Ok(challenge);
+
+            var challengeDTO = new ChallengeDTO
+            {
+                ChallengeId = challenge.ChallengeId,
+                ChallengeName = challenge.ChallengeName,
+                EndDate = challenge.EndDate,
+                TimePeriod = challenge.TimePeriod,
+                Description = challenge.Description,
+                IsPublic = challenge.IsPublic,
+                UnderCategoryId = challenge.UnderCategoryId,
+                UserIds = challenge.Users.Select(u => int.Parse(u.Id)).ToList(),
+                CreatedBy = challenge.CreatedBy,
+                CreatorUserName = challenge.Creator?.UserName ?? "Unknown",
+            };
+
+            return Ok(challengeDTO);
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> CreateChallenge(
-            [FromBody] Challenge newChallenge,
+            [FromBody] CreateChallengeDTO createChallengeDTO,
             CancellationToken ct
         )
         {
-            var created = await _challengeRepo.CreateChallengeAsync(newChallenge, ct);
+            var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(currentUserId))
+            {
+                return Unauthorized();
+            }
+
+            var challenge = new Challenge
+            {
+                ChallengeName = createChallengeDTO.ChallengeName,
+                EndDate = createChallengeDTO.EndDate,
+                TimePeriod = createChallengeDTO.TimePeriod,
+                Description = createChallengeDTO.Description,
+                IsPublic = createChallengeDTO.IsPublic,
+                UnderCategoryId = createChallengeDTO.UnderCategoryId,
+                CreatedBy = currentUserId, // Sätt skaparen
+            };
+
+            var created = await _challengeRepo.CreateChallengeAsync(challenge, ct);
             return CreatedAtAction(
                 nameof(GetChallengeById),
                 new { id = created.ChallengeId },
@@ -48,28 +130,60 @@ namespace SkillChallenge.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> UpdateChallenge(
             [FromRoute] int id,
-            [FromBody] Challenge updatedChallenge,
+            [FromBody] UpdateChallengeDTO updateChallengeDTO,
             CancellationToken ct
         )
         {
-            var challenge = await _challengeRepo.UpdateChallengeAsync(id, updatedChallenge, ct);
+            var challenge = await _challengeRepo.GetChallengeByIdAsync(id, ct);
             if (challenge == null)
             {
                 return NotFound($"Challenge with id {id} was not found in the database");
             }
-            return Ok(challenge);
+
+            var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            if (userRole != "Admin" && challenge.CreatedBy != currentUserId)
+            {
+                return Forbid("You can only update your own challenges");
+            }
+
+            var updatedChallenge = new Challenge
+            {
+                ChallengeName = updateChallengeDTO.ChallengeName,
+                EndDate = updateChallengeDTO.EndDate,
+                TimePeriod = updateChallengeDTO.TimePeriod,
+                Description = updateChallengeDTO.Description,
+                IsPublic = updateChallengeDTO.IsPublic,
+                UnderCategoryId = updateChallengeDTO.UnderCategoryId,
+            };
+
+            var result = await _challengeRepo.UpdateChallengeAsync(id, updatedChallenge, ct);
+            return Ok(result);
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> DeleteChallenge([FromRoute] int id, CancellationToken ct)
         {
-            var challenge = await _challengeRepo.DeleteChallengeAsync(id, ct);
+            var challenge = await _challengeRepo.GetChallengeByIdAsync(id, ct);
             if (challenge == null)
             {
                 return NotFound($"Challenge with id {id} was not found in the database");
             }
+
+            var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            if (userRole != "Admin" && challenge.CreatedBy != currentUserId)
+            {
+                return Forbid("You can only delete your own challenges");
+            }
+
+            await _challengeRepo.DeleteChallengeAsync(id, ct);
             return NoContent();
         }
     }

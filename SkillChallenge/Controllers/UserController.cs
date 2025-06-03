@@ -1,6 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using SkillChallenge.DTOs;
 using SkillChallenge.Interfaces;
+using SkillChallenge.Models;
 
 namespace SkillChallenge.Controllers
 {
@@ -9,46 +13,32 @@ namespace SkillChallenge.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserRepository _userRepo;
-        private readonly ITokenService _tokenService;
+        private readonly UserManager<User> _userManager;
 
-        public UserController(IUserRepository userRepo, ITokenService tokenService)
+        public UserController(IUserRepository userRepo, UserManager<User> userManager)
         {
             _userRepo = userRepo;
-            _tokenService = tokenService;
+            _userManager = userManager;
         }
 
-        // Vad ska visas? inte password hash?
-        // Hur ska GetAllUsers användas?
-        // Av användare på sidan?
-        // Vilken information vill/får de se?
-        // DisplayUserDTO
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
             var users = await _userRepo.GetAllUsersAsync();
-            return Ok(users);
-        }
-
-        [HttpGet("id/{id}")]
-        public async Task<IActionResult> GetUserById([FromRoute] string id)
-        {
-            var user = await _userRepo.GetUserByIdAsync(id);
-            if (user == null)
-                return NotFound($"User with id '{id}' was not found in the database");
-
-            return Ok(
-                new DisplayUserDTO
+            var displayUsers = users
+                .Select(u => new DisplayUserDTO
                 {
-                    Id = user.Id,
-                    UserName = user.UserName,
-                    Email = user.Email,
-                    ProfilePicture = user.ProfilePicture,
-                }
-            );
+                    Id = u.Id,
+                    UserName = u.UserName ?? string.Empty,
+                    Email = u.Email ?? string.Empty,
+                    ProfilePicture = u.ProfilePicture,
+                })
+                .ToList();
+
+            return Ok(displayUsers);
         }
 
-        // Ska DisplayUserDTO endast ha username och bild kanske?
-        [HttpGet("username/{username}")]
+        [HttpGet("{username}")]
         public async Task<IActionResult> GetUserByUsername([FromRoute] string username)
         {
             var user = await _userRepo.GetUserByUsernameAsync(username);
@@ -59,6 +49,36 @@ namespace SkillChallenge.Controllers
                 new DisplayUserDTO
                 {
                     Id = user.Id,
+                    UserName = user.UserName ?? string.Empty,
+                    Email = user.Email ?? string.Empty,
+                    ProfilePicture = user.ProfilePicture,
+                }
+            );
+        }
+
+        [HttpPost("create-admin")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> CreateAdmin([FromBody] RegisterUserDTO createAdminDTO)
+        {
+            var user = new User
+            {
+                UserName = createAdminDTO.Username,
+                Email = createAdminDTO.Email,
+            };
+
+            var result = await _userManager.CreateAsync(user, createAdminDTO.Password);
+
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
+            }
+
+            await _userManager.AddToRoleAsync(user, "Admin");
+
+            return Ok(
+                new DisplayUserDTO
+                {
+                    Id = user.Id,
                     UserName = user.UserName,
                     Email = user.Email,
                     ProfilePicture = user.ProfilePicture,
@@ -66,41 +86,56 @@ namespace SkillChallenge.Controllers
             );
         }
 
-        // A user should only be able to update his or her own profile
-        // An admin should be able to update all accounts
-        // An admin should be able to handle user passwords?
-        [HttpPut]
-        [Route("{id}")]
+        [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> UpdateUser(
             [FromRoute] string id,
             [FromBody] UpdateUserDTO updateUser
         )
         {
-            var (result, updatedUser) = await _userRepo.UpdateUserAsync(id, updateUser);
+            var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            if (userRole != "Admin" && currentUserId != id)
+            {
+                return Forbid();
+            }
+
+            var (result, user) = await _userRepo.UpdateUserAsync(id, updateUser);
+
+            if (user == null)
+            {
+                return NotFound($"User with id {id} was not found in the database");
+            }
 
             if (!result.Succeeded)
             {
-                if (result.Errors.Any(e => e.Description.Contains("User not found")))
-                    return NotFound($"User with id {id} was not found in the database");
-
                 return BadRequest(result.Errors);
             }
 
             return Ok(
-                new
+                new DisplayUserDTO
                 {
-                    userName = updatedUser.UserName,
-                    profilePicture = updatedUser.ProfilePicture,
-                    token = _tokenService.CreateToken(updatedUser),
+                    Id = user.Id,
+                    UserName = user.UserName ?? string.Empty,
+                    Email = user.Email ?? string.Empty,
+                    ProfilePicture = user.ProfilePicture,
                 }
             );
         }
 
-        // Should be for a logged in user changing its own password
-        // Behöver kontrolleras.
         [HttpPost("{id}/change-password")]
+        [Authorize]
         public async Task<IActionResult> ChangePassword(string id, [FromBody] ChangePasswordDTO dto)
         {
+            var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            if (userRole != "Admin" && currentUserId != id)
+            {
+                return Forbid("You can only change your own password");
+            }
+
             var result = await _userRepo.ChangePasswordAsync(
                 id,
                 dto.CurrentPassword,
@@ -115,13 +150,19 @@ namespace SkillChallenge.Controllers
             return Ok("Password changed successfully.");
         }
 
-        // A user should only be able to delete his or her own profile
-        // An admin should be able to delete any account
-        // This is not yet implemented
-        // Something with authorize and roles?
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteUser([FromRoute] string id)
         {
+            var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            // Användare kan bara ta bort sin egen profil, Admin kan ta bort alla
+            if (userRole != "Admin" && currentUserId != id)
+            {
+                return Forbid();
+            }
+
             var response = await _userRepo.DeleteUserAsync(id);
 
             if (!response)
