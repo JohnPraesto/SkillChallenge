@@ -54,7 +54,7 @@ namespace ASPNET_VisualStudio_Tutorial.Controllers
                 {
                     UserName = user.UserName,
                     Email = user.Email,
-                    Token = _tokenService.CreateToken(user),
+                    Token = await _tokenService.CreateToken(user),
                 }
             );
         }
@@ -81,7 +81,7 @@ namespace ASPNET_VisualStudio_Tutorial.Controllers
                             {
                                 UserName = user.UserName,
                                 Email = user.Email,
-                                Token = _tokenService.CreateToken(user),
+                                Token = await _tokenService.CreateToken(user),
                             }
                         );
                     }
