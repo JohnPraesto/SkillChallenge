@@ -10,7 +10,7 @@ namespace SkillChallenge.Interfaces
 
         Task<User?> GetUserByUsernameAsync(string username);
 
-        Task<User?> UpdateUserAsync(string id, UpdateUserDTO updateUser);
+        Task<(IdentityResult, User?)> UpdateUserAsync(string id, UpdateUserDTO updateUser);
         Task<IdentityResult> ChangePasswordAsync(
             string userId,
             string currentPassword,

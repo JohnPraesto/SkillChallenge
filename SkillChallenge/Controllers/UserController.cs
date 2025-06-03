@@ -101,11 +101,16 @@ namespace SkillChallenge.Controllers
                 return Forbid();
             }
 
-            var user = await _userRepo.UpdateUserAsync(id, updateUser);
+            var (result, user) = await _userRepo.UpdateUserAsync(id, updateUser);
 
             if (user == null)
             {
                 return NotFound($"User with id {id} was not found in the database");
+            }
+
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
             }
 
             return Ok(
