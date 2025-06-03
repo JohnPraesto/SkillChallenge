@@ -15,6 +15,7 @@ public class UserControllerIntegrationTests : IClassFixture<WebApplicationFactor
 
     public UserControllerIntegrationTests(WebApplicationFactory<Program> factory)
     {
+        Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Test");
         _factory = factory;
     }
 
