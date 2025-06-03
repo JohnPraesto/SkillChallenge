@@ -48,9 +48,7 @@ namespace ASPNET_VisualStudio_Tutorial.Controllers
 
             if (!result.Succeeded)
                 return Unauthorized("Username not found or password incorrect");
-
             var token = await _tokenService.CreateToken(user);
-
             return Ok(
                 new NewUserDTO
                 {

@@ -32,13 +32,11 @@ namespace ASPNET_VisualStudio_Tutorial.Services
                 new Claim(JwtRegisteredClaimNames.GivenName, user.UserName),
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
             };
-
             var roles = await _userManager.GetRolesAsync(user);
             foreach (var role in roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
-
             var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
             var tokenDescriptor = new SecurityTokenDescriptor
             {

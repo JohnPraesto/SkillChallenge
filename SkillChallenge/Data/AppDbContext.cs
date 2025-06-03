@@ -35,38 +35,43 @@ namespace SkillChallenge.Data
                 },
             };
             builder.Entity<IdentityRole>().HasData(roles);
-
-            var adminUser = new User
+            if (
+                !Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")?.Contains("Test")
+                ?? true
+            )
             {
-                Id = "admin-123",
-                UserName = "admin",
-                NormalizedUserName = "ADMIN",
-                Email = "admin@skillchallenge.com",
-                NormalizedEmail = "ADMIN@SKILLCHALLENGE.COM",
-                EmailConfirmed = true,
-                SecurityStamp = "STATIC-ADMIN-SECURITY-STAMP",
-                ConcurrencyStamp = "STATIC-ADMIN-CONCURRENCY-STAMP",
-                ProfilePicture = "",
-                PasswordHash =
-                    "AQAAAAIAAYagAAAAEIzZ1ipYa+9PoN6PNCJektB+44UdZJWEv/RnJtum84hmALg1Z4Gl5h9C0nDM2CIXOw==",
-            };
+                var adminUser = new User
+                {
+                    Id = "admin-123",
+                    UserName = "admin",
+                    NormalizedUserName = "ADMIN",
+                    Email = "admin@skillchallenge.com",
+                    NormalizedEmail = "ADMIN@SKILLCHALLENGE.COM",
+                    EmailConfirmed = true,
+                    SecurityStamp = "STATIC-ADMIN-SECURITY-STAMP",
+                    ConcurrencyStamp = "STATIC-ADMIN-CONCURRENCY-STAMP",
+                    ProfilePicture = "",
+                    PasswordHash =
+                        "AQAAAAIAAYagAAAAEIzZ1ipYa+9PoN6PNCJektB+44UdZJWEv/RnJtum84hmALg1Z4Gl5h9C0nDM2CIXOw==",
+                };
 
-            var testUser = new User
-            {
-                Id = "user-456",
-                UserName = "testuser",
-                NormalizedUserName = "TESTUSER",
-                Email = "test@skillchallenge.com",
-                NormalizedEmail = "TEST@SKILLCHALLENGE.COM",
-                EmailConfirmed = true,
-                SecurityStamp = "STATIC-USER-SECURITY-STAMP",
-                ConcurrencyStamp = "STATIC-USER-CONCURRENCY-STAMP",
-                ProfilePicture = "",
-                PasswordHash =
-                    "AQAAAAIAAYagAAAAECPJaSFhPkxbqX8QWGU013AN7zVInxVWKQ92xSKUPYH5LK7TTPhZQLFCAmjFOEKumg==",
-            };
+                var testUser = new User
+                {
+                    Id = "user-456",
+                    UserName = "testuser",
+                    NormalizedUserName = "TESTUSER",
+                    Email = "test@skillchallenge.com",
+                    NormalizedEmail = "TEST@SKILLCHALLENGE.COM",
+                    EmailConfirmed = true,
+                    SecurityStamp = "STATIC-USER-SECURITY-STAMP",
+                    ConcurrencyStamp = "STATIC-USER-CONCURRENCY-STAMP",
+                    ProfilePicture = "",
+                    PasswordHash =
+                        "AQAAAAIAAYagAAAAECPJaSFhPkxbqX8QWGU013AN7zVInxVWKQ92xSKUPYH5LK7TTPhZQLFCAmjFOEKumg==",
+                };
 
-            builder.Entity<User>().HasData(adminUser, testUser);
+                builder.Entity<User>().HasData(adminUser, testUser);
+            }
 
             builder
                 .Entity<IdentityUserRole<string>>()
