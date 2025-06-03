@@ -49,12 +49,14 @@ namespace ASPNET_VisualStudio_Tutorial.Controllers
             if (!result.Succeeded)
                 return Unauthorized("Username not found or password incorrect");
 
+            var token = await _tokenService.CreateToken(user);
+
             return Ok(
                 new NewUserDTO
                 {
                     UserName = user.UserName,
                     Email = user.Email,
-                    Token = _tokenService.CreateToken(user),
+                    Token = token,
                 }
             );
         }
@@ -76,12 +78,13 @@ namespace ASPNET_VisualStudio_Tutorial.Controllers
                     var roleResult = await _userManager.AddToRoleAsync(user, "User");
                     if (roleResult.Succeeded)
                     {
+                        var token = await _tokenService.CreateToken(user);
                         return Ok(
                             new NewUserDTO
                             {
                                 UserName = user.UserName,
                                 Email = user.Email,
-                                Token = _tokenService.CreateToken(user),
+                                Token = token,
                             }
                         );
                     }

@@ -42,6 +42,7 @@ namespace SkillChallenge.Repositories
             await _context
                 .Challenges.Include(c => c.Users)
                 .Include(c => c.UnderCategory)
+                .Include(c => c.Creator)
                 .AsNoTracking()
                 .ToListAsync(ct);
 
@@ -52,6 +53,7 @@ namespace SkillChallenge.Repositories
             await _context
                 .Challenges.Include(c => c.Users)
                 .Include(c => c.UnderCategory)
+                .Include(c => c.Creator)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.ChallengeId == id, ct);
 
@@ -68,9 +70,27 @@ namespace SkillChallenge.Repositories
             if (existing is null)
                 return null;
 
-            _context.Entry(existing).CurrentValues.SetValues(updatedChallenge);
+            existing.ChallengeName = updatedChallenge.ChallengeName;
+            existing.EndDate = updatedChallenge.EndDate;
+            existing.TimePeriod = updatedChallenge.TimePeriod;
+            existing.Description = updatedChallenge.Description;
+            existing.IsPublic = updatedChallenge.IsPublic;
+            existing.UnderCategoryId = updatedChallenge.UnderCategoryId;
+
             await _context.SaveChangesAsync(ct);
             return existing;
         }
+
+        public async Task<List<Challenge>> GetChallengesByCreatorAsync(
+            string creatorId,
+            CancellationToken ct = default
+        ) =>
+            await _context
+                .Challenges.Include(c => c.Users)
+                .Include(c => c.UnderCategory)
+                .Include(c => c.Creator)
+                .Where(c => c.CreatedBy == creatorId)
+                .AsNoTracking()
+                .ToListAsync(ct);
     }
 }

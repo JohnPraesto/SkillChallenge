@@ -22,7 +22,53 @@ namespace SkillChallenge.Controllers
         public async Task<IActionResult> GetAllChallenges(CancellationToken ct)
         {
             var challenges = await _challengeRepo.GetAllChallengesAsync(ct);
-            return Ok(challenges);
+            var challengeDTOs = challenges
+                .Select(c => new ChallengeDTO
+                {
+                    ChallengeId = c.ChallengeId,
+                    ChallengeName = c.ChallengeName,
+                    EndDate = c.EndDate,
+                    TimePeriod = c.TimePeriod,
+                    Description = c.Description,
+                    IsPublic = c.IsPublic,
+                    UnderCategoryId = c.UnderCategoryId,
+                    UserIds = c.Users.Select(u => int.Parse(u.Id)).ToList(),
+                    CreatedBy = c.CreatedBy,
+                    CreatorUserName = c.Creator?.UserName ?? "Unknown",
+                })
+                .ToList();
+
+            return Ok(challengeDTOs);
+        }
+
+        [HttpGet("my-challenges")]
+        [Authorize]
+        public async Task<IActionResult> GetMyChallenges(CancellationToken ct)
+        {
+            var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(currentUserId))
+            {
+                return Unauthorized();
+            }
+
+            var challenges = await _challengeRepo.GetChallengesByCreatorAsync(currentUserId, ct);
+            var challengeDTOs = challenges
+                .Select(c => new ChallengeDTO
+                {
+                    ChallengeId = c.ChallengeId,
+                    ChallengeName = c.ChallengeName,
+                    EndDate = c.EndDate,
+                    TimePeriod = c.TimePeriod,
+                    Description = c.Description,
+                    IsPublic = c.IsPublic,
+                    UnderCategoryId = c.UnderCategoryId,
+                    UserIds = c.Users.Select(u => int.Parse(u.Id)).ToList(),
+                    CreatedBy = c.CreatedBy,
+                    CreatorUserName = c.Creator?.UserName ?? "Unknown",
+                })
+                .ToList();
+
+            return Ok(challengeDTOs);
         }
 
         [HttpGet("{id:int}")]
@@ -33,7 +79,22 @@ namespace SkillChallenge.Controllers
             {
                 return NotFound($"Challenge with id {id} was not found in the database");
             }
-            return Ok(challenge);
+
+            var challengeDTO = new ChallengeDTO
+            {
+                ChallengeId = challenge.ChallengeId,
+                ChallengeName = challenge.ChallengeName,
+                EndDate = challenge.EndDate,
+                TimePeriod = challenge.TimePeriod,
+                Description = challenge.Description,
+                IsPublic = challenge.IsPublic,
+                UnderCategoryId = challenge.UnderCategoryId,
+                UserIds = challenge.Users.Select(u => int.Parse(u.Id)).ToList(),
+                CreatedBy = challenge.CreatedBy,
+                CreatorUserName = challenge.Creator?.UserName ?? "Unknown",
+            };
+
+            return Ok(challengeDTO);
         }
 
         [HttpPost]
@@ -43,6 +104,12 @@ namespace SkillChallenge.Controllers
             CancellationToken ct
         )
         {
+            var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(currentUserId))
+            {
+                return Unauthorized();
+            }
+
             var challenge = new Challenge
             {
                 ChallengeName = createChallengeDTO.ChallengeName,
@@ -50,12 +117,8 @@ namespace SkillChallenge.Controllers
                 TimePeriod = createChallengeDTO.TimePeriod,
                 Description = createChallengeDTO.Description,
                 IsPublic = createChallengeDTO.IsPublic,
-                UnderCategory = createChallengeDTO.UnderCategoryId.HasValue
-                    ? new UnderCategory
-                    {
-                        UnderCategoryId = createChallengeDTO.UnderCategoryId.Value,
-                    }
-                    : null,
+                UnderCategoryId = createChallengeDTO.UnderCategoryId,
+                CreatedBy = currentUserId, // Sätt skaparen
             };
 
             var created = await _challengeRepo.CreateChallengeAsync(challenge, ct);
@@ -80,16 +143,12 @@ namespace SkillChallenge.Controllers
                 return NotFound($"Challenge with id {id} was not found in the database");
             }
 
-            // Kontrollera behörigheter - användare kan bara uppdatera sina egna challenges
-            // (Du behöver lägga till CreatedBy property i Challenge model för detta)
+            var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
-            if (userRole != "Admin")
+
+            if (userRole != "Admin" && challenge.CreatedBy != currentUserId)
             {
-                // Här skulle du kontrollera om användaren äger challenge:et
-                // if (challenge.CreatedBy != User.FindFirst(ClaimTypes.NameIdentifier)?.Value)
-                // {
-                //     return Forbid("You can only update your own challenges");
-                // }
+                return Forbid("You can only update your own challenges");
             }
 
             var updatedChallenge = new Challenge
@@ -99,6 +158,7 @@ namespace SkillChallenge.Controllers
                 TimePeriod = updateChallengeDTO.TimePeriod,
                 Description = updateChallengeDTO.Description,
                 IsPublic = updateChallengeDTO.IsPublic,
+                UnderCategoryId = updateChallengeDTO.UnderCategoryId,
             };
 
             var result = await _challengeRepo.UpdateChallengeAsync(id, updatedChallenge, ct);
@@ -115,15 +175,12 @@ namespace SkillChallenge.Controllers
                 return NotFound($"Challenge with id {id} was not found in the database");
             }
 
-            // Kontrollera behörigheter - användare kan bara ta bort sina egna challenges
+            var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
-            if (userRole != "Admin")
+
+            if (userRole != "Admin" && challenge.CreatedBy != currentUserId)
             {
-                // Här skulle du kontrollera om användaren äger challenge:et
-                // if (challenge.CreatedBy != User.FindFirst(ClaimTypes.NameIdentifier)?.Value)
-                // {
-                //     return Forbid("You can only delete your own challenges");
-                // }
+                return Forbid("You can only delete your own challenges");
             }
 
             await _challengeRepo.DeleteChallengeAsync(id, ct);
