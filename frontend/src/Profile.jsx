@@ -5,7 +5,7 @@ import { useAuth } from "./AuthContext";
 // is to be seen. And their rating.
 
 function Profile() {
-  const { user, login } = useAuth();
+  const { user, login, logout } = useAuth();
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState("");
   const [showUsernameForm, setShowUsernameForm] = useState(false);
@@ -35,7 +35,6 @@ function Profile() {
     setMessage("");
     try {
       const res = await fetch(`https://localhost:7212/users/${user.id}`, {
-      // const res = await fetch(`https://localhost:7212/users/${userData.id}`, { // <-- old version
         method: "PUT",
         headers: { "Content-Type": "application/json",
           "Authorization": `Bearer ${localStorage.getItem("token")}`
@@ -48,7 +47,6 @@ function Profile() {
         return;
       }
       const updated = await res.json();
-      // setUser({ ...user, ...updated }); <-- old version
       if (updated.token) {
         login(updated.token); // Update AuthContext with new token
         setUserData(null);    // Force refetch with new username
@@ -84,6 +82,32 @@ function Profile() {
       setMessage("Password change failed: " + err.message);
     }
   };
+
+  const handleDeleteAccount = async () => {
+  if (!window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) return;
+  setMessage("");
+  try {
+    const res = await fetch(`https://localhost:7212/users/${user.id}`, {
+      method: "DELETE",
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+      }
+    });
+    if (res.status === 204) {
+      setMessage("Account deleted. Logging out...");
+      logout();
+      // Optionally, redirect to home or login page:
+      window.location.href = "/login";
+    } else if (res.status === 403) {
+      setMessage("You are not authorized to delete this account.");
+    } else {
+      const err = await res.text();
+      setMessage("Delete failed: " + err);
+    }
+  } catch (err) {
+    setMessage("Delete failed: " + err.message);
+  }
+};
 
   console.log("Profile.jsx user:", user);
   if (!user?.userName) return <div>Please log in to view your profile.</div>;
@@ -170,6 +194,10 @@ function Profile() {
             <button type="submit">Save</button>
           </form>
         )}
+
+        <button onClick={handleDeleteAccount} style={{ marginTop: 24, background: "#c00", color: "#fff" }}>
+          Delete Account
+        </button>
       </div>
     </div>
   );
