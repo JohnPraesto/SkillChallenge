@@ -91,7 +91,10 @@ namespace SkillChallenge.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin,User")]
-        public async Task<IActionResult> CreateUnderCategory([FromForm] CreateUnderCategoryDTO dto, CancellationToken ct)
+        public async Task<IActionResult> CreateUnderCategory(
+            [FromForm] CreateUnderCategoryDTO dto,
+            CancellationToken ct
+        )
         {
             // Kontrollera att kategorin finns
             var category = await _categoryRepo.GetCategoryByIdAsync(dto.CategoryId, ct);
@@ -113,7 +116,7 @@ namespace SkillChallenge.Controllers
             {
                 UnderCategoryName = dto.UnderCategoryName,
                 CategoryId = dto.CategoryId,
-                ImagePath = imagePath
+                ImagePath = imagePath,
             };
 
             var created = await _underCategoryRepo.CreateUnderCategoryAsync(underCategory, ct);
@@ -124,10 +127,14 @@ namespace SkillChallenge.Controllers
                 UnderCategoryName = created.UnderCategoryName,
                 CategoryId = created.CategoryId,
                 CategoryName = category.CategoryName,
-                ImageUrl = _imageService.GetImageUrl(created.ImagePath)
+                ImageUrl = _imageService.GetImageUrl(created.ImagePath),
             };
 
-            return CreatedAtAction(nameof(GetUnderCategoryById), new { id = created.UnderCategoryId }, underCategoryDTO);
+            return CreatedAtAction(
+                nameof(GetUnderCategoryById),
+                new { id = created.UnderCategoryId },
+                underCategoryDTO
+            );
         }
 
         [HttpPut("{id:int}")]
