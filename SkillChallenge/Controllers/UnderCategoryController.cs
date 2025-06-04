@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SkillChallenge.DTOs;
 using SkillChallenge.Interfaces;
 using SkillChallenge.Models;
+using SkillChallenge.Services;
 
 namespace SkillChallenge.Controllers
 {
@@ -12,14 +13,17 @@ namespace SkillChallenge.Controllers
     {
         private readonly IUnderCategoryRepository _underCategoryRepo;
         private readonly ICategoryRepository _categoryRepo;
+        private readonly IImageService _imageService;
 
         public UnderCategoryController(
             IUnderCategoryRepository underCategoryRepo,
-            ICategoryRepository categoryRepo
+            ICategoryRepository categoryRepo,
+            IImageService imageService
         )
         {
             _underCategoryRepo = underCategoryRepo;
             _categoryRepo = categoryRepo;
+            _imageService = imageService;
         }
 
         [HttpGet]
@@ -87,32 +91,43 @@ namespace SkillChallenge.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin,User")]
-        public async Task<IActionResult> CreateUnderCategory(
-            [FromBody] CreateUnderCategoryDTO createUnderCategoryDTO,
-            CancellationToken ct
-        )
+        public async Task<IActionResult> CreateUnderCategory([FromForm] CreateUnderCategoryDTO dto, CancellationToken ct)
         {
             // Kontrollera att kategorin finns
-            if (!await _categoryRepo.CategoryExistsAsync(createUnderCategoryDTO.CategoryId, ct))
+            var category = await _categoryRepo.GetCategoryByIdAsync(dto.CategoryId, ct);
+            if (category == null)
+                return BadRequest($"Category with id {dto.CategoryId} does not exist");
+
+            string imagePath = null;
+            if (dto.Image != null)
             {
-                return BadRequest(
-                    $"Category with id {createUnderCategoryDTO.CategoryId} does not exist"
-                );
+                imagePath = await _imageService.SaveImageAsync(dto.Image, "undercategories");
+            }
+            else
+            {
+                // Om ingen bild valts, använd categoryns bild
+                imagePath = category.ImagePath;
             }
 
             var underCategory = new UnderCategory
             {
-                UnderCategoryName = createUnderCategoryDTO.UnderCategoryName,
-                CategoryId = createUnderCategoryDTO.CategoryId,
+                UnderCategoryName = dto.UnderCategoryName,
+                CategoryId = dto.CategoryId,
+                ImagePath = imagePath
             };
 
             var created = await _underCategoryRepo.CreateUnderCategoryAsync(underCategory, ct);
 
-            return CreatedAtAction(
-                nameof(GetUnderCategoryById),
-                new { id = created.UnderCategoryId },
-                created
-            );
+            var underCategoryDTO = new UnderCategoryDTO
+            {
+                UnderCategoryId = created.UnderCategoryId,
+                UnderCategoryName = created.UnderCategoryName,
+                CategoryId = created.CategoryId,
+                CategoryName = category.CategoryName,
+                ImageUrl = _imageService.GetImageUrl(created.ImagePath)
+            };
+
+            return CreatedAtAction(nameof(GetUnderCategoryById), new { id = created.UnderCategoryId }, underCategoryDTO);
         }
 
         [HttpPut("{id:int}")]

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SkillChallenge.DTOs;
 using SkillChallenge.Interfaces;
 using SkillChallenge.Models;
+using SkillChallenge.Services;
 
 namespace SkillChallenge.Controllers
 {
@@ -11,10 +12,12 @@ namespace SkillChallenge.Controllers
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryRepository _categoryRepo;
+        private readonly IImageService _imageService;
 
-        public CategoryController(ICategoryRepository categoryRepo)
+        public CategoryController(ICategoryRepository categoryRepo, IImageService imageService)
         {
             _categoryRepo = categoryRepo;
+            _imageService = imageService;
         }
 
         [HttpGet]
@@ -71,11 +74,21 @@ namespace SkillChallenge.Controllers
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateCategory(
-            [FromBody] CreateCategoryDTO createCategoryDTO,
+            [FromForm] CreateCategoryDTO dto,
             CancellationToken ct
         )
         {
-            var category = new Category { CategoryName = createCategoryDTO.CategoryName };
+            string imagePath = "";
+            if (dto.Image != null)
+            {
+                imagePath = await _imageService.SaveImageAsync(dto.Image, "categories");
+            }
+            else
+            {
+                imagePath = "images/categories/default.png";
+            }
+
+            var category = new Category { CategoryName = dto.CategoryName, ImagePath = imagePath };
 
             var created = await _categoryRepo.CreateCategoryAsync(category, ct);
 
@@ -83,6 +96,7 @@ namespace SkillChallenge.Controllers
             {
                 CategoryId = created.CategoryId,
                 CategoryName = created.CategoryName,
+                ImageUrl = _imageService.GetImageUrl(created.ImagePath),
                 UnderCategories = new List<UnderCategoryDTO>(),
             };
 

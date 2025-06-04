@@ -74,6 +74,41 @@ namespace SkillChallenge.Data
             }
 
             builder
+                .Entity<Category>()
+                .HasData(
+                    new Category
+                    {
+                        CategoryId = 1,
+                        CategoryName = "Musik",
+                        ImagePath = "images/categories/music.png",
+                    },
+                    new Category
+                    {
+                        CategoryId = 2,
+                        CategoryName = "Sport",
+                        ImagePath = "images/categories/sport.png",
+                    },
+                    new Category
+                    {
+                        CategoryId = 3,
+                        CategoryName = "Mat",
+                        ImagePath = "images/categories/food.png",
+                    },
+                    new Category
+                    {
+                        CategoryId = 4,
+                        CategoryName = "Spel",
+                        ImagePath = "images/categories/games.png",
+                    },
+                    new Category
+                    {
+                        CategoryId = 5,
+                        CategoryName = "Övrigt",
+                        ImagePath = "images/categories/other.png",
+                    }
+                );
+
+            builder
                 .Entity<IdentityUserRole<string>>()
                 .HasData(
                     new IdentityUserRole<string> { RoleId = "1", UserId = "admin-123" },
