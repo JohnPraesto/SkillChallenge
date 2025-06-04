@@ -8,6 +8,7 @@ using SkillChallenge.Data;
 using SkillChallenge.Interfaces;
 using SkillChallenge.Models;
 using SkillChallenge.Repositories;
+using SkillChallenge.Services;
 
 public class Program
 {
@@ -122,6 +123,7 @@ public class Program
         builder.Services.AddScoped<IChallengeRepository, ChallengeRepository>();
         builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
         builder.Services.AddScoped<IUnderCategoryRepository, UnderCategoryRepository>();
+        builder.Services.AddScoped<IImageService, ImageService>();
         var app = builder.Build();
 
         using (var scope = app.Services.CreateScope())
@@ -145,7 +147,7 @@ public class Program
             app.UseSwagger();
             app.UseSwaggerUI();
         }
-
+        app.UseStaticFiles();
         app.UseHttpsRedirection();
         app.UseCors("AllowFrontend");
         app.UseAuthentication();
