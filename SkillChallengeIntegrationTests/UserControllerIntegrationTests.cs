@@ -207,13 +207,46 @@ public class UserControllerIntegrationTests : IClassFixture<WebApplicationFactor
     }
 
     [Fact]
+    public async Task TestGetUserById()
+    {
+        // Arrange
+        var (client, services) = await SetupTestClient();
+        string id = await GetTestId(services, "testuser2");
+
+        // Act
+        var response = await client.GetAsync($"/users/id/{id}");
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+        var user = await response.Content.ReadFromJsonAsync<User>();
+        Assert.NotNull(user);
+        Assert.Equal("testuser2", user!.UserName);
+    }
+
+    [Fact]
+    public async Task TestGetUserByIdNotFound()
+    {
+        // Arrange
+        var (client, _) = await SetupTestClient();
+        string testuserId = "nonexistinguserID";
+
+        // Act
+        var response = await client.GetAsync($"/users/id/{testuserId}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        var content = await response.Content.ReadAsStringAsync();
+        Assert.Contains($"User with id '{testuserId}' was not found in the database", content);
+    }
+
+    [Fact]
     public async Task TestGetUserByUsername()
     {
         // Arrange
         var (client, _) = await SetupTestClient();
 
         // Act
-        var response = await client.GetAsync("/users/testuser2");
+        var response = await client.GetAsync("/users/username/testuser2");
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -230,7 +263,7 @@ public class UserControllerIntegrationTests : IClassFixture<WebApplicationFactor
         string testuser = "nonexistinguser";
 
         // Act
-        var response = await client.GetAsync($"/users/{testuser}");
+        var response = await client.GetAsync($"/users/username/{testuser}");
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -499,4 +532,3 @@ public class UserControllerIntegrationTests : IClassFixture<WebApplicationFactor
         Assert.False(oldPasswordValid);
     }
 }
-
