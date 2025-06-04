@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -7,7 +8,7 @@
 namespace SkillChallenge.Migrations
 {
     /// <inheritdoc />
-    public partial class FixSeedDataWithStaticValues : Migration
+    public partial class AddImagePath : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -89,6 +90,7 @@ namespace SkillChallenge.Migrations
                         .Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CategoryName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImagePath = table.Column<string>(type: "nvarchar(max)", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -241,6 +243,7 @@ namespace SkillChallenge.Migrations
                         nullable: false
                     ),
                     CategoryId = table.Column<int>(type: "int", nullable: false),
+                    ImagePath = table.Column<string>(type: "nvarchar(max)", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -386,6 +389,19 @@ namespace SkillChallenge.Migrations
                         false,
                         "testuser",
                     },
+                }
+            );
+
+            migrationBuilder.InsertData(
+                table: "Categories",
+                columns: new[] { "CategoryId", "CategoryName", "ImagePath" },
+                values: new object[,]
+                {
+                    { 1, "Musik", "images/categories/music.png" },
+                    { 2, "Sport", "images/categories/sport.png" },
+                    { 3, "Mat", "images/categories/food.png" },
+                    { 4, "Spel", "images/categories/games.png" },
+                    { 5, "Övrigt", "images/categories/other.png" },
                 }
             );
 

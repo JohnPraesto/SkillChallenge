@@ -12,8 +12,8 @@ using SkillChallenge.Data;
 namespace SkillChallenge.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250602162323_FixSeedDataWithStaticValues")]
-    partial class FixSeedDataWithStaticValues
+    [Migration("20250604134831_AddImagePath")]
+    partial class AddImagePath
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -211,9 +211,45 @@ namespace SkillChallenge.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ImagePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("CategoryId");
 
                     b.ToTable("Categories");
+
+                    b.HasData(
+                        new
+                        {
+                            CategoryId = 1,
+                            CategoryName = "Musik",
+                            ImagePath = "images/categories/music.png"
+                        },
+                        new
+                        {
+                            CategoryId = 2,
+                            CategoryName = "Sport",
+                            ImagePath = "images/categories/sport.png"
+                        },
+                        new
+                        {
+                            CategoryId = 3,
+                            CategoryName = "Mat",
+                            ImagePath = "images/categories/food.png"
+                        },
+                        new
+                        {
+                            CategoryId = 4,
+                            CategoryName = "Spel",
+                            ImagePath = "images/categories/games.png"
+                        },
+                        new
+                        {
+                            CategoryId = 5,
+                            CategoryName = "Övrigt",
+                            ImagePath = "images/categories/other.png"
+                        });
                 });
 
             modelBuilder.Entity("SkillChallenge.Models.Challenge", b =>
@@ -267,6 +303,9 @@ namespace SkillChallenge.Migrations
 
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
+
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UnderCategoryName")
                         .IsRequired()
