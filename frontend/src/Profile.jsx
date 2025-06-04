@@ -37,7 +37,9 @@ function Profile() {
       const res = await fetch(`https://localhost:7212/users/${user.id}`, {
       // const res = await fetch(`https://localhost:7212/users/${userData.id}`, { // <-- old version
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
+         },
         body: JSON.stringify({ [field]: value }),
       });
       if (!res.ok) {
@@ -64,7 +66,9 @@ function Profile() {
     try {
       const res = await fetch(`https://localhost:7212/users/${userData.id}/change-password`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
+         },
         body: JSON.stringify({
           currentPassword,
           newPassword,
@@ -81,6 +85,7 @@ function Profile() {
     }
   };
 
+  console.log("Profile.jsx user:", user);
   if (!user?.userName) return <div>Please log in to view your profile.</div>;
   if (error) return <div style={{ color: "red" }}>{error}</div>;
   if (!userData) return <div>Loading...</div>;

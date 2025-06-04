@@ -29,8 +29,9 @@ namespace ASPNET_VisualStudio_Tutorial.Services
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(JwtRegisteredClaimNames.GivenName, user.UserName),
+                new Claim("userName", user.UserName),
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
             };
             var roles = await _userManager.GetRolesAsync(user);
             foreach (var role in roles)
