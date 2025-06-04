@@ -38,7 +38,25 @@ namespace SkillChallenge.Controllers
             return Ok(displayUsers);
         }
 
-        [HttpGet("{username}")]
+        [HttpGet("id/{id}")]
+        public async Task<IActionResult> GetUserById([FromRoute] string id)
+        {
+            var user = await _userRepo.GetUserByIdAsync(id);
+            if (user == null)
+                return NotFound($"User with id '{id}' was not found in the database");
+
+            return Ok(
+                new DisplayUserDTO
+                {
+                    Id = user.Id,
+                    UserName = user.UserName ?? string.Empty,
+                    Email = user.Email ?? string.Empty,
+                    ProfilePicture = user.ProfilePicture,
+                }
+            );
+        }
+
+        [HttpGet("username/{username}")]
         public async Task<IActionResult> GetUserByUsername([FromRoute] string username)
         {
             var user = await _userRepo.GetUserByUsernameAsync(username);
