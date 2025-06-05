@@ -6,6 +6,7 @@ import Users from "./Users";
 import UserDetail from "./UserDetail";
 import Navbar from "./Navbar";
 import Profile from "./Profile"
+import Challenges from "./Challenges"
 import './App.css';
 
 function Home() {
@@ -32,7 +33,7 @@ function App() {
     <Router>
       <Navbar />
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Challenges />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/users" element={<Users />} />
