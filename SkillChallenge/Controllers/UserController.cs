@@ -175,7 +175,6 @@ namespace SkillChallenge.Controllers
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
-            // Användare kan bara ta bort sin egen profil, Admin kan ta bort alla
             if (userRole != "Admin" && currentUserId != id)
             {
                 return Forbid();

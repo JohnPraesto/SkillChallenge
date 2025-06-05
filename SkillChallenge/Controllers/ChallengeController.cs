@@ -31,7 +31,15 @@ namespace SkillChallenge.Controllers
                     TimePeriod = c.TimePeriod,
                     Description = c.Description,
                     IsPublic = c.IsPublic,
-                    UnderCategoryId = c.UnderCategoryId,
+                    UnderCategory =
+                        c.UnderCategory == null
+                            ? null
+                            : new UnderCategoryDTO
+                            {
+                                UnderCategoryId = c.UnderCategory.UnderCategoryId,
+                                UnderCategoryName = c.UnderCategory.UnderCategoryName,
+                                ImagePath = c.UnderCategory.ImagePath,
+                            },
                     UserIds = c.Users.Select(u => int.Parse(u.Id)).ToList(),
                     CreatedBy = c.CreatedBy,
                     CreatorUserName = c.Creator?.UserName ?? "Unknown",
@@ -61,7 +69,15 @@ namespace SkillChallenge.Controllers
                     TimePeriod = c.TimePeriod,
                     Description = c.Description,
                     IsPublic = c.IsPublic,
-                    UnderCategoryId = c.UnderCategoryId,
+                    UnderCategory =
+                        c.UnderCategory == null
+                            ? null
+                            : new UnderCategoryDTO
+                            {
+                                UnderCategoryId = c.UnderCategory.UnderCategoryId,
+                                UnderCategoryName = c.UnderCategory.UnderCategoryName,
+                                ImagePath = c.UnderCategory.ImagePath,
+                            },
                     UserIds = c.Users.Select(u => int.Parse(u.Id)).ToList(),
                     CreatedBy = c.CreatedBy,
                     CreatorUserName = c.Creator?.UserName ?? "Unknown",
@@ -88,7 +104,15 @@ namespace SkillChallenge.Controllers
                 TimePeriod = challenge.TimePeriod,
                 Description = challenge.Description,
                 IsPublic = challenge.IsPublic,
-                UnderCategoryId = challenge.UnderCategoryId,
+                UnderCategory =
+                    challenge.UnderCategory == null
+                        ? null
+                        : new UnderCategoryDTO
+                        {
+                            UnderCategoryId = challenge.UnderCategory.UnderCategoryId,
+                            UnderCategoryName = challenge.UnderCategory.UnderCategoryName,
+                            ImagePath = challenge.UnderCategory.ImagePath,
+                        },
                 UserIds = challenge.Users.Select(u => int.Parse(u.Id)).ToList(),
                 CreatedBy = challenge.CreatedBy,
                 CreatorUserName = challenge.Creator?.UserName ?? "Unknown",

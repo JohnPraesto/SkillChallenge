@@ -127,7 +127,7 @@ namespace SkillChallenge.Controllers
                 UnderCategoryName = created.UnderCategoryName,
                 CategoryId = created.CategoryId,
                 CategoryName = category.CategoryName,
-                ImageUrl = _imageService.GetImageUrl(created.ImagePath),
+                ImagePath = _imageService.GetImageUrl(created.ImagePath),
             };
 
             return CreatedAtAction(
