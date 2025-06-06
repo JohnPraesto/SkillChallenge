@@ -141,35 +141,50 @@ namespace SkillChallenge.Controllers
         [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> UpdateUnderCategory(
             [FromRoute] int id,
-            [FromBody] UpdateUnderCategoryDTO updateUnderCategoryDTO,
+            [FromForm] UpdateUnderCategoryDTO updateUnderCategoryDTO,
             CancellationToken ct
         )
         {
-            // Kontrollera att kategorin finns
-            if (!await _categoryRepo.CategoryExistsAsync(updateUnderCategoryDTO.CategoryId, ct))
+            var existing = await _underCategoryRepo.GetUnderCategoryByIdAsync(id, ct);
+            if (existing == null)
+                return NotFound($"UnderCategory with id {id} was not found in the database");
+
+            if (updateUnderCategoryDTO.Image != null)
             {
-                return BadRequest(
-                    $"Category with id {updateUnderCategoryDTO.CategoryId} does not exist"
+                if (
+                    !string.IsNullOrEmpty(existing.ImagePath)
+                    && existing.ImagePath != existing.Category.ImagePath
+                )
+                {
+                    var fullPath = Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        "wwwroot",
+                        existing.ImagePath
+                    );
+                    if (System.IO.File.Exists(fullPath))
+                        System.IO.File.Delete(fullPath);
+                }
+                existing.ImagePath = await _imageService.SaveImageAsync(
+                    updateUnderCategoryDTO.Image,
+                    "undercategories"
                 );
             }
 
-            var underCategoryToUpdate = new UnderCategory
+            existing.UnderCategoryName = updateUnderCategoryDTO.UnderCategoryName;
+            existing.CategoryId = updateUnderCategoryDTO.CategoryId;
+
+            await _underCategoryRepo.UpdateUnderCategoryAsync(id, existing, ct);
+
+            var underCategoryDTO = new UnderCategoryDTO
             {
-                UnderCategoryName = updateUnderCategoryDTO.UnderCategoryName,
-                CategoryId = updateUnderCategoryDTO.CategoryId,
+                UnderCategoryId = existing.UnderCategoryId,
+                UnderCategoryName = existing.UnderCategoryName,
+                CategoryId = existing.CategoryId,
+                CategoryName = existing.Category?.CategoryName ?? "",
+                ImageUrl = _imageService.GetImageUrl(existing.ImagePath),
             };
 
-            var underCategory = await _underCategoryRepo.UpdateUnderCategoryAsync(
-                id,
-                underCategoryToUpdate,
-                ct
-            );
-            if (underCategory == null)
-            {
-                return NotFound($"UnderCategory with id {id} was not found in the database");
-            }
-
-            return Ok(underCategory);
+            return Ok(underCategoryDTO);
         }
 
         [HttpDelete("{id:int}")]
@@ -179,11 +194,25 @@ namespace SkillChallenge.Controllers
             CancellationToken ct
         )
         {
-            var underCategory = await _underCategoryRepo.DeleteUnderCategoryAsync(id, ct);
+            var underCategory = await _underCategoryRepo.GetUnderCategoryByIdAsync(id, ct);
             if (underCategory == null)
-            {
                 return NotFound($"UnderCategory with id {id} was not found in the database");
+
+            if (
+                !string.IsNullOrEmpty(underCategory.ImagePath)
+                && underCategory.ImagePath != underCategory.Category.ImagePath
+            )
+            {
+                var fullPath = Path.Combine(
+                    Directory.GetCurrentDirectory(),
+                    "wwwroot",
+                    underCategory.ImagePath
+                );
+                if (System.IO.File.Exists(fullPath))
+                    System.IO.File.Delete(fullPath);
             }
+
+            await _underCategoryRepo.DeleteUnderCategoryAsync(id, ct);
             return NoContent();
         }
     }

@@ -111,22 +111,44 @@ namespace SkillChallenge.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateCategory(
             [FromRoute] int id,
-            [FromBody] UpdateCategoryDTO updateCategoryDTO,
+            [FromForm] UpdateCategoryDTO updateCategoryDTO,
             CancellationToken ct
         )
         {
-            var categoryToUpdate = new Category { CategoryName = updateCategoryDTO.CategoryName };
-
-            var category = await _categoryRepo.UpdateCategoryAsync(id, categoryToUpdate, ct);
-            if (category == null)
-            {
+            var existingCategory = await _categoryRepo.GetCategoryByIdAsync(id, ct);
+            if (existingCategory == null)
                 return NotFound($"Category with id {id} was not found in the database");
+
+            if (updateCategoryDTO.Image != null)
+            {
+                if (
+                    !string.IsNullOrEmpty(existingCategory.ImagePath)
+                    && !existingCategory.ImagePath.Contains("default")
+                )
+                {
+                    var fullPath = Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        "wwwroot",
+                        existingCategory.ImagePath
+                    );
+                    if (System.IO.File.Exists(fullPath))
+                        System.IO.File.Delete(fullPath);
+                }
+                existingCategory.ImagePath = await _imageService.SaveImageAsync(
+                    updateCategoryDTO.Image,
+                    "categories"
+                );
             }
+
+            existingCategory.CategoryName = updateCategoryDTO.CategoryName;
+
+            await _categoryRepo.UpdateCategoryAsync(id, existingCategory, ct);
 
             var categoryDTO = new CategoryDTO
             {
-                CategoryId = category.CategoryId,
-                CategoryName = category.CategoryName,
+                CategoryId = existingCategory.CategoryId,
+                CategoryName = existingCategory.CategoryName,
+                ImageUrl = _imageService.GetImageUrl(existingCategory.ImagePath),
                 UnderCategories = new List<UnderCategoryDTO>(),
             };
 
@@ -137,11 +159,24 @@ namespace SkillChallenge.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteCategory([FromRoute] int id, CancellationToken ct)
         {
-            var category = await _categoryRepo.DeleteCategoryAsync(id, ct);
+            var category = await _categoryRepo.GetCategoryByIdAsync(id, ct);
             if (category == null)
-            {
                 return NotFound($"Category with id {id} was not found in the database");
+
+            if (
+                !string.IsNullOrEmpty(category.ImagePath) && !category.ImagePath.Contains("default")
+            )
+            {
+                var fullPath = Path.Combine(
+                    Directory.GetCurrentDirectory(),
+                    "wwwroot",
+                    category.ImagePath
+                );
+                if (System.IO.File.Exists(fullPath))
+                    System.IO.File.Delete(fullPath);
             }
+
+            await _categoryRepo.DeleteCategoryAsync(id, ct);
             return NoContent();
         }
     }
