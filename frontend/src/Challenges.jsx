@@ -13,32 +13,73 @@ function Challenges() {
 
   if (error) return <div style={{ color: "red" }}>{error}</div>;
 
+  const now = new Date();
+  const futureChallenges = challenges.filter(ch => new Date(ch.endDate) > now);
+  const pastChallenges = challenges.filter(ch => new Date(ch.endDate) <= now);
+
   return (
-    <div style={{ maxWidth: 600, margin: "2em auto" }}>
-      <h2>All Challenges</h2>
-      {challenges.length === 0 ? (
-        <div>No challenges found.</div>
-      ) : (
-        <ul>
-          {challenges.map(ch => (
-            <li key={ch.challengeId}>
+    <div style={{
+      display: "flex",
+      maxWidth: 900,
+      margin: "2em auto",
+      border: "1px solid #ccc",
+      borderRadius: 8,
+      overflow: "hidden"
+    }}>
+      {/* Future Challenges */}
+      <div style={{ flex: 1, padding: 24 }}>
+        <h3 style={{ textAlign: "center" }}>Open Challenges</h3>
+        {futureChallenges.length === 0 ? (
+          <div>No open challenges.</div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {futureChallenges.map(ch => (
+              <div key={ch.challengeId} className="card">
                 {ch.underCategory && ch.underCategory.imagePath && (
-                <>
-                    {console.log("Image URL:", ch.underCategory.imagePath)}
-                    <img
+                  <img
                     src={`https://localhost:7212/${ch.underCategory.imagePath}`}
-                    alt={ch.underCategory.name || "Category"}
-                    style={{ width: 64, height: 64, objectFit: "cover", marginBottom: 8 }}
-                    />
-                </>
+                    alt={ch.underCategory.underCategoryName || "Category"}
+                    style={{ width: 150, height: 150, objectFit: "cover", borderRadius: 8, marginBottom: 12 }}
+                  />
                 )}
-              <strong>{ch.challengeName}</strong> <br />
-              {ch.description} <br />
-              <small>Created by: {ch.creatorUserName}</small>
-            </li>
-          ))}
-        </ul>
-      )}
+                <div style={{ fontWeight: "bold", fontSize: 18, textAlign: "center" }}>
+                  {ch.challengeName}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+      {/* Vertical Divider */}
+      <div style={{
+        width: 1,
+        background: "#ccc",
+        margin: "0 0.5em"
+      }} />
+      {/* Past Challenges */}
+      <div style={{ flex: 1, padding: 24 }}>
+        <h3 style={{ textAlign: "center" }}>Closed Challenges</h3>
+        {pastChallenges.length === 0 ? (
+          <div>No closed challenges.</div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {pastChallenges.map(ch => (
+              <div key={ch.challengeId} className="card">
+                {ch.underCategory && ch.underCategory.imagePath && (
+                  <img
+                    src={`https://localhost:7212/${ch.underCategory.imagePath}`}
+                    alt={ch.underCategory.underCategoryName || "Category"}
+                    style={{ width: 150, height: 150, objectFit: "cover", borderRadius: 8, marginBottom: 12 }}
+                  />
+                )}
+                <div style={{ fontWeight: "bold", fontSize: 18, textAlign: "center" }}>
+                  {ch.challengeName}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

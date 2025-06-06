@@ -32,3 +32,17 @@
   height: 32px;
   border-radius: 50%; 
 }
+
+.card{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #f9f9f9;
+  border-radius: 8;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  padding: 16;
+  margin-bottom: 24;
+  min-height: 180;
+  min-width: 140;
+  max-width: 180;
+}
