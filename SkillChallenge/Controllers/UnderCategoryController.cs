@@ -181,7 +181,7 @@ namespace SkillChallenge.Controllers
                 UnderCategoryName = existing.UnderCategoryName,
                 CategoryId = existing.CategoryId,
                 CategoryName = existing.Category?.CategoryName ?? "",
-                ImageUrl = _imageService.GetImageUrl(existing.ImagePath),
+                ImagePath = _imageService.GetImageUrl(existing.ImagePath),
             };
 
             return Ok(underCategoryDTO);
