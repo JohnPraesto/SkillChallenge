@@ -7,6 +7,7 @@ import UserDetail from "./UserDetail";
 import Navbar from "./Navbar";
 import Profile from "./Profile"
 import Challenges from "./Challenges"
+import ChallengeDetails from "./ChallengeDetails";
 import './App.css';
 
 function Home() {
@@ -39,6 +40,7 @@ function App() {
         <Route path="/users" element={<Users />} />
         <Route path="/users/username/:userName" element={<UserDetail />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/challenges/:id" element={<ChallengeDetails />} />
       </Routes>
     </Router>
   );

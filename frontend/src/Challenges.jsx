@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Challenges() {
   const [challenges, setChallenges] = useState([]);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch("https://localhost:7212/challenges")
@@ -34,7 +36,7 @@ function Challenges() {
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {futureChallenges.map(ch => (
-              <div key={ch.challengeId} className="card">
+              <div key={ch.challengeId} className="card" onClick={() => navigate(`/challenges/${ch.challengeId}`)}>
                 {ch.underCategory && ch.underCategory.imagePath && (
                   <img
                     src={`https://localhost:7212/${ch.underCategory.imagePath}`}
@@ -64,7 +66,7 @@ function Challenges() {
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {pastChallenges.map(ch => (
-              <div key={ch.challengeId} className="card">
+              <div key={ch.challengeId} className="card" onClick={() => navigate(`/challenges/${ch.challengeId}`)}>
                 {ch.underCategory && ch.underCategory.imagePath && (
                   <img
                     src={`https://localhost:7212/${ch.underCategory.imagePath}`}
