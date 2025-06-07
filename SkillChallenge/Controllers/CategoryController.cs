@@ -29,11 +29,11 @@ namespace SkillChallenge.Controllers
                 {
                     CategoryId = c.CategoryId,
                     CategoryName = c.CategoryName,
-                    UnderCategories = c
-                        .UnderCategories.Select(uc => new UnderCategoryDTO
+                    SubCategories = c
+                        .SubCategories.Select(uc => new SubCategoryDTO
                         {
-                            UnderCategoryId = uc.UnderCategoryId,
-                            UnderCategoryName = uc.UnderCategoryName,
+                            SubCategoryId = uc.SubCategoryId,
+                            SubCategoryName = uc.SubCategoryName,
                             CategoryId = uc.CategoryId,
                             CategoryName = c.CategoryName,
                         })
@@ -57,11 +57,11 @@ namespace SkillChallenge.Controllers
             {
                 CategoryId = category.CategoryId,
                 CategoryName = category.CategoryName,
-                UnderCategories = category
-                    .UnderCategories.Select(uc => new UnderCategoryDTO
+                SubCategories = category
+                    .SubCategories.Select(uc => new SubCategoryDTO
                     {
-                        UnderCategoryId = uc.UnderCategoryId,
-                        UnderCategoryName = uc.UnderCategoryName,
+                        SubCategoryId = uc.SubCategoryId,
+                        SubCategoryName = uc.SubCategoryName,
                         CategoryId = uc.CategoryId,
                         CategoryName = category.CategoryName,
                     })
@@ -97,7 +97,7 @@ namespace SkillChallenge.Controllers
                 CategoryId = created.CategoryId,
                 CategoryName = created.CategoryName,
                 ImageUrl = _imageService.GetImageUrl(created.ImagePath),
-                UnderCategories = new List<UnderCategoryDTO>(),
+                SubCategories = new List<SubCategoryDTO>(),
             };
 
             return CreatedAtAction(
@@ -149,7 +149,7 @@ namespace SkillChallenge.Controllers
                 CategoryId = existingCategory.CategoryId,
                 CategoryName = existingCategory.CategoryName,
                 ImageUrl = _imageService.GetImageUrl(existingCategory.ImagePath),
-                UnderCategories = new List<UnderCategoryDTO>(),
+                SubCategories = new List<SubCategoryDTO>(),
             };
 
             return Ok(categoryDTO);

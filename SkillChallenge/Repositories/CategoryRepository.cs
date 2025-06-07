@@ -39,14 +39,11 @@ namespace SkillChallenge.Repositories
         }
 
         public async Task<List<Category>> GetAllCategoriesAsync(CancellationToken ct = default) =>
-            await _context
-                .Categories.Include(c => c.UnderCategories)
-                .AsNoTracking()
-                .ToListAsync(ct);
+            await _context.Categories.Include(c => c.SubCategories).AsNoTracking().ToListAsync(ct);
 
         public async Task<Category?> GetCategoryByIdAsync(int id, CancellationToken ct = default) =>
             await _context
-                .Categories.Include(c => c.UnderCategories)
+                .Categories.Include(c => c.SubCategories)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.CategoryId == id, ct);
 

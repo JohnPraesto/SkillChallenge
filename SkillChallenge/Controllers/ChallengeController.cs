@@ -31,14 +31,14 @@ namespace SkillChallenge.Controllers
                     TimePeriod = c.TimePeriod,
                     Description = c.Description,
                     IsPublic = c.IsPublic,
-                    UnderCategory =
-                        c.UnderCategory == null
+                    SubCategory =
+                        c.SubCategory == null
                             ? null
-                            : new UnderCategoryDTO
+                            : new SubCategoryDTO
                             {
-                                UnderCategoryId = c.UnderCategory.UnderCategoryId,
-                                UnderCategoryName = c.UnderCategory.UnderCategoryName,
-                                ImagePath = c.UnderCategory.ImagePath,
+                                SubCategoryId = c.SubCategory.SubCategoryId,
+                                SubCategoryName = c.SubCategory.SubCategoryName,
+                                ImagePath = c.SubCategory.ImagePath,
                             },
                     UserIds = c.Users.Select(u => int.Parse(u.Id)).ToList(),
                     CreatedBy = c.CreatedBy,
@@ -69,14 +69,14 @@ namespace SkillChallenge.Controllers
                     TimePeriod = c.TimePeriod,
                     Description = c.Description,
                     IsPublic = c.IsPublic,
-                    UnderCategory =
-                        c.UnderCategory == null
+                    SubCategory =
+                        c.SubCategory == null
                             ? null
-                            : new UnderCategoryDTO
+                            : new SubCategoryDTO
                             {
-                                UnderCategoryId = c.UnderCategory.UnderCategoryId,
-                                UnderCategoryName = c.UnderCategory.UnderCategoryName,
-                                ImagePath = c.UnderCategory.ImagePath,
+                                SubCategoryId = c.SubCategory.SubCategoryId,
+                                SubCategoryName = c.SubCategory.SubCategoryName,
+                                ImagePath = c.SubCategory.ImagePath,
                             },
                     UserIds = c.Users.Select(u => int.Parse(u.Id)).ToList(),
                     CreatedBy = c.CreatedBy,
@@ -104,14 +104,14 @@ namespace SkillChallenge.Controllers
                 TimePeriod = challenge.TimePeriod,
                 Description = challenge.Description,
                 IsPublic = challenge.IsPublic,
-                UnderCategory =
-                    challenge.UnderCategory == null
+                SubCategory =
+                    challenge.SubCategory == null
                         ? null
-                        : new UnderCategoryDTO
+                        : new SubCategoryDTO
                         {
-                            UnderCategoryId = challenge.UnderCategory.UnderCategoryId,
-                            UnderCategoryName = challenge.UnderCategory.UnderCategoryName,
-                            ImagePath = challenge.UnderCategory.ImagePath,
+                            SubCategoryId = challenge.SubCategory.SubCategoryId,
+                            SubCategoryName = challenge.SubCategory.SubCategoryName,
+                            ImagePath = challenge.SubCategory.ImagePath,
                         },
                 UserIds = challenge.Users.Select(u => int.Parse(u.Id)).ToList(),
                 CreatedBy = challenge.CreatedBy,
@@ -141,8 +141,8 @@ namespace SkillChallenge.Controllers
                 TimePeriod = createChallengeDTO.TimePeriod,
                 Description = createChallengeDTO.Description,
                 IsPublic = createChallengeDTO.IsPublic,
-                UnderCategoryId = createChallengeDTO.UnderCategoryId,
-                CreatedBy = currentUserId, // Sätt skaparen
+                SubCategoryId = createChallengeDTO.SubCategoryId,
+                CreatedBy = currentUserId,
             };
 
             var created = await _challengeRepo.CreateChallengeAsync(challenge, ct);
@@ -182,7 +182,7 @@ namespace SkillChallenge.Controllers
                 TimePeriod = updateChallengeDTO.TimePeriod,
                 Description = updateChallengeDTO.Description,
                 IsPublic = updateChallengeDTO.IsPublic,
-                UnderCategoryId = updateChallengeDTO.UnderCategoryId,
+                SubCategoryId = updateChallengeDTO.SubCategoryId,
             };
 
             var result = await _challengeRepo.UpdateChallengeAsync(id, updatedChallenge, ct);
