@@ -494,14 +494,14 @@ namespace SkillChallenge.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("SkillChallenge.Models.SubCategory", "SubCategories")
+                    b.HasOne("SkillChallenge.Models.SubCategory", "SubCategory")
                         .WithMany()
                         .HasForeignKey("SubCategoryId")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Creator");
 
-                    b.Navigation("SubCategories");
+                    b.Navigation("SubCategory");
                 });
 
             modelBuilder.Entity("SkillChallenge.Models.SubCategory", b =>

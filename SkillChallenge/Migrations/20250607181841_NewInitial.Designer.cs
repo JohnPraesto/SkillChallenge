@@ -12,13 +12,8 @@ using SkillChallenge.Data;
 namespace SkillChallenge.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-<<<<<<<< HEAD:SkillChallenge/Migrations/20250604204247_InitialMigration.Designer.cs
-    [Migration("20250604204247_InitialMigration")]
-    partial class InitialMigration
-========
-    [Migration("20250607132852_RenameUnderCategoryToSubCategory")]
-    partial class RenameUnderCategoryToSubCategory
->>>>>>>> 6aa9e9dd5a25ee27362dcefc5f88b7e446e5832c:SkillChallenge/Migrations/20250607132852_RenameUnderCategoryToSubCategory.Designer.cs
+    [Migration("20250607181841_NewInitial")]
+    partial class NewInitial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -502,14 +497,14 @@ namespace SkillChallenge.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("SkillChallenge.Models.SubCategory", "SubCategories")
+                    b.HasOne("SkillChallenge.Models.SubCategory", "SubCategory")
                         .WithMany()
                         .HasForeignKey("SubCategoryId")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Creator");
 
-                    b.Navigation("SubCategories");
+                    b.Navigation("SubCategory");
                 });
 
             modelBuilder.Entity("SkillChallenge.Models.SubCategory", b =>

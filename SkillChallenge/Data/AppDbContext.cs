@@ -126,7 +126,7 @@ namespace SkillChallenge.Data
             // Challenge -> SubCategory
             builder
                 .Entity<Challenge>()
-                .HasOne(c => c.SubCategories)
+                .HasOne(c => c.SubCategory)
                 .WithMany()
                 .HasForeignKey(c => c.SubCategoryId)
                 .OnDelete(DeleteBehavior.SetNull);
