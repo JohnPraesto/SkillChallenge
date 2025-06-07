@@ -41,7 +41,7 @@ namespace SkillChallenge.Repositories
         public async Task<List<Challenge>> GetAllChallengesAsync(CancellationToken ct = default) =>
             await _context
                 .Challenges.Include(c => c.Users)
-                .Include(c => c.UnderCategory)
+                .Include(c => c.SubCategories)
                 .Include(c => c.Creator)
                 .AsNoTracking()
                 .ToListAsync(ct);
@@ -52,7 +52,7 @@ namespace SkillChallenge.Repositories
         ) =>
             await _context
                 .Challenges.Include(c => c.Users)
-                .Include(c => c.UnderCategory)
+                .Include(c => c.SubCategories)
                 .Include(c => c.Creator)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.ChallengeId == id, ct);
@@ -75,7 +75,7 @@ namespace SkillChallenge.Repositories
             existing.TimePeriod = updatedChallenge.TimePeriod;
             existing.Description = updatedChallenge.Description;
             existing.IsPublic = updatedChallenge.IsPublic;
-            existing.UnderCategoryId = updatedChallenge.UnderCategoryId;
+            existing.SubCategoryId = updatedChallenge.SubCategoryId;
 
             await _context.SaveChangesAsync(ct);
             return existing;
@@ -87,7 +87,7 @@ namespace SkillChallenge.Repositories
         ) =>
             await _context
                 .Challenges.Include(c => c.Users)
-                .Include(c => c.UnderCategory)
+                .Include(c => c.SubCategories)
                 .Include(c => c.Creator)
                 .Where(c => c.CreatedBy == creatorId)
                 .AsNoTracking()

@@ -31,7 +31,7 @@ namespace SkillChallenge.Controllers
                     TimePeriod = c.TimePeriod,
                     Description = c.Description,
                     IsPublic = c.IsPublic,
-                    UnderCategoryId = c.UnderCategoryId,
+                    SubCategoryId = c.SubCategoryId,
                     UserIds = c.Users.Select(u => int.Parse(u.Id)).ToList(),
                     CreatedBy = c.CreatedBy,
                     CreatorUserName = c.Creator?.UserName ?? "Unknown",
@@ -61,7 +61,7 @@ namespace SkillChallenge.Controllers
                     TimePeriod = c.TimePeriod,
                     Description = c.Description,
                     IsPublic = c.IsPublic,
-                    UnderCategoryId = c.UnderCategoryId,
+                    SubCategoryId = c.SubCategoryId,
                     UserIds = c.Users.Select(u => int.Parse(u.Id)).ToList(),
                     CreatedBy = c.CreatedBy,
                     CreatorUserName = c.Creator?.UserName ?? "Unknown",
@@ -88,7 +88,7 @@ namespace SkillChallenge.Controllers
                 TimePeriod = challenge.TimePeriod,
                 Description = challenge.Description,
                 IsPublic = challenge.IsPublic,
-                UnderCategoryId = challenge.UnderCategoryId,
+                SubCategoryId = challenge.SubCategoryId,
                 UserIds = challenge.Users.Select(u => int.Parse(u.Id)).ToList(),
                 CreatedBy = challenge.CreatedBy,
                 CreatorUserName = challenge.Creator?.UserName ?? "Unknown",
@@ -117,8 +117,8 @@ namespace SkillChallenge.Controllers
                 TimePeriod = createChallengeDTO.TimePeriod,
                 Description = createChallengeDTO.Description,
                 IsPublic = createChallengeDTO.IsPublic,
-                UnderCategoryId = createChallengeDTO.UnderCategoryId,
-                CreatedBy = currentUserId, // Sätt skaparen
+                SubCategoryId = createChallengeDTO.SubCategoryId,
+                CreatedBy = currentUserId,
             };
 
             var created = await _challengeRepo.CreateChallengeAsync(challenge, ct);
@@ -158,7 +158,7 @@ namespace SkillChallenge.Controllers
                 TimePeriod = updateChallengeDTO.TimePeriod,
                 Description = updateChallengeDTO.Description,
                 IsPublic = updateChallengeDTO.IsPublic,
-                UnderCategoryId = updateChallengeDTO.UnderCategoryId,
+                SubCategoryId = updateChallengeDTO.SubCategoryId,
             };
 
             var result = await _challengeRepo.UpdateChallengeAsync(id, updatedChallenge, ct);

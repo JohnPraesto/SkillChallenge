@@ -122,7 +122,7 @@ public class Program
         builder.Services.AddScoped<ITokenService, TokenService>();
         builder.Services.AddScoped<IChallengeRepository, ChallengeRepository>();
         builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-        builder.Services.AddScoped<IUnderCategoryRepository, UnderCategoryRepository>();
+        builder.Services.AddScoped<ISubCategoryRepository, SubCategoryRepository>();
         builder.Services.AddScoped<IImageService, ImageService>();
         var app = builder.Build();
 

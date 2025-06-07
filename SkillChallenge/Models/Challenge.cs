@@ -14,7 +14,7 @@
 
         // Many-to-many relationship med User?
         // Connection table?
-        public int? UnderCategoryId { get; set; }
-        public UnderCategory? UnderCategory { get; set; }
+        public int? SubCategoryId { get; set; }
+        public SubCategory? SubCategories { get; set; }
     }
 }
