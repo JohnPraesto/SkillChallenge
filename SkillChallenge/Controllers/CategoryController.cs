@@ -33,7 +33,7 @@ namespace SkillChallenge.Controllers
                         .SubCategories.Select(uc => new SubCategoryDTO
                         {
                             SubCategoryId = uc.SubCategoryId,
-                            SubCategoryName = uc.SubCategoryName, // Corrected duplicate initialization
+                            SubCategoryName = uc.SubCategoryName,
                             CategoryId = uc.CategoryId,
                             CategoryName = c.CategoryName,
                         })
