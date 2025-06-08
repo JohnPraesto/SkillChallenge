@@ -37,10 +37,10 @@ function Challenges() {
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {futureChallenges.map(ch => (
               <div key={ch.challengeId} className="card" onClick={() => navigate(`/challenges/${ch.challengeId}`)}>
-                {ch.underCategory && ch.underCategory.imagePath && (
+                {ch.subCategory && ch.subCategory.imagePath && (
                   <img
-                    src={`https://localhost:7212/${ch.underCategory.imagePath}`}
-                    alt={ch.underCategory.underCategoryName || "Category"}
+                    src={`https://localhost:7212/${ch.subCategory.imagePath}`}
+                    alt={ch.subCategory.subCategoryName || "Category"}
                     style={{ width: 150, height: 150, objectFit: "cover", borderRadius: 8, marginBottom: 12 }}
                   />
                 )}
@@ -67,10 +67,10 @@ function Challenges() {
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {pastChallenges.map(ch => (
               <div key={ch.challengeId} className="card" onClick={() => navigate(`/challenges/${ch.challengeId}`)}>
-                {ch.underCategory && ch.underCategory.imagePath && (
+                {ch.subCategory && ch.subCategory.imagePath && (
                   <img
-                    src={`https://localhost:7212/${ch.underCategory.imagePath}`}
-                    alt={ch.underCategory.underCategoryName || "Category"}
+                    src={`https://localhost:7212/${ch.subCategory.imagePath}`}
+                    alt={ch.subCategory.subCategoryName || "Category"}
                     style={{ width: 150, height: 150, objectFit: "cover", borderRadius: 8, marginBottom: 12 }}
                   />
                 )}
