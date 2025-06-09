@@ -1,203 +1,302 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
-
-// In here the users past and active challenges
-// is to be seen. And their rating.
+import { useToast } from "./ToastContext";
+import { LoadingSkeleton } from "./LoadingSkeleton";
 
 function Profile() {
   const { user, login, logout } = useAuth();
+  const { showSuccess, showError } = useToast();
   const [userData, setUserData] = useState(null);
-  const [error, setError] = useState("");
-  const [showUsernameForm, setShowUsernameForm] = useState(false);
-  const [showPasswordForm, setShowPasswordForm] = useState(false);
-  const [showPictureForm, setShowPictureForm] = useState(false);
-  const [newUsername, setNewUsername] = useState("");
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [newPicture, setNewPicture] = useState("");
-  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [activeForm, setActiveForm] = useState(null);
+  const [formData, setFormData] = useState({
+    username: "",
+    currentPassword: "",
+    newPassword: "",
+    picture: ""
+  });
 
   useEffect(() => {
-  console.log("AuthContext user:", user);
-}, [user]);
+    console.log("AuthContext user:", user);
+  }, [user]);
 
-  // Fetch user info on mount
   useEffect(() => {
     if (!user?.id) return;
-    fetch(`https://localhost:7212/users/id/${user.id}`) // <-- id in route is new, should not use userName anymore?
+    
+    fetch(`https://localhost:7212/users/id/${user.id}`)
       .then(res => res.ok ? res.json() : Promise.reject("Failed to fetch user"))
-      .then(data => setUserData(data))
-      .catch(err => setError(err));
-  }, [user?.id]);
+      .then(data => {
+        setUserData(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        showError("Failed to load profile");
+        setLoading(false);
+      });
+  }, [user?.id, showError]);
 
-  // Update username or picture
-  const handleUpdateUser = async (field, value) => {
-    setMessage("");
+  const handleUpdate = async (field, value) => {
     try {
       const res = await fetch(`https://localhost:7212/users/${user.id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json",
+        headers: { 
+          "Content-Type": "application/json",
           "Authorization": `Bearer ${localStorage.getItem("token")}`
-         },
+        },
         body: JSON.stringify({ [field]: value }),
       });
-      if (!res.ok) {
-        const err = await res.text();
-        setMessage("Update failed: " + err);
-        return;
-      }
+
+      if (!res.ok) throw new Error("Update failed");
+      
       const updated = await res.json();
-      if (updated.token) {
-        login(updated.token); // Update AuthContext with new token
-        setUserData(null);    // Force refetch with new username
-      }
-      setUserData({ ...userData, ...updated });
-      setMessage("Update successful!");
+      if (updated.token) login(updated.token);
+      
+      setUserData(prev => ({ ...prev, ...updated }));
+      setActiveForm(null);
+      setFormData({ username: "", currentPassword: "", newPassword: "", picture: "" });
+      showSuccess("Profile updated successfully!");
     } catch (err) {
-      setMessage("Update failed: " + err.message);
+      showError("Update failed");
     }
   };
 
-  // Change password
   const handleChangePassword = async () => {
-    setMessage("");
     try {
       const res = await fetch(`https://localhost:7212/users/${userData.id}/change-password`, {
         method: "POST",
-        headers: { "Content-Type": "application/json",
+        headers: { 
+          "Content-Type": "application/json",
           "Authorization": `Bearer ${localStorage.getItem("token")}`
-         },
+        },
         body: JSON.stringify({
-          currentPassword,
-          newPassword,
+          currentPassword: formData.currentPassword,
+          newPassword: formData.newPassword,
         }),
       });
-      if (!res.ok) {
-        const err = await res.text();
-        setMessage("Password change failed: " + err);
-        return;
-      }
-      setMessage("Password changed successfully!");
+      
+      if (!res.ok) throw new Error("Password change failed");
+      
+      setActiveForm(null);
+      setFormData({ username: "", currentPassword: "", newPassword: "", picture: "" });
+      showSuccess("Password changed successfully!");
     } catch (err) {
-      setMessage("Password change failed: " + err.message);
+      showError("Password change failed");
     }
   };
 
   const handleDeleteAccount = async () => {
-  if (!window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) return;
-  setMessage("");
-  try {
-    const res = await fetch(`https://localhost:7212/users/${user.id}`, {
-      method: "DELETE",
-      headers: {
-        "Authorization": `Bearer ${localStorage.getItem("token")}`
+    if (!window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) return;
+    
+    try {
+      const res = await fetch(`https://localhost:7212/users/${user.id}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
+        }
+      });
+      
+      if (res.status === 204) {
+        showSuccess("Account deleted. Logging out...");
+        logout();
+        window.location.href = "/login";
+      } else if (res.status === 403) {
+        showError("You are not authorized to delete this account.");
+      } else {
+        const err = await res.text();
+        showError("Delete failed: " + err);
       }
-    });
-    if (res.status === 204) {
-      setMessage("Account deleted. Logging out...");
-      logout();
-      // Optionally, redirect to home or login page:
-      window.location.href = "/login";
-    } else if (res.status === 403) {
-      setMessage("You are not authorized to delete this account.");
-    } else {
-      const err = await res.text();
-      setMessage("Delete failed: " + err);
+    } catch (err) {
+      showError("Delete failed: " + err.message);
     }
-  } catch (err) {
-    setMessage("Delete failed: " + err.message);
-  }
-};
+  };
 
-  console.log("Profile.jsx user:", user);
-  if (!user?.userName) return <div>Please log in to view your profile.</div>;
-  if (error) return <div style={{ color: "red" }}>{error}</div>;
-  if (!userData) return <div>Loading...</div>;
+  if (!user?.userName) {
+    return (
+      <div className="container">
+        <div className="card" style={{ textAlign: "center", padding: "3rem" }}>
+          <h2>Please log in to view your profile</h2>
+          <button className="btn btn-primary" onClick={() => window.location.href = "/login"}>
+            Sign In
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) return (
+    <div className="container">
+      <LoadingSkeleton type="profile" />
+    </div>
+  );
 
   return (
-    <div style={{ maxWidth: 400, margin: "2em auto", textAlign: "center" }}>
-      <h2>My Profile</h2>
-      <img
-        src={user.profilePicture || "/default-profile.png"}
-        alt="Profile"
-        style={{ width: 100, height: 100, borderRadius: "50%", objectFit: "cover" }}
-      />
-      <div><strong>Username:</strong> {userData.userName}</div>
-      {message && <div style={{ color: "green", margin: "1em 0" }}>{message}</div>}
-
-      <div style={{ marginTop: "2em" }}>
-        <button onClick={() => setShowUsernameForm(v => !v)}>Change Username</button>
-        {showUsernameForm && (
-          <form
-            onSubmit={e => {
-              e.preventDefault();
-              handleUpdateUser("userName", newUsername);
+    <div className="container fade-in">
+      <div className="card" style={{ maxWidth: "600px", margin: "2rem auto" }}>
+        <div className="profile-header" style={{ textAlign: "center", marginBottom: "2rem" }}>
+          <img
+            src={userData?.profilePicture || "/default-profile.png"}
+            alt="Profile"
+            style={{ 
+              width: "120px", 
+              height: "120px", 
+              borderRadius: "50%", 
+              objectFit: "cover",
+              border: "4px solid var(--primary-color)",
+              marginBottom: "1rem"
             }}
-            style={{ margin: "1em 0" }}
-          >
-            <input
-              value={newUsername}
-              onChange={e => setNewUsername(e.target.value)}
-              placeholder="New username"
-              required
-            />
-            <button type="submit">Save</button>
-          </form>
-        )}
+          />
+          <h2 style={{ color: "var(--primary-color)", marginBottom: "0.5rem" }}>
+            {userData?.userName}
+          </h2>
+          <p style={{ color: "var(--text-secondary)" }}>Member since {new Date().getFullYear()}</p>
+        </div>
 
-        <button onClick={() => setShowPasswordForm(v => !v)} style={{ marginLeft: 8 }}>
-          Change Password
-        </button>
-        {showPasswordForm && (
-          <form
-            onSubmit={e => {
-              e.preventDefault();
-              handleChangePassword();
-            }}
-            style={{ margin: "1em 0" }}
-          >
-            <input
-              type="password"
-              value={currentPassword}
-              onChange={e => setCurrentPassword(e.target.value)}
-              placeholder="Current password"
-              required
-            />
-            <input
-              type="password"
-              value={newPassword}
-              onChange={e => setNewPassword(e.target.value)}
-              placeholder="New password"
-              required
-            />
-            <button type="submit">Save</button>
-          </form>
-        )}
+        <div className="profile-actions">
+          <div className="action-buttons" style={{ display: "flex", gap: "1rem", marginBottom: "2rem", flexWrap: "wrap" }}>
+            <button 
+              className="btn btn-secondary"
+              onClick={() => setActiveForm(activeForm === "username" ? null : "username")}
+            >
+              Change Username
+            </button>
+            <button 
+              className="btn btn-secondary"
+              onClick={() => setActiveForm(activeForm === "password" ? null : "password")}
+            >
+              Change Password
+            </button>
+            <button 
+              className="btn btn-secondary"
+              onClick={() => setActiveForm(activeForm === "picture" ? null : "picture")}
+            >
+              Change Picture
+            </button>
+          </div>
 
-        <button onClick={() => setShowPictureForm(v => !v)} style={{ marginLeft: 8 }}>
-          Change Picture
-        </button>
-        {showPictureForm && (
-          <form
-            onSubmit={e => {
-              e.preventDefault();
-              handleUpdateUser("profilePicture", newPicture);
-            }}
-            style={{ margin: "1em 0" }}
-          >
-            <input
-              value={newPicture}
-              onChange={e => setNewPicture(e.target.value)}
-              placeholder="New picture URL"
-              required
-            />
-            <button type="submit">Save</button>
-          </form>
-        )}
+          {/* Username Form */}
+          {activeForm === "username" && (
+            <div className="form-container slide-in-left">
+              <h3>Change Username</h3>
+              <div className="form-group">
+                <input
+                  className="form-control"
+                  value={formData.username}
+                  onChange={e => setFormData(prev => ({ ...prev, username: e.target.value }))}
+                  placeholder="New username"
+                  required
+                />
+              </div>
+              <div style={{ display: "flex", gap: "1rem" }}>
+                <button 
+                  className="btn btn-primary"
+                  onClick={() => handleUpdate("userName", formData.username)}
+                  disabled={!formData.username}
+                >
+                  Save
+                </button>
+                <button 
+                  className="btn btn-secondary"
+                  onClick={() => setActiveForm(null)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
 
-        <button onClick={handleDeleteAccount} style={{ marginTop: 24, background: "#c00", color: "#fff" }}>
-          Delete Account
-        </button>
+          {/* Password Form */}
+          {activeForm === "password" && (
+            <div className="form-container slide-in-left">
+              <h3>Change Password</h3>
+              <div className="form-group">
+                <input
+                  type="password"
+                  className="form-control"
+                  value={formData.currentPassword}
+                  onChange={e => setFormData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                  placeholder="Current password"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <input
+                  type="password"
+                  className="form-control"
+                  value={formData.newPassword}
+                  onChange={e => setFormData(prev => ({ ...prev, newPassword: e.target.value }))}
+                  placeholder="New password"
+                  required
+                />
+              </div>
+              <div style={{ display: "flex", gap: "1rem" }}>
+                <button 
+                  className="btn btn-primary"
+                  onClick={handleChangePassword}
+                  disabled={!formData.currentPassword || !formData.newPassword}
+                >
+                  Save
+                </button>
+                <button 
+                  className="btn btn-secondary"
+                  onClick={() => setActiveForm(null)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Picture Form */}
+          {activeForm === "picture" && (
+            <div className="form-container slide-in-left">
+              <h3>Change Picture</h3>
+              <div className="form-group">
+                <input
+                  className="form-control"
+                  value={formData.picture}
+                  onChange={e => setFormData(prev => ({ ...prev, picture: e.target.value }))}
+                  placeholder="New picture URL"
+                  required
+                />
+              </div>
+              <div style={{ display: "flex", gap: "1rem" }}>
+                <button 
+                  className="btn btn-primary"
+                  onClick={() => handleUpdate("profilePicture", formData.picture)}
+                  disabled={!formData.picture}
+                >
+                  Save
+                </button>
+                <button 
+                  className="btn btn-secondary"
+                  onClick={() => setActiveForm(null)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="danger-zone" style={{ 
+          marginTop: "3rem", 
+          padding: "1.5rem", 
+          border: "2px solid #ff4444", 
+          borderRadius: "var(--border-radius)",
+          backgroundColor: "rgba(255, 68, 68, 0.05)"
+        }}>
+          <h3 style={{ color: "#ff4444", marginBottom: "1rem" }}>Danger Zone</h3>
+          <p style={{ marginBottom: "1rem", color: "var(--text-secondary)" }}>
+            Once you delete your account, there is no going back.
+          </p>
+          <button 
+            className="btn"
+            style={{ backgroundColor: "#ff4444", color: "white" }}
+            onClick={handleDeleteAccount}
+          >
+            Delete Account
+          </button>
+        </div>
       </div>
     </div>
   );
