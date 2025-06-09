@@ -7,7 +7,7 @@
 namespace SkillChallenge.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class NewInitial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -231,24 +231,21 @@ namespace SkillChallenge.Migrations
             );
 
             migrationBuilder.CreateTable(
-                name: "UnderCategories",
+                name: "SubCategories",
                 columns: table => new
                 {
-                    UnderCategoryId = table
+                    SubCategoryId = table
                         .Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UnderCategoryName = table.Column<string>(
-                        type: "nvarchar(max)",
-                        nullable: false
-                    ),
+                    SubCategoryName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CategoryId = table.Column<int>(type: "int", nullable: false),
                     ImagePath = table.Column<string>(type: "nvarchar(max)", nullable: true),
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UnderCategories", x => x.UnderCategoryId);
+                    table.PrimaryKey("PK_SubCategories", x => x.SubCategoryId);
                     table.ForeignKey(
-                        name: "FK_UnderCategories_Categories_CategoryId",
+                        name: "FK_SubCategories_Categories_CategoryId",
                         column: x => x.CategoryId,
                         principalTable: "Categories",
                         principalColumn: "CategoryId",
@@ -270,7 +267,7 @@ namespace SkillChallenge.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsPublic = table.Column<bool>(type: "bit", nullable: false),
                     CreatedBy = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    UnderCategoryId = table.Column<int>(type: "int", nullable: true),
+                    SubCategoryId = table.Column<int>(type: "int", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -283,10 +280,10 @@ namespace SkillChallenge.Migrations
                         onDelete: ReferentialAction.Restrict
                     );
                     table.ForeignKey(
-                        name: "FK_Challenges_UnderCategories_UnderCategoryId",
-                        column: x => x.UnderCategoryId,
-                        principalTable: "UnderCategories",
-                        principalColumn: "UnderCategoryId",
+                        name: "FK_Challenges_SubCategories_SubCategoryId",
+                        column: x => x.SubCategoryId,
+                        principalTable: "SubCategories",
+                        principalColumn: "SubCategoryId",
                         onDelete: ReferentialAction.SetNull
                     );
                 }
@@ -467,9 +464,9 @@ namespace SkillChallenge.Migrations
             );
 
             migrationBuilder.CreateIndex(
-                name: "IX_Challenges_UnderCategoryId",
+                name: "IX_Challenges_SubCategoryId",
                 table: "Challenges",
-                column: "UnderCategoryId"
+                column: "SubCategoryId"
             );
 
             migrationBuilder.CreateIndex(
@@ -479,8 +476,8 @@ namespace SkillChallenge.Migrations
             );
 
             migrationBuilder.CreateIndex(
-                name: "IX_UnderCategories_CategoryId",
-                table: "UnderCategories",
+                name: "IX_SubCategories_CategoryId",
+                table: "SubCategories",
                 column: "CategoryId"
             );
         }
@@ -506,7 +503,7 @@ namespace SkillChallenge.Migrations
 
             migrationBuilder.DropTable(name: "AspNetUsers");
 
-            migrationBuilder.DropTable(name: "UnderCategories");
+            migrationBuilder.DropTable(name: "SubCategories");
 
             migrationBuilder.DropTable(name: "Categories");
         }

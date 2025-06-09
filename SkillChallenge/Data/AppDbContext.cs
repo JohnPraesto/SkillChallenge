@@ -12,7 +12,7 @@ namespace SkillChallenge.Data
 
         public DbSet<Challenge> Challenges { get; set; }
         public DbSet<Category> Categories { get; set; }
-        public DbSet<UnderCategory> UnderCategories { get; set; }
+        public DbSet<SubCategory> SubCategories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -123,19 +123,19 @@ namespace SkillChallenge.Data
                 .HasForeignKey(c => c.CreatedBy)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Challenge -> UnderCategory
+            // Challenge -> SubCategory
             builder
                 .Entity<Challenge>()
-                .HasOne(c => c.UnderCategory)
+                .HasOne(c => c.SubCategory)
                 .WithMany()
-                .HasForeignKey(c => c.UnderCategoryId)
+                .HasForeignKey(c => c.SubCategoryId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            // UnderCategory -> Category
+            // SubCategory -> Category
             builder
-                .Entity<UnderCategory>()
+                .Entity<SubCategory>()
                 .HasOne(uc => uc.Category)
-                .WithMany(c => c.UnderCategories)
+                .WithMany(c => c.SubCategories)
                 .HasForeignKey(uc => uc.CategoryId)
                 .OnDelete(DeleteBehavior.Cascade);
 

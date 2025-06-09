@@ -8,8 +8,8 @@
         public DateTime TimePeriod { get; set; }
         public string Description { get; set; } = string.Empty;
         public bool IsPublic { get; set; }
-        public int? UnderCategoryId { get; set; }
-        public UnderCategoryDTO? UnderCategory { get; set; }
+        public int? SubCategoryId { get; set; }
+        public SubCategoryDTO? SubCategory { get; set; }
         public List<int> UserIds { get; set; } = new();
         public string CreatedBy { get; set; } = string.Empty;
         public string CreatorUserName { get; set; } = string.Empty;

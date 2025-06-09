@@ -20,8 +20,8 @@ function ChallengeDetails() {
     <div style={{ maxWidth: 500, margin: "2em auto", padding: 24, border: "1px solid #ccc", borderRadius: 8 }}>
       <h2>{challenge.challengeName}</h2>
       <img
-        src={`https://localhost:7212/${challenge.underCategory.imagePath}`}
-        alt={challenge.underCategory.underCategoryName || "Category"}
+        src={`https://localhost:7212/${challenge.subCategory.imagePath}`}
+        alt={challenge.subCategory.subCategoryName || "Category"}
         style={{ width: 300, height: 300, objectFit: "cover", borderRadius: 8, marginBottom: 12 }}
         />
       <div><strong>End Date:</strong> {new Date(challenge.endDate).toLocaleString()}</div>

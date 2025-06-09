@@ -275,28 +275,28 @@ namespace SkillChallenge.Migrations
                     b.Property<bool>("IsPublic")
                         .HasColumnType("bit");
 
+                    b.Property<int?>("SubCategoryId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("TimePeriod")
                         .HasColumnType("datetime2");
-
-                    b.Property<int?>("UnderCategoryId")
-                        .HasColumnType("int");
 
                     b.HasKey("ChallengeId");
 
                     b.HasIndex("CreatedBy");
 
-                    b.HasIndex("UnderCategoryId");
+                    b.HasIndex("SubCategoryId");
 
                     b.ToTable("Challenges");
                 });
 
-            modelBuilder.Entity("SkillChallenge.Models.UnderCategory", b =>
+            modelBuilder.Entity("SkillChallenge.Models.SubCategory", b =>
                 {
-                    b.Property<int>("UnderCategoryId")
+                    b.Property<int>("SubCategoryId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UnderCategoryId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SubCategoryId"));
 
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
@@ -304,15 +304,15 @@ namespace SkillChallenge.Migrations
                     b.Property<string>("ImagePath")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UnderCategoryName")
+                    b.Property<string>("SubCategoryName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("UnderCategoryId");
+                    b.HasKey("SubCategoryId");
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("UnderCategories");
+                    b.ToTable("SubCategories");
                 });
 
             modelBuilder.Entity("SkillChallenge.Models.User", b =>
@@ -494,20 +494,20 @@ namespace SkillChallenge.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("SkillChallenge.Models.UnderCategory", "UnderCategory")
+                    b.HasOne("SkillChallenge.Models.SubCategory", "SubCategory")
                         .WithMany()
-                        .HasForeignKey("UnderCategoryId")
+                        .HasForeignKey("SubCategoryId")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Creator");
 
-                    b.Navigation("UnderCategory");
+                    b.Navigation("SubCategory");
                 });
 
-            modelBuilder.Entity("SkillChallenge.Models.UnderCategory", b =>
+            modelBuilder.Entity("SkillChallenge.Models.SubCategory", b =>
                 {
                     b.HasOne("SkillChallenge.Models.Category", "Category")
-                        .WithMany("UnderCategories")
+                        .WithMany("SubCategories")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -517,7 +517,7 @@ namespace SkillChallenge.Migrations
 
             modelBuilder.Entity("SkillChallenge.Models.Category", b =>
                 {
-                    b.Navigation("UnderCategories");
+                    b.Navigation("SubCategories");
                 });
 #pragma warning restore 612, 618
         }

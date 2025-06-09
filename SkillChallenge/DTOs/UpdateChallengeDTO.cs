@@ -7,6 +7,6 @@
         public DateTime TimePeriod { get; set; }
         public string Description { get; set; } = string.Empty;
         public bool IsPublic { get; set; }
-        public int? UnderCategoryId { get; set; }
+        public int? SubCategoryId { get; set; }
     }
 }

@@ -1,8 +1,8 @@
 ﻿namespace SkillChallenge.DTOs
 {
-    public class UpdateUnderCategoryDTO
+    public class CreateSubCategoryDTO
     {
-        public string UnderCategoryName { get; set; } = string.Empty;
+        public string SubCategoryName { get; set; } = string.Empty;
         public int CategoryId { get; set; }
         public IFormFile? Image { get; set; }
     }
