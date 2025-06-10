@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SkillChallenge.DTOs;
+using SkillChallenge.DTOs.SubCategory;
 using SkillChallenge.Interfaces;
 using SkillChallenge.Models;
 using SkillChallenge.Services;

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SkillChallenge.Data;
 using SkillChallenge.DTOs;
+using SkillChallenge.DTOs.Account;
 using SkillChallenge.Models;
 
 public class AccountControllerIntegrationTests : IClassFixture<WebApplicationFactory<Program>>

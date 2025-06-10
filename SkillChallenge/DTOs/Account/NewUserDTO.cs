@@ -1,4 +1,4 @@
-﻿namespace SkillChallenge.DTOs
+﻿namespace SkillChallenge.DTOs.Account
 {
     public class NewUserDTO
     {

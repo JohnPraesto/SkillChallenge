@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using SkillChallenge.DTOs;
+using SkillChallenge.DTOs.User;
 using SkillChallenge.Models;
 
 namespace SkillChallenge.Interfaces

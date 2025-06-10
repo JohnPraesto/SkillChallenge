@@ -1,4 +1,6 @@
-﻿namespace SkillChallenge.DTOs
+﻿using SkillChallenge.DTOs.SubCategory;
+
+namespace SkillChallenge.DTOs.Challenge
 {
     public class ChallengeDTO
     {
