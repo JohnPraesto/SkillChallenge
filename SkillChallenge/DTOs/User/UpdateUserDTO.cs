@@ -1,4 +1,4 @@
-﻿namespace SkillChallenge.DTOs
+﻿namespace SkillChallenge.DTOs.User
 {
     public class UpdateUserDTO
     {

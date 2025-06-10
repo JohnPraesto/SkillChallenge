@@ -8,6 +8,7 @@ import Navbar from "./Navbar";
 import Profile from "./Profile"
 import Challenges from "./Challenges"
 import ChallengeDetails from "./ChallengeDetails";
+import ErrorBoundary from "./ErrorBoundary";
 import './App.css';
 
 function Home() {
@@ -31,18 +32,20 @@ function Auth() {
 
 function App() {
   return (
-    <Router>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Challenges />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/users" element={<Users />} />
-        <Route path="/users/username/:userName" element={<UserDetail />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/challenges/:id" element={<ChallengeDetails />} />
-      </Routes>
-    </Router>
+    <ErrorBoundary>
+      <Router>
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Challenges />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/users" element={<Users />} />
+          <Route path="/users/username/:userName" element={<UserDetail />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/challenges/:id" element={<ChallengeDetails />} />
+        </Routes>
+      </Router>
+    </ErrorBoundary>
   );
 }
 

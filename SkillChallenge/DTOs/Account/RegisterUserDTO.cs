@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SkillChallenge.DTOs
+namespace SkillChallenge.DTOs.Account
 {
     public class RegisterUserDTO
     {

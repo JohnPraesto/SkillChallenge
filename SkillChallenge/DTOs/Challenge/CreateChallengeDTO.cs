@@ -1,6 +1,6 @@
-﻿namespace SkillChallenge.DTOs
+﻿namespace SkillChallenge.DTOs.Challenge
 {
-    public class UpdateChallengeDTO
+    public class CreateChallengeDTO
     {
         public string ChallengeName { get; set; } = string.Empty;
         public DateTime EndDate { get; set; }

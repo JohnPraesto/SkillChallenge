@@ -1,86 +1,110 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { LoadingSkeleton } from "./LoadingSkeleton";
+import { SearchAndFilter } from "./SearchAndFilter";
+import { useToast } from "./ToastContext";
 
 function Challenges() {
   const [challenges, setChallenges] = useState([]);
-  const [error, setError] = useState("");
+  const [filteredChallenges, setFilteredChallenges] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { showError } = useToast();
 
   useEffect(() => {
-    fetch("https://localhost:7212/challenges")
-      .then(res => res.ok ? res.json() : Promise.reject("Failed to fetch challenges"))
-      .then(data => setChallenges(data))
-      .catch(err => setError(err.toString()));
-  }, []);
+    Promise.all([
+      fetch("https://localhost:7212/challenges").then(res => res.json()),
+      fetch("https://localhost:7212/categories").then(res => res.json())
+    ])
+    .then(([challengesData, categoriesData]) => {
+      setChallenges(challengesData);
+      setFilteredChallenges(challengesData);
+      setCategories(categoriesData);
+      setLoading(false);
+    })
+    .catch(err => {
+      showError("Failed to load challenges");
+      setLoading(false);
+    });
+  }, [showError]);
 
-  if (error) return <div style={{ color: "red" }}>{error}</div>;
+  if (loading) return (
+    <div className="container fade-in">
+      <LoadingSkeleton type="card" count={6} />
+    </div>
+  );
 
   const now = new Date();
-  const futureChallenges = challenges.filter(ch => new Date(ch.endDate) > now);
-  const pastChallenges = challenges.filter(ch => new Date(ch.endDate) <= now);
+  const futureChallenges = filteredChallenges.filter(ch => new Date(ch.endDate) > now);
+  const pastChallenges = filteredChallenges.filter(ch => new Date(ch.endDate) <= now);
+
+  const ChallengeCard = ({ challenge, index }) => (
+    <div 
+      className="card challenge-card stagger-item" 
+      onClick={() => navigate(`/challenges/${challenge.challengeId}`)}
+      style={{ animationDelay: `${index * 0.1}s` }}
+    >
+      {challenge.subCategory?.imagePath && (
+        <img
+          src={`https://localhost:7212/${challenge.subCategory.imagePath}`}
+          alt={challenge.subCategory.subCategoryName || "Category"}
+          loading="lazy"
+        />
+      )}
+      <div className="challenge-title">{challenge.challengeName}</div>
+      <div className="challenge-meta">
+        Ends: {new Date(challenge.endDate).toLocaleDateString()}
+      </div>
+      <div className="challenge-meta">
+        By: {challenge.creatorUserName}
+      </div>
+    </div>
+  );
 
   return (
-    <div style={{
-      display: "flex",
-      maxWidth: 900,
-      margin: "2em auto",
-      border: "1px solid #ccc",
-      borderRadius: 8,
-      overflow: "hidden"
-    }}>
-      {/* Future Challenges */}
-      <div style={{ flex: 1, padding: 24 }}>
-        <h3 style={{ textAlign: "center" }}>Open Challenges</h3>
-        {futureChallenges.length === 0 ? (
-          <div>No open challenges.</div>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            {futureChallenges.map(ch => (
-              <div key={ch.challengeId} className="card" onClick={() => navigate(`/challenges/${ch.challengeId}`)}>
-                {ch.subCategory && ch.subCategory.imagePath && (
-                  <img
-                    src={`https://localhost:7212/${ch.subCategory.imagePath}`}
-                    alt={ch.subCategory.subCategoryName || "Category"}
-                    style={{ width: 150, height: 150, objectFit: "cover", borderRadius: 8, marginBottom: 12 }}
-                  />
-                )}
-                <div style={{ fontWeight: "bold", fontSize: 18, textAlign: "center" }}>
-                  {ch.challengeName}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-      {/* Vertical Divider */}
-      <div style={{
-        width: 1,
-        background: "#ccc",
-        margin: "0 0.5em"
-      }} />
-      {/* Past Challenges */}
-      <div style={{ flex: 1, padding: 24 }}>
-        <h3 style={{ textAlign: "center" }}>Closed Challenges</h3>
-        {pastChallenges.length === 0 ? (
-          <div>No closed challenges.</div>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            {pastChallenges.map(ch => (
-              <div key={ch.challengeId} className="card" onClick={() => navigate(`/challenges/${ch.challengeId}`)}>
-                {ch.subCategory && ch.subCategory.imagePath && (
-                  <img
-                    src={`https://localhost:7212/${ch.subCategory.imagePath}`}
-                    alt={ch.subCategory.subCategoryName || "Category"}
-                    style={{ width: 150, height: 150, objectFit: "cover", borderRadius: 8, marginBottom: 12 }}
-                  />
-                )}
-                <div style={{ fontWeight: "bold", fontSize: 18, textAlign: "center" }}>
-                  {ch.challengeName}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+    <div className="container fade-in">
+      <SearchAndFilter
+        challenges={challenges}
+        onFilteredChallenges={setFilteredChallenges}
+        categories={categories}
+      />
+
+      <div className="two-column-layout">
+        <div className="slide-in-left">
+          <h2 style={{ textAlign: "center", color: "var(--primary-color)" }}>
+            🔥 Open Challenges ({futureChallenges.length})
+          </h2>
+          {futureChallenges.length === 0 ? (
+            <div className="card bounce-in" style={{ textAlign: "center", padding: "2rem" }}>
+              <p>No open challenges found.</p>
+              <button className="btn btn-primary pulse">Create First Challenge</button>
+            </div>
+          ) : (
+            <div className="challenges-grid">
+              {futureChallenges.map((ch, index) => (
+                <ChallengeCard key={ch.challengeId} challenge={ch} index={index} />
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="slide-in-right">
+          <h2 style={{ textAlign: "center", color: "#666" }}>
+            ✅ Closed Challenges ({pastChallenges.length})
+          </h2>
+          {pastChallenges.length === 0 ? (
+            <div className="card bounce-in" style={{ textAlign: "center", padding: "2rem" }}>
+              <p>No closed challenges found.</p>
+            </div>
+          ) : (
+            <div className="challenges-grid">
+              {pastChallenges.map((ch, index) => (
+                <ChallengeCard key={ch.challengeId} challenge={ch} index={index} />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

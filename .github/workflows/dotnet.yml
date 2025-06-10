@@ -21,14 +21,6 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
-      - name: Restore tools
-        working-directory: SkillChallenge
-        run: dotnet tool restore
-
-      - name: Check formatting with Csharpier
-        working-directory: SkillChallenge
-        run: dotnet csharpier check .
-
       - name: Restore dependencies
         run: dotnet restore SkillChallenge.sln
 

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SkillChallenge.Data;
-using SkillChallenge.DTOs;
+using SkillChallenge.DTOs.User;
 using SkillChallenge.Interfaces;
 using SkillChallenge.Models;
 

@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "./ToastContext";
 
 function Register() {
   const [form, setForm] = useState({
@@ -6,7 +8,9 @@ function Register() {
     email: "",
     password: "",
   });
-  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { showError, showSuccess } = useToast();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -14,7 +18,8 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage("");
+    setLoading(true);
+
     try {
       const response = await fetch("https://localhost:7212/account/register", {
         method: "POST",
@@ -27,47 +32,107 @@ function Register() {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        setMessage("Registration successful! Token: " + data.token);
-        // Optionally, save token or redirect user here
+        showSuccess("Account created successfully! Please sign in.");
+        navigate("/login");
       } else {
         const error = await response.json();
-        setMessage("Registration failed: " + JSON.stringify(error));
+        showError("Registration failed. Please try again.");
       }
     } catch (err) {
-      setMessage("Error: " + err.message);
+      showError("Connection error. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Register</h2>
-      <input
-        name="username"
-        placeholder="Username"
-        value={form.username}
-        onChange={handleChange}
-        required
-      />
-      <input
-        name="email"
-        type="email"
-        placeholder="Email"
-        value={form.email}
-        onChange={handleChange}
-        required
-      />
-      <input
-        name="password"
-        type="password"
-        placeholder="Password"
-        value={form.password}
-        onChange={handleChange}
-        required
-      />
-      <button type="submit">Register</button>
-      {message && <div>{message}</div>}
-    </form>
+    <div className="auth-container">
+      <div className="auth-card">
+        <div className="auth-header">
+          <h1 className="auth-title">Join SkillChallenge!</h1>
+          <p className="auth-subtitle">Create your account and start challenging yourself</p>
+        </div>
+        
+        <form onSubmit={handleSubmit} className="auth-form">
+          <div className="form-group">
+            <label htmlFor="username">Username</label>
+            <div className="input-wrapper">
+              <span className="input-icon">👤</span>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                placeholder="Choose a username"
+                value={form.username}
+                onChange={handleChange}
+                className="form-control auth-input"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <div className="input-wrapper">
+              <span className="input-icon">📧</span>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="Enter your email"
+                value={form.email}
+                onChange={handleChange}
+                className="form-control auth-input"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <div className="input-wrapper">
+              <span className="input-icon">🔒</span>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                placeholder="Create a password"
+                value={form.password}
+                onChange={handleChange}
+                className="form-control auth-input"
+                required
+              />
+            </div>
+          </div>
+
+          <button 
+            type="submit" 
+            className={`btn btn-primary auth-submit ${loading ? 'loading' : ''}`}
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <span className="spinner"></span>
+                Creating account...
+              </>
+            ) : (
+              'Create Account'
+            )}
+          </button>
+        </form>
+
+        <div className="auth-footer">
+          <p>Already have an account? 
+            <button 
+              onClick={() => navigate('/login')} 
+              className="link-button"
+            >
+              Sign in here
+            </button>
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }
 

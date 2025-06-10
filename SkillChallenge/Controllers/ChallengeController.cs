@@ -1,7 +1,8 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SkillChallenge.DTOs;
+using SkillChallenge.DTOs.Challenge;
+using SkillChallenge.DTOs.SubCategory;
 using SkillChallenge.Interfaces;
 using SkillChallenge.Models;
 
