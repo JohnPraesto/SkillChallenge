@@ -18,7 +18,6 @@ namespace SkillChallenge.Data
         {
             base.OnModelCreating(builder);
 
-            // Roller
             List<IdentityRole> roles = new List<IdentityRole>
             {
                 new IdentityRole
@@ -79,7 +78,7 @@ namespace SkillChallenge.Data
                     new Category
                     {
                         CategoryId = 1,
-                        CategoryName = "Musik",
+                        CategoryName = "Music",
                         ImagePath = "images/categories/music.png",
                     },
                     new Category
@@ -91,31 +90,106 @@ namespace SkillChallenge.Data
                     new Category
                     {
                         CategoryId = 3,
-                        CategoryName = "Mat",
+                        CategoryName = "Food",
                         ImagePath = "images/categories/food.png",
                     },
                     new Category
                     {
                         CategoryId = 4,
-                        CategoryName = "Spel",
+                        CategoryName = "Games",
                         ImagePath = "images/categories/games.png",
                     },
                     new Category
                     {
                         CategoryId = 5,
-                        CategoryName = "Övrigt",
+                        CategoryName = "Other",
                         ImagePath = "images/categories/other.png",
                     }
                 );
 
             builder
-                .Entity<IdentityUserRole<string>>()
+                .Entity<SubCategory>()
                 .HasData(
-                    new IdentityUserRole<string> { RoleId = "1", UserId = "admin-123" },
-                    new IdentityUserRole<string> { RoleId = "2", UserId = "user-456" }
-                );
+                    new SubCategory
+                    {
+                        SubCategoryId = 1,
+                        CategoryId = 1,
+                        SubCategoryName = "Guitar",
+                        ImagePath = "images/categories/music.png",
+                    },
+                    new SubCategory
+                    {
+                        SubCategoryId = 2,
+                        CategoryId = 1,
+                        SubCategoryName = "Vocals",
+                        ImagePath = "images/categories/music.png",
+                    },
+                    new SubCategory
+                    {
+                        SubCategoryId = 3,
+                        CategoryId = 2,
+                        SubCategoryName = "Wrestling",
+                        ImagePath = "images/categories/sport.png",
+                    },
+                    new SubCategory
+                    {
+                        SubCategoryId = 4,
+                        CategoryId = 2,
+                        SubCategoryName = "Football",
+                        ImagePath = "images/categories/sport.png",
+                    },
+                    new SubCategory
+                    {
+                        SubCategoryId = 5,
+                        CategoryId = 3,
+                        SubCategoryName = "Recepies",
+                        ImagePath = "images/categories/food.png",
+                    },
+                    new SubCategory
+                    {
+                        SubCategoryId = 6,
+                        CategoryId = 3,
+                        SubCategoryName = "Baking",
+                        ImagePath = "images/categories/food.png",
+                    },
+                    new SubCategory
+                    {
+                        SubCategoryId = 7,
+                        CategoryId = 4,
+                        SubCategoryName = "Counter-Strike",
+                        ImagePath = "images/categories/gaming.png",
+                    },
+                    new SubCategory
+                    {
+                        SubCategoryId = 8,
+                        CategoryId = 4,
+                        SubCategoryName = "Chess",
+                        ImagePath = "images/categories/gaming.png",
+                    },
+                    new SubCategory
+                    {
+                        SubCategoryId = 9,
+                        CategoryId = 5,
+                        SubCategoryName = "Home design",
+                        ImagePath = "images/categories/other.png",
+                    },
+                    new SubCategory
+                    {
+                        SubCategoryId = 10,
+                        CategoryId = 5,
+                        SubCategoryName = "Clothes",
+                        ImagePath = "images/categories/other.png",
+                    });
 
-            // Challenge -> User
+
+            builder
+                    .Entity<IdentityUserRole<string>>()
+                    .HasData(
+                        new IdentityUserRole<string> { RoleId = "1", UserId = "admin-123" },
+                        new IdentityUserRole<string> { RoleId = "2", UserId = "user-456" }
+                    );
+
+            // Challenge -> User (Creator)
             builder
                 .Entity<Challenge>()
                 .HasOne(c => c.Creator)
@@ -143,7 +217,7 @@ namespace SkillChallenge.Data
             builder
                 .Entity<Challenge>()
                 .HasMany(c => c.Users)
-                .WithMany()
+                .WithMany(u => u.Challenges)
                 .UsingEntity(j => j.ToTable("ChallengeUsers"));
         }
     }
