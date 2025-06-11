@@ -1,21 +1,78 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useAuth } from "./AuthContext";
 
 function ChallengeDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [challenge, setChallenge] = useState(null);
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+  const [joining, setJoining] = useState(false);
+  const { user } = useAuth();
 
-  useEffect(() => {
+ const fetchChallenge = () => {
     fetch(`https://localhost:7212/challenges/${id}`)
       .then(res => res.ok ? res.json() : Promise.reject("Failed to fetch challenge"))
       .then(data => setChallenge(data))
       .catch(err => setError(err.toString()));
-  }, [id]);
+  };
+
+  useEffect(() => 
+    {
+      fetchChallenge();
+    }, [id]);
+
+  const handleJoin = async () => {
+    setJoining(true);
+    setMessage("");
+    try {
+      const res = await fetch(`https://localhost:7212/challenges/${id}/join`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        }
+      });
+      if (res.ok) {
+        setMessage("You joined the challenge!");
+        fetchChallenge(); // Refresh challenge data to update joined users
+      } else {
+        const text = await res.text();
+        setMessage("Failed to join: " + text);
+      }
+    } catch (err) {
+      setMessage("Failed to join: " + err.message);
+    }
+    setJoining(false);
+  };
 
   if (error) return <div style={{ color: "red" }}>{error}</div>;
   if (!challenge) return <div>Loading...</div>;
+
+  const alreadyJoined = user && challenge.joinedUsers.includes(user.userName);
+
+  const handleLeave = async () => {
+    setJoining(true);
+    setMessage("");
+    try {
+      const res = await fetch(`https://localhost:7212/challenges/${id}/leave`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        }
+      });
+      if (res.ok) {
+        setMessage("You left the challenge.");
+        fetchChallenge();
+      } else {
+        const text = await res.text();
+        setMessage("Failed to leave: " + text);
+      }
+    } catch (err) {
+      setMessage("Failed to leave: " + err.message);
+    }
+    setJoining(false);
+  };
 
   return (
     <div style={{ maxWidth: 500, margin: "2em auto", padding: 24, border: "1px solid #ccc", borderRadius: 8 }}>
@@ -46,6 +103,17 @@ function ChallengeDetails() {
         )}
       </div>
       <div><strong>Created by:</strong> {challenge.creatorUserName}</div>
+      <button
+        className="btn btn-primary"
+        style={{ marginTop: 16 }}
+        onClick={alreadyJoined ? handleLeave : handleJoin}
+        disabled={joining}
+      >
+        {joining 
+          ? (alreadyJoined ? "Leaving..." : "Joining...")
+          : (alreadyJoined ? "Exit Challenge" : "Join Challenge")}
+      </button>
+      {message && <div style={{ marginTop: 12, color: "var(--primary-color)" }}>{message}</div>}
     </div>
   );
 }

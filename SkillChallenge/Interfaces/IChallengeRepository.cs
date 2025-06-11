@@ -12,5 +12,6 @@ namespace SkillChallenge.Interfaces
         Task<bool> ChallengeExistsAsync(int id, CancellationToken ct = default);
         Task<List<Challenge>> GetChallengesByCreatorAsync(string creatorId, CancellationToken ct = default);
         Task<bool> AddUserToChallengeAsync(int challengeId, string userId, CancellationToken ct = default);
+        Task<bool> RemoveUserFromChallengeAsync(int challengeId, string userId, CancellationToken ct = default);
     }
 }
