@@ -226,5 +226,20 @@ namespace SkillChallenge.Controllers
 
             return Ok("Joined challenge successfully.");
         }
+
+        [HttpPost("{challengeId:int}/leave")]
+        [Authorize]
+        public async Task<IActionResult> LeaveChallenge([FromRoute] int challengeId, CancellationToken ct)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+
+            var success = await _challengeRepo.RemoveUserFromChallengeAsync(challengeId, userId, ct);
+            if (!success)
+                return NotFound($"Challenge or user not found.");
+
+            return Ok("Left challenge successfully.");
+        }
     }
 }
