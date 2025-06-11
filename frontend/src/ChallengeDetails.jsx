@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 function ChallengeDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [challenge, setChallenge] = useState(null);
   const [error, setError] = useState("");
 
@@ -26,6 +27,24 @@ function ChallengeDetails() {
         />
       <div><strong>End Date:</strong> {new Date(challenge.endDate).toLocaleString()}</div>
       <div><strong>Description:</strong> {challenge.description}</div>
+      <div>
+        <strong>Joined users:</strong>
+        {challenge.joinedUsers && challenge.joinedUsers.length > 0 ? (
+          <ul>
+            {challenge.joinedUsers.map((user, index) => (
+              <li
+                key={index}
+                style={{ cursor: "pointer", color: "var(--primary-color)" }}
+                onClick={() => navigate(`/users/username/${user}`)}
+              >
+                {user}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <span> None</span>
+        )}
+      </div>
       <div><strong>Created by:</strong> {challenge.creatorUserName}</div>
     </div>
   );

@@ -5,6 +5,6 @@ namespace SkillChallenge.Models
     public class User : IdentityUser
     {
         public string ProfilePicture { get; set; } = string.Empty;
-        // Tror det ska tillsättas relationstabell prop här..
+        public ICollection<Challenge> Challenges { get; set; } = new List<Challenge>();
     }
 }
