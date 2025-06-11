@@ -1,10 +1,10 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SkillChallenge.DTOs.Challenge;
 using SkillChallenge.DTOs.SubCategory;
 using SkillChallenge.Interfaces;
 using SkillChallenge.Models;
+using System.Security.Claims;
 
 namespace SkillChallenge.Controllers
 {
@@ -41,7 +41,7 @@ namespace SkillChallenge.Controllers
                                 SubCategoryName = c.SubCategory.SubCategoryName,
                                 ImagePath = c.SubCategory.ImagePath,
                             },
-                    UserIds = c.Users.Select(u => int.Parse(u.Id)).ToList(),
+                    JoinedUsers = c.Users.Select(u => u.UserName ?? "Unknown").ToList(),
                     CreatedBy = c.CreatedBy,
                     CreatorUserName = c.Creator?.UserName ?? "Unknown",
                 })
@@ -79,7 +79,7 @@ namespace SkillChallenge.Controllers
                                 SubCategoryName = c.SubCategory.SubCategoryName,
                                 ImagePath = c.SubCategory.ImagePath,
                             },
-                    UserIds = c.Users.Select(u => int.Parse(u.Id)).ToList(),
+                    JoinedUsers = c.Users.Select(u => u.UserName ?? "Unknown").ToList(),
                     CreatedBy = c.CreatedBy,
                     CreatorUserName = c.Creator?.UserName ?? "Unknown",
                 })
@@ -114,7 +114,7 @@ namespace SkillChallenge.Controllers
                             SubCategoryName = challenge.SubCategory.SubCategoryName,
                             ImagePath = challenge.SubCategory.ImagePath,
                         },
-                UserIds = challenge.Users.Select(u => int.Parse(u.Id)).ToList(),
+                JoinedUsers = challenge.Users.Select(u => u.UserName ?? "Unknown").ToList(),
                 CreatedBy = challenge.CreatedBy,
                 CreatorUserName = challenge.Creator?.UserName ?? "Unknown",
             };
@@ -210,6 +210,21 @@ namespace SkillChallenge.Controllers
 
             await _challengeRepo.DeleteChallengeAsync(id, ct);
             return NoContent();
+        }
+
+        [HttpPost("{challengeId:int}/join")]
+        [Authorize]
+        public async Task<IActionResult> JoinChallenge([FromRoute] int challengeId, CancellationToken ct)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+
+            var success = await _challengeRepo.AddUserToChallengeAsync(challengeId, userId, ct);
+            if (!success)
+                return NotFound($"Challenge or user not found.");
+
+            return Ok("Joined challenge successfully.");
         }
     }
 }

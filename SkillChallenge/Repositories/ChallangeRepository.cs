@@ -92,5 +92,23 @@ namespace SkillChallenge.Repositories
                 .Where(c => c.CreatedBy == creatorId)
                 .AsNoTracking()
                 .ToListAsync(ct);
+
+        public async Task<bool> AddUserToChallengeAsync(int challengeId, string userId, CancellationToken ct = default)
+        {
+            var challenge = await _context.Challenges
+                .Include(c => c.Users)
+                .FirstOrDefaultAsync(c => c.ChallengeId == challengeId, ct);
+            if (challenge == null) return false;
+
+            var user = await _context.Users.FindAsync(new object[] { userId }, ct);
+            if (user == null) return false;
+
+            if (!challenge.Users.Contains(user))
+            {
+                challenge.Users.Add(user);
+                await _context.SaveChangesAsync(ct);
+            }
+            return true;
+        }
     }
 }
