@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SkillChallenge.Migrations
 {
     /// <inheritdoc />
-    public partial class intialcreate : Migration
+    public partial class InitialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -205,8 +205,8 @@ namespace SkillChallenge.Migrations
                     TimePeriod = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsPublic = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    SubCategoryId = table.Column<int>(type: "int", nullable: true)
+                    SubCategoryId = table.Column<int>(type: "int", nullable: true),
+                    CreatedBy = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -229,12 +229,12 @@ namespace SkillChallenge.Migrations
                 name: "ChallengeUsers",
                 columns: table => new
                 {
-                    ChallengeId = table.Column<int>(type: "int", nullable: false),
+                    ChallengesChallengeId = table.Column<int>(type: "int", nullable: false),
                     UsersId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ChallengeUsers", x => new { x.ChallengeId, x.UsersId });
+                    table.PrimaryKey("PK_ChallengeUsers", x => new { x.ChallengesChallengeId, x.UsersId });
                     table.ForeignKey(
                         name: "FK_ChallengeUsers_AspNetUsers_UsersId",
                         column: x => x.UsersId,
@@ -242,8 +242,8 @@ namespace SkillChallenge.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ChallengeUsers_Challenges_ChallengeId",
-                        column: x => x.ChallengeId,
+                        name: "FK_ChallengeUsers_Challenges_ChallengesChallengeId",
+                        column: x => x.ChallengesChallengeId,
                         principalTable: "Challenges",
                         principalColumn: "ChallengeId",
                         onDelete: ReferentialAction.Cascade);
@@ -272,11 +272,11 @@ namespace SkillChallenge.Migrations
                 columns: new[] { "CategoryId", "CategoryName", "ImagePath" },
                 values: new object[,]
                 {
-                    { 1, "Musik", "images/categories/music.png" },
+                    { 1, "Music", "images/categories/music.png" },
                     { 2, "Sport", "images/categories/sport.png" },
-                    { 3, "Mat", "images/categories/food.png" },
-                    { 4, "Spel", "images/categories/games.png" },
-                    { 5, "Övrigt", "images/categories/other.png" }
+                    { 3, "Food", "images/categories/food.png" },
+                    { 4, "Games", "images/categories/games.png" },
+                    { 5, "Other", "images/categories/other.png" }
                 });
 
             migrationBuilder.InsertData(
@@ -286,6 +286,23 @@ namespace SkillChallenge.Migrations
                 {
                     { "1", "admin-123" },
                     { "2", "user-456" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "SubCategories",
+                columns: new[] { "SubCategoryId", "CategoryId", "ImagePath", "SubCategoryName" },
+                values: new object[,]
+                {
+                    { 1, 1, "images/categories/music.png", "Guitar" },
+                    { 2, 1, "images/categories/music.png", "Vocals" },
+                    { 3, 2, "images/categories/sport.png", "Wrestling" },
+                    { 4, 2, "images/categories/sport.png", "Football" },
+                    { 5, 3, "images/categories/food.png", "Recepies" },
+                    { 6, 3, "images/categories/food.png", "Baking" },
+                    { 7, 4, "images/categories/gaming.png", "Counter-Strike" },
+                    { 8, 4, "images/categories/gaming.png", "Chess" },
+                    { 9, 5, "images/categories/other.png", "Home design" },
+                    { 10, 5, "images/categories/other.png", "Clothes" }
                 });
 
             migrationBuilder.CreateIndex(

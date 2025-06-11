@@ -24,13 +24,13 @@ namespace SkillChallenge.Migrations
 
             modelBuilder.Entity("ChallengeUser", b =>
                 {
-                    b.Property<int>("ChallengeId")
+                    b.Property<int>("ChallengesChallengeId")
                         .HasColumnType("int");
 
                     b.Property<string>("UsersId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("ChallengeId", "UsersId");
+                    b.HasKey("ChallengesChallengeId", "UsersId");
 
                     b.HasIndex("UsersId");
 
@@ -220,7 +220,7 @@ namespace SkillChallenge.Migrations
                         new
                         {
                             CategoryId = 1,
-                            CategoryName = "Musik",
+                            CategoryName = "Music",
                             ImagePath = "images/categories/music.png"
                         },
                         new
@@ -232,19 +232,19 @@ namespace SkillChallenge.Migrations
                         new
                         {
                             CategoryId = 3,
-                            CategoryName = "Mat",
+                            CategoryName = "Food",
                             ImagePath = "images/categories/food.png"
                         },
                         new
                         {
                             CategoryId = 4,
-                            CategoryName = "Spel",
+                            CategoryName = "Games",
                             ImagePath = "images/categories/games.png"
                         },
                         new
                         {
                             CategoryId = 5,
-                            CategoryName = "Övrigt",
+                            CategoryName = "Other",
                             ImagePath = "images/categories/other.png"
                         });
                 });
@@ -313,6 +313,78 @@ namespace SkillChallenge.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("SubCategories");
+
+                    b.HasData(
+                        new
+                        {
+                            SubCategoryId = 1,
+                            CategoryId = 1,
+                            ImagePath = "images/categories/music.png",
+                            SubCategoryName = "Guitar"
+                        },
+                        new
+                        {
+                            SubCategoryId = 2,
+                            CategoryId = 1,
+                            ImagePath = "images/categories/music.png",
+                            SubCategoryName = "Vocals"
+                        },
+                        new
+                        {
+                            SubCategoryId = 3,
+                            CategoryId = 2,
+                            ImagePath = "images/categories/sport.png",
+                            SubCategoryName = "Wrestling"
+                        },
+                        new
+                        {
+                            SubCategoryId = 4,
+                            CategoryId = 2,
+                            ImagePath = "images/categories/sport.png",
+                            SubCategoryName = "Football"
+                        },
+                        new
+                        {
+                            SubCategoryId = 5,
+                            CategoryId = 3,
+                            ImagePath = "images/categories/food.png",
+                            SubCategoryName = "Recepies"
+                        },
+                        new
+                        {
+                            SubCategoryId = 6,
+                            CategoryId = 3,
+                            ImagePath = "images/categories/food.png",
+                            SubCategoryName = "Baking"
+                        },
+                        new
+                        {
+                            SubCategoryId = 7,
+                            CategoryId = 4,
+                            ImagePath = "images/categories/gaming.png",
+                            SubCategoryName = "Counter-Strike"
+                        },
+                        new
+                        {
+                            SubCategoryId = 8,
+                            CategoryId = 4,
+                            ImagePath = "images/categories/gaming.png",
+                            SubCategoryName = "Chess"
+                        },
+                        new
+                        {
+                            SubCategoryId = 9,
+                            CategoryId = 5,
+                            ImagePath = "images/categories/other.png",
+                            SubCategoryName = "Home design"
+                        },
+                        new
+                        {
+                            SubCategoryId = 10,
+                            CategoryId = 5,
+                            ImagePath = "images/categories/other.png",
+                            SubCategoryName = "Clothes"
+                        });
                 });
 
             modelBuilder.Entity("SkillChallenge.Models.User", b =>
@@ -424,7 +496,7 @@ namespace SkillChallenge.Migrations
                 {
                     b.HasOne("SkillChallenge.Models.Challenge", null)
                         .WithMany()
-                        .HasForeignKey("ChallengeId")
+                        .HasForeignKey("ChallengesChallengeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
