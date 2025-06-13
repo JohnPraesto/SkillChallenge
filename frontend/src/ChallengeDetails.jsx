@@ -24,6 +24,10 @@ function ChallengeDetails() {
     }, [id]);
 
   const handleJoin = async () => {
+    if (!user) {
+    navigate("/register");
+    return;
+    }
     setJoining(true);
     setMessage("");
     try {
@@ -111,7 +115,7 @@ function ChallengeDetails() {
       >
         {joining 
           ? (alreadyJoined ? "Leaving..." : "Joining...")
-          : (alreadyJoined ? "Exit Challenge" : "Join Challenge")}
+          : (alreadyJoined ? "Leave Challenge" : "Join Challenge")}
       </button>
       {message && <div style={{ marginTop: 12, color: "var(--primary-color)" }}>{message}</div>}
     </div>

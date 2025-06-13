@@ -9,6 +9,7 @@ import Profile from "./Profile"
 import Challenges from "./Challenges"
 import ChallengeDetails from "./ChallengeDetails";
 import ErrorBoundary from "./ErrorBoundary";
+import CreateChallenge  from "./CreateChallenge";
 import './App.css';
 
 function Home() {
@@ -43,6 +44,7 @@ function App() {
           <Route path="/users/username/:userName" element={<UserDetail />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/challenges/:id" element={<ChallengeDetails />} />
+          <Route path="/create-challenge" element={<CreateChallenge />} />
         </Routes>
       </Router>
     </ErrorBoundary>
