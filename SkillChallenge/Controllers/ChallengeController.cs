@@ -29,7 +29,6 @@ namespace SkillChallenge.Controllers
                     ChallengeId = c.ChallengeId,
                     ChallengeName = c.ChallengeName,
                     EndDate = c.EndDate,
-                    TimePeriod = c.TimePeriod,
                     Description = c.Description,
                     IsPublic = c.IsPublic,
                     SubCategory =
@@ -67,7 +66,6 @@ namespace SkillChallenge.Controllers
                     ChallengeId = c.ChallengeId,
                     ChallengeName = c.ChallengeName,
                     EndDate = c.EndDate,
-                    TimePeriod = c.TimePeriod,
                     Description = c.Description,
                     IsPublic = c.IsPublic,
                     SubCategory =
@@ -102,7 +100,6 @@ namespace SkillChallenge.Controllers
                 ChallengeId = challenge.ChallengeId,
                 ChallengeName = challenge.ChallengeName,
                 EndDate = challenge.EndDate,
-                TimePeriod = challenge.TimePeriod,
                 Description = challenge.Description,
                 IsPublic = challenge.IsPublic,
                 SubCategory =
@@ -139,7 +136,6 @@ namespace SkillChallenge.Controllers
             {
                 ChallengeName = createChallengeDTO.ChallengeName,
                 EndDate = createChallengeDTO.EndDate,
-                TimePeriod = createChallengeDTO.TimePeriod,
                 Description = createChallengeDTO.Description,
                 IsPublic = createChallengeDTO.IsPublic,
                 SubCategoryId = createChallengeDTO.SubCategoryId,
@@ -180,7 +176,6 @@ namespace SkillChallenge.Controllers
             {
                 ChallengeName = updateChallengeDTO.ChallengeName,
                 EndDate = updateChallengeDTO.EndDate,
-                TimePeriod = updateChallengeDTO.TimePeriod,
                 Description = updateChallengeDTO.Description,
                 IsPublic = updateChallengeDTO.IsPublic,
                 SubCategoryId = updateChallengeDTO.SubCategoryId,

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; 
+import { useAuth } from "./AuthContext";
 
 export function SearchAndFilter({ 
   challenges, 
@@ -9,6 +11,8 @@ export function SearchAndFilter({
   const [selectedCategory, setSelectedCategory] = useState("");
   const [sortBy, setSortBy] = useState("newest");
   const [showOnlyOpen, setShowOnlyOpen] = useState(false);
+  const navigate = useNavigate();
+  const { user } = useAuth();
 
   useEffect(() => {
     let filtered = [...challenges];
@@ -53,6 +57,14 @@ export function SearchAndFilter({
 
     onFilteredChallenges(filtered);
   }, [searchTerm, selectedCategory, sortBy, showOnlyOpen, challenges]);
+
+  const handleCreateChallenge = () => {
+    if (!user) {
+      navigate("/register");
+    } else {
+      navigate("/create-challenge");
+    }
+  };
 
   return (
     <div className="search-filter-container">
@@ -100,6 +112,13 @@ export function SearchAndFilter({
           />
           Only Open Challenges
         </label>
+        <button
+          className="btn btn-primary"
+          style={{ marginLeft: 16 }}
+          onClick={handleCreateChallenge}
+        >
+        Create Challenge
+        </button>
       </div>
     </div>
   );

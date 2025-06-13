@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SkillChallenge.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class NewInitial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -202,7 +202,6 @@ namespace SkillChallenge.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ChallengeName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    TimePeriod = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsPublic = table.Column<bool>(type: "bit", nullable: false),
                     SubCategoryId = table.Column<int>(type: "int", nullable: true),
@@ -299,10 +298,22 @@ namespace SkillChallenge.Migrations
                     { 4, 2, "images/categories/sport.png", "Football" },
                     { 5, 3, "images/categories/food.png", "Recepies" },
                     { 6, 3, "images/categories/food.png", "Baking" },
-                    { 7, 4, "images/categories/gaming.png", "Counter-Strike" },
-                    { 8, 4, "images/categories/gaming.png", "Chess" },
+                    { 7, 4, "images/categories/games.png", "Counter-Strike" },
+                    { 8, 4, "images/categories/games.png", "Chess" },
                     { 9, 5, "images/categories/other.png", "Home design" },
-                    { 10, 5, "images/categories/other.png", "Clothes" }
+                    { 10, 5, "images/categories/other.png", "Clothes" },
+                    { 11, 5, "images/subcategories/cat.png", "Other" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Challenges",
+                columns: new[] { "ChallengeId", "ChallengeName", "CreatedBy", "Description", "EndDate", "IsPublic", "SubCategoryId" },
+                values: new object[,]
+                {
+                    { 1, "Nacksving", "admin-123", "Lär dig göra ett nacksving", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), true, 3 },
+                    { 2, "Guitar solo", "admin-123", "Learn this solo", new DateTime(2027, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), true, 1 },
+                    { 3, "Ace", "user-456", "Best aceg", new DateTime(2027, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), true, 7 },
+                    { 4, "Recepie", "user-456", "Best original recepie", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), true, 5 }
                 });
 
             migrationBuilder.CreateIndex(

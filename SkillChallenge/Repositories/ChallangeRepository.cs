@@ -72,7 +72,6 @@ namespace SkillChallenge.Repositories
 
             existing.ChallengeName = updatedChallenge.ChallengeName;
             existing.EndDate = updatedChallenge.EndDate;
-            existing.TimePeriod = updatedChallenge.TimePeriod;
             existing.Description = updatedChallenge.Description;
             existing.IsPublic = updatedChallenge.IsPublic;
             existing.SubCategoryId = updatedChallenge.SubCategoryId;
