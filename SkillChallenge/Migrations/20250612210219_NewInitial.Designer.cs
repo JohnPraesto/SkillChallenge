@@ -12,8 +12,8 @@ using SkillChallenge.Data;
 namespace SkillChallenge.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250611083537_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20250612210219_NewInitial")]
+    partial class NewInitial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -281,9 +281,6 @@ namespace SkillChallenge.Migrations
                     b.Property<int?>("SubCategoryId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("TimePeriod")
-                        .HasColumnType("datetime2");
-
                     b.HasKey("ChallengeId");
 
                     b.HasIndex("CreatedBy");
@@ -291,6 +288,48 @@ namespace SkillChallenge.Migrations
                     b.HasIndex("SubCategoryId");
 
                     b.ToTable("Challenges");
+
+                    b.HasData(
+                        new
+                        {
+                            ChallengeId = 1,
+                            ChallengeName = "Nacksving",
+                            CreatedBy = "admin-123",
+                            Description = "Lär dig göra ett nacksving",
+                            EndDate = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsPublic = true,
+                            SubCategoryId = 3
+                        },
+                        new
+                        {
+                            ChallengeId = 2,
+                            ChallengeName = "Guitar solo",
+                            CreatedBy = "admin-123",
+                            Description = "Learn this solo",
+                            EndDate = new DateTime(2027, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsPublic = true,
+                            SubCategoryId = 1
+                        },
+                        new
+                        {
+                            ChallengeId = 3,
+                            ChallengeName = "Ace",
+                            CreatedBy = "user-456",
+                            Description = "Best aceg",
+                            EndDate = new DateTime(2027, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsPublic = true,
+                            SubCategoryId = 7
+                        },
+                        new
+                        {
+                            ChallengeId = 4,
+                            ChallengeName = "Recepie",
+                            CreatedBy = "user-456",
+                            Description = "Best original recepie",
+                            EndDate = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsPublic = true,
+                            SubCategoryId = 5
+                        });
                 });
 
             modelBuilder.Entity("SkillChallenge.Models.SubCategory", b =>
@@ -364,14 +403,14 @@ namespace SkillChallenge.Migrations
                         {
                             SubCategoryId = 7,
                             CategoryId = 4,
-                            ImagePath = "images/categories/gaming.png",
+                            ImagePath = "images/categories/games.png",
                             SubCategoryName = "Counter-Strike"
                         },
                         new
                         {
                             SubCategoryId = 8,
                             CategoryId = 4,
-                            ImagePath = "images/categories/gaming.png",
+                            ImagePath = "images/categories/games.png",
                             SubCategoryName = "Chess"
                         },
                         new
@@ -387,6 +426,13 @@ namespace SkillChallenge.Migrations
                             CategoryId = 5,
                             ImagePath = "images/categories/other.png",
                             SubCategoryName = "Clothes"
+                        },
+                        new
+                        {
+                            SubCategoryId = 11,
+                            CategoryId = 5,
+                            ImagePath = "images/subcategories/cat.png",
+                            SubCategoryName = "Other"
                         });
                 });
 

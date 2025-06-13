@@ -157,14 +157,14 @@ namespace SkillChallenge.Data
                         SubCategoryId = 7,
                         CategoryId = 4,
                         SubCategoryName = "Counter-Strike",
-                        ImagePath = "images/categories/gaming.png",
+                        ImagePath = "images/categories/games.png",
                     },
                     new SubCategory
                     {
                         SubCategoryId = 8,
                         CategoryId = 4,
                         SubCategoryName = "Chess",
-                        ImagePath = "images/categories/gaming.png",
+                        ImagePath = "images/categories/games.png",
                     },
                     new SubCategory
                     {
@@ -179,7 +179,56 @@ namespace SkillChallenge.Data
                         CategoryId = 5,
                         SubCategoryName = "Clothes",
                         ImagePath = "images/categories/other.png",
+                    },
+                    new SubCategory
+                    {
+                        SubCategoryId = 11,
+                        CategoryId = 5,
+                        SubCategoryName = "Other",
+                        ImagePath = "images/subcategories/cat.png",
                     });
+
+            builder.Entity<Challenge>().HasData(
+                new Challenge
+                {
+                    ChallengeId = 1,
+                    ChallengeName = "Nacksving",
+                    EndDate = new DateTime(2024, 01, 01),
+                    Description = "Lär dig göra ett nacksving",
+                    IsPublic = true,
+                    SubCategoryId = 3,
+                    CreatedBy = "admin-123"
+                },
+                new Challenge
+                {
+                    ChallengeId = 2,
+                    ChallengeName = "Guitar solo",
+                    EndDate = new DateTime(2027, 01, 01),
+                    Description = "Learn this solo",
+                    IsPublic = true,
+                    SubCategoryId = 1,
+                    CreatedBy = "admin-123"
+                },
+                new Challenge
+                {
+                    ChallengeId = 3,
+                    ChallengeName = "Ace",
+                    EndDate = new DateTime(2027, 01, 01),
+                    Description = "Best aceg",
+                    IsPublic = true,
+                    SubCategoryId = 7,
+                    CreatedBy = "user-456"
+                },
+                new Challenge
+                {
+                    ChallengeId = 4,
+                    ChallengeName = "Recepie",
+                    EndDate = new DateTime(2024, 01, 01),
+                    Description = "Best original recepie",
+                    IsPublic = true,
+                    SubCategoryId = 5,
+                    CreatedBy = "user-456"
+                });
 
 
             builder
