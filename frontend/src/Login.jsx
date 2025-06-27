@@ -9,6 +9,7 @@ function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
   const { showError, showSuccess } = useToast();
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -19,7 +20,7 @@ function Login() {
     setLoading(true);
     
     try {
-      const response = await fetch("https://localhost:7212/account/login", {
+      const response = await fetch(apiUrl + "/account/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

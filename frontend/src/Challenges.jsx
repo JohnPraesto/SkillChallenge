@@ -11,11 +11,12 @@ function Challenges() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { showError } = useToast();
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     Promise.all([
-      fetch("https://localhost:7212/challenges").then(res => res.json()),
-      fetch("https://localhost:7212/categories").then(res => res.json())
+      fetch(apiUrl + "/challenges").then(res => res.json()),
+      fetch(apiUrl + "/categories").then(res => res.json())
     ])
     .then(([challengesData, categoriesData]) => {
       setChallenges(challengesData);
@@ -47,7 +48,7 @@ function Challenges() {
     >
       {challenge.subCategory?.imagePath && (
         <img
-          src={`https://localhost:7212/${challenge.subCategory.imagePath}`}
+          src={`${apiUrl}/${challenge.subCategory.imagePath}`}
           alt={challenge.subCategory.subCategoryName || "Category"}
           loading="lazy"
         />

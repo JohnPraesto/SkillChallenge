@@ -8,9 +8,10 @@ function UserDetail() {
   const { userName } = useParams();
   const [user, setUser] = useState(null);
   const [error, setError] = useState("");
+  const apiUrl = import.meta.env.VITE_API_URL;
 
 useEffect(() => {
-  fetch(`https://localhost:7212/users/username/${userName}`)
+  fetch(`${apiUrl}/users/username/${userName}`)
     .then(res => {
       if (!res.ok) {
         return res.text().then(text => { throw new Error(text); });

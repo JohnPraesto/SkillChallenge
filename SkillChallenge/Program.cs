@@ -75,8 +75,7 @@ public class Program
         else
         {
             builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")) // Denna hade jag lokalt
-                                                                                                     //options.UseSqlServer(builder.Configuration.GetConnectionString("AzureConnectionStrings:John:SqlDb")) // Detta ska va f�r azure n�t?
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), sqlOptions => sqlOptions.EnableRetryOnFailure())
             );
         }
 
