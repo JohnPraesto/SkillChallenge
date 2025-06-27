@@ -3,6 +3,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+	<UserSecretsId>704b55e1-a9e3-4a05-843b-58eb24197ea9</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Tests\**" />
