@@ -15,6 +15,7 @@ function Profile() {
     newPassword: "",
     picture: ""
   });
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     console.log("AuthContext user:", user);
@@ -23,7 +24,7 @@ function Profile() {
   useEffect(() => {
     if (!user?.id) return;
     
-    fetch(`https://localhost:7212/users/id/${user.id}`)
+    fetch(`${apiUrl}/users/id/${user.id}`)
       .then(res => res.ok ? res.json() : Promise.reject("Failed to fetch user"))
       .then(data => {
         setUserData(data);
@@ -37,7 +38,7 @@ function Profile() {
 
   const handleUpdate = async (field, value) => {
     try {
-      const res = await fetch(`https://localhost:7212/users/${user.id}`, {
+      const res = await fetch(`${apiUrl}/users/${user.id}`, {
         method: "PUT",
         headers: { 
           "Content-Type": "application/json",
@@ -62,7 +63,7 @@ function Profile() {
 
   const handleChangePassword = async () => {
     try {
-      const res = await fetch(`https://localhost:7212/users/${userData.id}/change-password`, {
+      const res = await fetch(`${apiUrl}/users/${userData.id}/change-password`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -88,7 +89,7 @@ function Profile() {
     if (!window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) return;
     
     try {
-      const res = await fetch(`https://localhost:7212/users/${user.id}`, {
+      const res = await fetch(`${apiUrl}/users/${user.id}`, {
         method: "DELETE",
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("token")}`

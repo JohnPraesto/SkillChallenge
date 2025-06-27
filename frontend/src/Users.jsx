@@ -8,9 +8,10 @@ function Users() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const { showError } = useToast();
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    fetch("https://localhost:7212/users")
+    fetch(apiUrl + "/users")
       .then(res => {
         if (!res.ok) throw new Error("Failed to fetch users");
         return res.json();

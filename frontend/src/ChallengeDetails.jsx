@@ -10,9 +10,10 @@ function ChallengeDetails() {
   const [message, setMessage] = useState("");
   const [joining, setJoining] = useState(false);
   const { user } = useAuth();
+  const apiUrl = import.meta.env.VITE_API_URL;
 
  const fetchChallenge = () => {
-    fetch(`https://localhost:7212/challenges/${id}`)
+    fetch(`${apiUrl}/challenges/${id}`)
       .then(res => res.ok ? res.json() : Promise.reject("Failed to fetch challenge"))
       .then(data => setChallenge(data))
       .catch(err => setError(err.toString()));
@@ -31,7 +32,7 @@ function ChallengeDetails() {
     setJoining(true);
     setMessage("");
     try {
-      const res = await fetch(`https://localhost:7212/challenges/${id}/join`, {
+      const res = await fetch(`${apiUrl}/challenges/${id}/join`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("token")}`,
@@ -59,7 +60,7 @@ function ChallengeDetails() {
     setJoining(true);
     setMessage("");
     try {
-      const res = await fetch(`https://localhost:7212/challenges/${id}/leave`, {
+      const res = await fetch(`${apiUrl}/challenges/${id}/leave`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("token")}`,
@@ -82,7 +83,7 @@ function ChallengeDetails() {
     <div style={{ maxWidth: 500, margin: "2em auto", padding: 24, border: "1px solid #ccc", borderRadius: 8 }}>
       <h2>{challenge.challengeName}</h2>
       <img
-        src={`https://localhost:7212/${challenge.subCategory.imagePath}`}
+        src={`${apiUrl}/${challenge.subCategory.imagePath}`}
         alt={challenge.subCategory.subCategoryName || "Category"}
         style={{ width: 300, height: 300, objectFit: "cover", borderRadius: 8, marginBottom: 12 }}
         />

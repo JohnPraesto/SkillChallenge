@@ -11,10 +11,11 @@ function CreateChallenge() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     // Fetch subcategories for the dropdown
-    fetch("https://localhost:7212/subcategories")
+    fetch(apiUrl + "/subcategories")
       .then(res => res.ok ? res.json() : Promise.reject("Failed to fetch subcategories"))
       .then(data => setSubCategories(data))
       .catch(() => setSubCategories([]));
@@ -29,7 +30,7 @@ function CreateChallenge() {
       return;
     }
     try {
-      const res = await fetch("https://localhost:7212/challenges", {
+      const res = await fetch(apiUrl + "/challenges", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

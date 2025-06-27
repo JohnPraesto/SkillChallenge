@@ -75,7 +75,7 @@ public class Program
         else
         {
             builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), sqlOptions => sqlOptions.EnableRetryOnFailure())
             );
         }
 
@@ -147,13 +147,17 @@ public class Program
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+        app.UseDefaultFiles(); // ny
         app.UseStaticFiles();
         app.UseHttpsRedirection();
         app.UseCors("AllowFrontend");
+        app.UseRouting();
         app.UseAuthentication();
         app.UseAuthorization();
 
         app.MapControllers();
+
+        app.MapFallbackToFile("index.html");
 
         await app.RunAsync();
     }
