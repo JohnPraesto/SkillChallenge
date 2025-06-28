@@ -30,7 +30,7 @@ jobs:
         run: dotnet build --configuration Release --no-restore
 
       - name: Publish
-        run: dotnet publish -c Release -o ./publish --no-build --self-contained false
+        run: dotnet publish -c Release --property:PublishDir=./publish --no-build --self-contained false
 
       - name: Upload published app as artifact
         uses: actions/upload-artifact@v4
