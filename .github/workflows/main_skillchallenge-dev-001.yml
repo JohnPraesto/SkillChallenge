@@ -23,6 +23,27 @@ jobs:
         with:
           dotnet-version: '8.0.x' # Use the correct .NET version
 
+      # Set up Node.js (for frontend build)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      # Install and build React frontend (Vite)
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm install
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: Copy frontend build to ASP.NET Core wwwroot
+        run: |
+          if exist SkillChallenge\wwwroot (rmdir /s /q SkillChallenge\wwwroot)
+          mkdir SkillChallenge\wwwroot
+          xcopy /s /e /y frontend\dist\* SkillChallenge\wwwroot\
+
       - name: Restore dependencies
         run: dotnet restore
 
