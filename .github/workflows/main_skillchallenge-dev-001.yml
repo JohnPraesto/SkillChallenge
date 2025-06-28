@@ -32,11 +32,14 @@ jobs:
       - name: Publish with dotnet
         run: dotnet publish -c Release -o ./publish --self-contained false
 
+      - name: List publish directory contents
+        run: ls -R ./publish
+
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: ./publish # Upload the correct publish directory
+          path: ./publish
 
   deploy:
     runs-on: windows-latest
@@ -64,4 +67,4 @@ jobs:
         with:
           app-name: 'skillchallenge-dev-001'
           slot-name: 'Production'
-          package: ./publish # Deploy the correct publish directory
+          package: ./publish
