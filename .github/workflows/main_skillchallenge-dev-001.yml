@@ -32,9 +32,6 @@ jobs:
       - name: Publish
         run: dotnet publish -c Release -o ./publish --no-build --self-contained false
 
-      - name: List publish output
-        run: dir ./publish /s
-
       - name: Upload published app as artifact
         uses: actions/upload-artifact@v4
         with:
