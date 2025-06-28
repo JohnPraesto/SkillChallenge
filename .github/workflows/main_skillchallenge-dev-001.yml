@@ -39,10 +39,13 @@ jobs:
         run: npm run build
 
       - name: Copy frontend build to ASP.NET Core wwwroot
+        shell: pwsh
         run: |
-          if exist SkillChallenge\wwwroot (rmdir /s /q SkillChallenge\wwwroot)
-          mkdir SkillChallenge\wwwroot
-          xcopy /s /e /y frontend\dist\* SkillChallenge\wwwroot\
+          if (Test-Path "SkillChallenge/wwwroot") {
+            Remove-Item -Recurse -Force "SkillChallenge/wwwroot"
+          }
+          New-Item -ItemType Directory -Path "SkillChallenge/wwwroot"
+          Copy-Item -Recurse -Force "frontend/dist/*" "SkillChallenge/wwwroot/"
 
       - name: Restore dependencies
         run: dotnet restore
