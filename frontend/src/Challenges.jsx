@@ -74,7 +74,7 @@ function Challenges() {
       <div className="two-column-layout">
         <div className="slide-in-left">
           <h2 style={{ textAlign: "center", color: "var(--primary-color)" }}>
-            🔥 Open Challenges ({futureChallenges.length})
+            🔥 Open Challenges TESTING TO SEE IF CHANGES GO LIVE FROM MAIN CONTINUOUS DELIVERY({futureChallenges.length})
           </h2>
           {futureChallenges.length === 0 ? (
             <div className="card bounce-in" style={{ textAlign: "center", padding: "2rem" }}>
