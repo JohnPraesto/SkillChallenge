@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SkillChallenge.Migrations
 {
     /// <inheritdoc />
-    public partial class NewInitial : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -32,7 +32,7 @@ namespace SkillChallenge.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ProfilePicture = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ProfilePicture = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -262,8 +262,8 @@ namespace SkillChallenge.Migrations
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "ProfilePicture", "SecurityStamp", "TwoFactorEnabled", "UserName" },
                 values: new object[,]
                 {
-                    { "admin-123", 0, "STATIC-ADMIN-CONCURRENCY-STAMP", "admin@skillchallenge.com", true, false, null, "ADMIN@SKILLCHALLENGE.COM", "ADMIN", "AQAAAAIAAYagAAAAEIzZ1ipYa+9PoN6PNCJektB+44UdZJWEv/RnJtum84hmALg1Z4Gl5h9C0nDM2CIXOw==", null, false, "", "STATIC-ADMIN-SECURITY-STAMP", false, "admin" },
-                    { "user-456", 0, "STATIC-USER-CONCURRENCY-STAMP", "test@skillchallenge.com", true, false, null, "TEST@SKILLCHALLENGE.COM", "TESTUSER", "AQAAAAIAAYagAAAAECPJaSFhPkxbqX8QWGU013AN7zVInxVWKQ92xSKUPYH5LK7TTPhZQLFCAmjFOEKumg==", null, false, "", "STATIC-USER-SECURITY-STAMP", false, "testuser" }
+                    { "admin-123", 0, "STATIC-ADMIN-CONCURRENCY-STAMP", "admin@skillchallenge.com", true, false, null, "ADMIN@SKILLCHALLENGE.COM", "ADMIN", "AQAAAAIAAYagAAAAEIzZ1ipYa+9PoN6PNCJektB+44UdZJWEv/RnJtum84hmALg1Z4Gl5h9C0nDM2CIXOw==", null, false, null, "STATIC-ADMIN-SECURITY-STAMP", false, "admin" },
+                    { "user-456", 0, "STATIC-USER-CONCURRENCY-STAMP", "test@skillchallenge.com", true, false, null, "TEST@SKILLCHALLENGE.COM", "TESTUSER", "AQAAAAIAAYagAAAAECPJaSFhPkxbqX8QWGU013AN7zVInxVWKQ92xSKUPYH5LK7TTPhZQLFCAmjFOEKumg==", null, false, null, "STATIC-USER-SECURITY-STAMP", false, "testuser" }
                 });
 
             migrationBuilder.InsertData(

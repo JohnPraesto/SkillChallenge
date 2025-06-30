@@ -12,8 +12,8 @@ using SkillChallenge.Data;
 namespace SkillChallenge.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250612210219_NewInitial")]
-    partial class NewInitial
+    [Migration("20250630101345_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -479,7 +479,6 @@ namespace SkillChallenge.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("ProfilePicture")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SecurityStamp")
@@ -517,7 +516,6 @@ namespace SkillChallenge.Migrations
                             NormalizedUserName = "ADMIN",
                             PasswordHash = "AQAAAAIAAYagAAAAEIzZ1ipYa+9PoN6PNCJektB+44UdZJWEv/RnJtum84hmALg1Z4Gl5h9C0nDM2CIXOw==",
                             PhoneNumberConfirmed = false,
-                            ProfilePicture = "",
                             SecurityStamp = "STATIC-ADMIN-SECURITY-STAMP",
                             TwoFactorEnabled = false,
                             UserName = "admin"
@@ -534,7 +532,6 @@ namespace SkillChallenge.Migrations
                             NormalizedUserName = "TESTUSER",
                             PasswordHash = "AQAAAAIAAYagAAAAECPJaSFhPkxbqX8QWGU013AN7zVInxVWKQ92xSKUPYH5LK7TTPhZQLFCAmjFOEKumg==",
                             PhoneNumberConfirmed = false,
-                            ProfilePicture = "",
                             SecurityStamp = "STATIC-USER-SECURITY-STAMP",
                             TwoFactorEnabled = false,
                             UserName = "testuser"

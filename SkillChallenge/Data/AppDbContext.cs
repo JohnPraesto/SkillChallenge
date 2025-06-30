@@ -49,7 +49,6 @@ namespace SkillChallenge.Data
                     EmailConfirmed = true,
                     SecurityStamp = "STATIC-ADMIN-SECURITY-STAMP",
                     ConcurrencyStamp = "STATIC-ADMIN-CONCURRENCY-STAMP",
-                    ProfilePicture = "",
                     PasswordHash =
                         "AQAAAAIAAYagAAAAEIzZ1ipYa+9PoN6PNCJektB+44UdZJWEv/RnJtum84hmALg1Z4Gl5h9C0nDM2CIXOw==",
                 };
@@ -64,7 +63,6 @@ namespace SkillChallenge.Data
                     EmailConfirmed = true,
                     SecurityStamp = "STATIC-USER-SECURITY-STAMP",
                     ConcurrencyStamp = "STATIC-USER-CONCURRENCY-STAMP",
-                    ProfilePicture = "",
                     PasswordHash =
                         "AQAAAAIAAYagAAAAECPJaSFhPkxbqX8QWGU013AN7zVInxVWKQ92xSKUPYH5LK7TTPhZQLFCAmjFOEKumg==",
                 };
