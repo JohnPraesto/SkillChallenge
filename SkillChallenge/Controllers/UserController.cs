@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +6,7 @@ using SkillChallenge.DTOs.Account;
 using SkillChallenge.DTOs.User;
 using SkillChallenge.Interfaces;
 using SkillChallenge.Models;
+using System.Security.Claims;
 
 namespace SkillChallenge.Controllers
 {
@@ -142,6 +142,35 @@ namespace SkillChallenge.Controllers
                     ProfilePicture = user.ProfilePicture,
                 }
             );
+        }
+
+        [HttpPost("{id}/upload-profile-picture")]
+        public async Task<IActionResult> UploadProfilePicture(string id, IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded.");
+
+            // Save file to wwwroot/profile-pictures
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "profile-pictures");
+            if (!Directory.Exists(uploadsFolder))
+                Directory.CreateDirectory(uploadsFolder);
+
+            var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
+            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            var user = await _userRepo.GetUserByIdAsync(id);
+            if (user == null)
+                return NotFound();
+
+            user.ProfilePicture = $"/profile-pictures/{uniqueFileName}";
+            await _userRepo.UpdateUserAsync(id, new UpdateUserDTO { ProfilePicture = user.ProfilePicture });
+
+            return Ok(new { profilePictureUrl = user.ProfilePicture });
         }
 
         [HttpPost("{id}/change-password")]
