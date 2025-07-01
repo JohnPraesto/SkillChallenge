@@ -28,7 +28,9 @@ useEffect(() => {
   return (
     <div>
       <h2>User: {user.userName}</h2>
-      <h2>Profile Picture: {user.profilePicture}</h2>
+      <img 
+      src={user.profilePicture ? `${apiUrl}${user.profilePicture}`: `${apiUrl}/profile-pictures/default.png`}
+      style={{width: "200px", height: "200px", objectFit: "cover", border: "3px solid var(--primary-color)"}}/>
     </div>
   );
 }

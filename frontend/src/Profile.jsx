@@ -13,7 +13,7 @@ function Profile() {
     username: "",
     currentPassword: "",
     newPassword: "",
-    picture: ""
+    pictureFile: ""
   });
   const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -85,6 +85,33 @@ function Profile() {
     }
   };
 
+  const handlePictureUpload = async (e) => {
+    e.preventDefault();
+    if (!formData.pictureFile) {
+      showError("Please select a file to upload.");
+      return;
+    }
+    try {
+      const uploadData = new FormData();
+      uploadData.append("file", formData.pictureFile);
+      const res = await fetch(`${apiUrl}/users/${user.id}/upload-profile-picture`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
+        },
+        body: uploadData
+      });
+      if (!res.ok) throw new Error("Upload failed");
+      const data = await res.json();
+      setUserData(prev => ({ ...prev, profilePicture: data.profilePictureUrl }));
+      setActiveForm(null);
+      setFormData({ username: "", currentPassword: "", newPassword: "", pictureFile: null });
+      showSuccess("Profile picture updated!");
+    } catch (err) {
+      showError("Upload failed");
+    }
+  };
+
   const handleDeleteAccount = async () => {
     if (!window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) return;
     
@@ -135,12 +162,12 @@ function Profile() {
       <div className="card" style={{ maxWidth: "600px", margin: "2rem auto" }}>
         <div className="profile-header" style={{ textAlign: "center", marginBottom: "2rem" }}>
           <img
-            src={userData?.profilePicture || "/default-profile.png"}
+            src={userData.profilePicture ? `${apiUrl}${userData.profilePicture}`: `${apiUrl}/profile-pictures/default.png`}
             alt="Profile"
-            style={{ 
-              width: "120px", 
-              height: "120px", 
-              borderRadius: "50%", 
+            style={{
+              width: "120px",
+              height: "120px",
+              borderRadius: "50%",
               objectFit: "cover",
               border: "4px solid var(--primary-color)",
               marginBottom: "1rem"
@@ -251,30 +278,33 @@ function Profile() {
           {activeForm === "picture" && (
             <div className="form-container slide-in-left">
               <h3>Change Picture</h3>
-              <div className="form-group">
-                <input
-                  className="form-control"
-                  value={formData.picture}
-                  onChange={e => setFormData(prev => ({ ...prev, picture: e.target.value }))}
-                  placeholder="New picture URL"
-                  required
-                />
-              </div>
-              <div style={{ display: "flex", gap: "1rem" }}>
-                <button 
-                  className="btn btn-primary"
-                  onClick={() => handleUpdate("profilePicture", formData.picture)}
-                  disabled={!formData.picture}
-                >
-                  Save
-                </button>
-                <button 
-                  className="btn btn-secondary"
-                  onClick={() => setActiveForm(null)}
-                >
-                  Cancel
-                </button>
-              </div>
+              <form onSubmit={handlePictureUpload}>
+                <div className="form-group">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="form-control"
+                    onChange={e => setFormData(prev => ({ ...prev, pictureFile: e.target.files[0] }))}
+                    required
+                  />
+                </div>
+                <div style={{ display: "flex", gap: "1rem" }}>
+                  <button 
+                    className="btn btn-primary"
+                    type="submit"
+                    disabled={!formData.pictureFile}
+                  >
+                    Upload
+                  </button>
+                  <button 
+                    className="btn btn-secondary"
+                    type="button"
+                    onClick={() => setActiveForm(null)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
             </div>
           )}
         </div>
