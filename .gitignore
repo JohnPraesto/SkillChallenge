@@ -365,6 +365,6 @@ FodyWeavers.xsd
 appsettings.Development.json
 
 # Ignore all files in profile-pictures, but not the folder itself
-wwwroot/profile-pictures/*
-!wwwroot/profile-pictures/.gitkeep
-!wwwroot/profile-pictures/default.png
+SkillChallenge/wwwroot/profile-pictures/*
+!SkillChallenge/wwwroot/profile-pictures/.gitkeep
+!SkillChallenge/wwwroot/profile-pictures/default.png
