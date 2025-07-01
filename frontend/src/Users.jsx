@@ -73,6 +73,8 @@ function Users() {
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+              {/* Debugging to see filepath */}
+              {user.profilePicture} 
               <img
                 src={user.profilePicture ? `${apiUrl}${user.profilePicture}`: `${apiUrl}/profile-pictures/default.png`}
                 alt={user.userName}

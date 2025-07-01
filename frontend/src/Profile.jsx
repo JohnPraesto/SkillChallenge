@@ -161,6 +161,8 @@ function Profile() {
     <div className="container fade-in">
       <div className="card" style={{ maxWidth: "600px", margin: "2rem auto" }}>
         <div className="profile-header" style={{ textAlign: "center", marginBottom: "2rem" }}>
+          {/* Debugging to see filepath */}
+          {userData.profilePicture} 
           <img
             src={userData.profilePicture ? `${apiUrl}${userData.profilePicture}`: `${apiUrl}/profile-pictures/default.png`}
             alt="Profile"
