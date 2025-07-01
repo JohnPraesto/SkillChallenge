@@ -151,19 +151,28 @@ namespace SkillChallenge.Controllers
             IFormFile file,
             [FromServices] IProfilePictureStorage storage)
         {
-            if (file == null || file.Length == 0)
-                return BadRequest("No file uploaded.");
+            try
+            {
+                if (file == null || file.Length == 0)
+                    return BadRequest("No file uploaded.");
 
-            var user = await _userRepo.GetUserByIdAsync(id);
-            if (user == null)
-                return NotFound();
+                var user = await _userRepo.GetUserByIdAsync(id);
+                if (user == null)
+                    return NotFound();
 
-            var pictureUrl = await storage.SaveAsync(file);
+                var pictureUrl = await storage.SaveAsync(file);
 
-            user.ProfilePicture = pictureUrl;
-            await _userRepo.UpdateUserAsync(id, new UpdateUserDTO { ProfilePicture = user.ProfilePicture });
+                user.ProfilePicture = pictureUrl;
+                await _userRepo.UpdateUserAsync(id, new UpdateUserDTO { ProfilePicture = user.ProfilePicture });
 
-            return Ok(new { profilePictureUrl = user.ProfilePicture });
+                return Ok(new { profilePictureUrl = user.ProfilePicture });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (to console, file, or Application Insights)
+                Console.WriteLine(ex);
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         [HttpPost("{id}/change-password")]
