@@ -144,30 +144,23 @@ namespace SkillChallenge.Controllers
             );
         }
 
+
         [HttpPost("{id}/upload-profile-picture")]
-        public async Task<IActionResult> UploadProfilePicture(string id, IFormFile file)
+        public async Task<IActionResult> UploadProfilePicture(
+            string id,
+            IFormFile file,
+            [FromServices] IProfilePictureStorage storage)
         {
             if (file == null || file.Length == 0)
                 return BadRequest("No file uploaded.");
-
-            // Save file to wwwroot/profile-pictures
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "profile-pictures");
-            if (!Directory.Exists(uploadsFolder))
-                Directory.CreateDirectory(uploadsFolder);
-
-            var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
-            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
 
             var user = await _userRepo.GetUserByIdAsync(id);
             if (user == null)
                 return NotFound();
 
-            user.ProfilePicture = $"/profile-pictures/{uniqueFileName}";
+            var pictureUrl = await storage.SaveAsync(file);
+
+            user.ProfilePicture = pictureUrl;
             await _userRepo.UpdateUserAsync(id, new UpdateUserDTO { ProfilePicture = user.ProfilePicture });
 
             return Ok(new { profilePictureUrl = user.ProfilePicture });

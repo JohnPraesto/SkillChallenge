@@ -124,6 +124,17 @@ public class Program
         builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
         builder.Services.AddScoped<ISubCategoryRepository, SubCategoryRepository>();
         builder.Services.AddScoped<IImageService, ImageService>();
+
+        var storageType = builder.Configuration["Storage:Type"];
+        if (storageType == "AzureBlob")
+        {
+            builder.Services.AddSingleton<IProfilePictureStorage, AzureBlobProfilePictureStorage>();
+        }
+        else
+        {
+            builder.Services.AddSingleton<IProfilePictureStorage, LocalProfilePictureStorage>();
+        }
+
         var app = builder.Build();
 
         using (var scope = app.Services.CreateScope())
