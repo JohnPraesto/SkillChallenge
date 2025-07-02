@@ -16,11 +16,13 @@ namespace SkillChallenge.Controllers
     {
         private readonly IUserRepository _userRepo;
         private readonly UserManager<User> _userManager;
+        private readonly ILogger<UserController> _logger;
 
-        public UserController(IUserRepository userRepo, UserManager<User> userManager)
+        public UserController(IUserRepository userRepo, UserManager<User> userManager, ILogger<UsersController> logger)
         {
             _userRepo = userRepo;
             _userManager = userManager;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -151,27 +153,37 @@ namespace SkillChallenge.Controllers
             IFormFile file,
             [FromServices] IProfilePictureStorage storage)
         {
-            Console.WriteLine("UploadProfilePicture endpoint hit.");
+            _logger.LogInformation("UploadProfilePicture endpoint called for user {UserId}", id);
             try
             {
                 if (file == null || file.Length == 0)
+                {
+                    _logger.LogWarning("No file uploaded for user {UserId}", id);
                     return BadRequest("No file uploaded.");
+                }
+
 
                 var user = await _userRepo.GetUserByIdAsync(id);
                 if (user == null)
+                {
+                    _logger.LogWarning("User not found: {UserId}", id);
                     return NotFound();
+                }
+
 
                 var pictureUrl = await storage.SaveAsync(file);
 
                 user.ProfilePicture = pictureUrl;
                 await _userRepo.UpdateUserAsync(id, new UpdateUserDTO { ProfilePicture = user.ProfilePicture });
 
+                _logger.LogInformation("Profile picture uploaded successfully for user {UserId}", id);
+
                 return Ok(new { profilePictureUrl = user.ProfilePicture });
             }
             catch (Exception ex)
             {
                 // Log the exception (to console, file, or Application Insights)
-                Console.WriteLine("felet: " + ex);
+                _logger.LogError(ex, "Error while uploading profile picture for user {UserId}", id);
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
