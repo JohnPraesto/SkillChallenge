@@ -170,7 +170,7 @@ namespace SkillChallenge.Controllers
             catch (Exception ex)
             {
                 // Log the exception (to console, file, or Application Insights)
-                Console.WriteLine(ex);
+                Console.WriteLine("felet: " + ex);
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
