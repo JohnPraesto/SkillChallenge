@@ -18,7 +18,7 @@ namespace SkillChallenge.Controllers
         private readonly UserManager<User> _userManager;
         private readonly ILogger<UserController> _logger;
 
-        public UserController(IUserRepository userRepo, UserManager<User> userManager, ILogger<UsersController> logger)
+        public UserController(IUserRepository userRepo, UserManager<User> userManager, ILogger<UserController> logger)
         {
             _userRepo = userRepo;
             _userManager = userManager;
