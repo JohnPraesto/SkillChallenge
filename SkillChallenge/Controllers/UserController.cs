@@ -151,6 +151,7 @@ namespace SkillChallenge.Controllers
             IFormFile file,
             [FromServices] IProfilePictureStorage storage)
         {
+            Console.WriteLine("UploadProfilePicture endpoint hit.");
             try
             {
                 if (file == null || file.Length == 0)
