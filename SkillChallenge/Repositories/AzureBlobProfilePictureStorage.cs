@@ -9,8 +9,13 @@ public class AzureBlobProfilePictureStorage : IProfilePictureStorage
 
     public AzureBlobProfilePictureStorage(IConfiguration config)
     {
+        Console.WriteLine("AzureBlobProfilePictureStorage constructor called");
+
         _connectionString = config["AzureBlob:ConnectionString"];
         _containerName = config["AzureBlob:ContainerName"];
+
+        Console.WriteLine("Connection string is: " + (_connectionString?.Substring(0, 10) ?? "null"));
+        Console.WriteLine("Container name is: " + _containerName);
     }
 
     public async Task<string> SaveAsync(IFormFile file)
