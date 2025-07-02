@@ -25,6 +25,13 @@ namespace SkillChallenge.Controllers
             _logger = logger;
         }
 
+        [HttpGet("test-log")]
+        public IActionResult TestLog()
+        {
+            _logger.LogInformation("This is a test log");
+            return Ok("Logged!");
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
