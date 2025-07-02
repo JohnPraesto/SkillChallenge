@@ -160,12 +160,12 @@ namespace SkillChallenge.Controllers
             IFormFile file,
             [FromServices] IProfilePictureStorage storage)
         {
-            _logger.LogInformation("UploadProfilePicture endpoint called for user {UserId}", id);
+            _logger.LogInformation("CUSTOM DEBUG MESSAGE: UploadProfilePicture endpoint called for user {UserId}", id);
             try
             {
                 if (file == null || file.Length == 0)
                 {
-                    _logger.LogWarning("No file uploaded for user {UserId}", id);
+                    _logger.LogWarning("CUSTOM DEBUG MESSAGE: No file uploaded for user {UserId}", id);
                     return BadRequest("No file uploaded.");
                 }
 
@@ -173,7 +173,7 @@ namespace SkillChallenge.Controllers
                 var user = await _userRepo.GetUserByIdAsync(id);
                 if (user == null)
                 {
-                    _logger.LogWarning("User not found: {UserId}", id);
+                    _logger.LogWarning("CUSTOM DEBUG MESSAGE: User not found: {UserId}", id);
                     return NotFound();
                 }
 
@@ -183,14 +183,14 @@ namespace SkillChallenge.Controllers
                 user.ProfilePicture = pictureUrl;
                 await _userRepo.UpdateUserAsync(id, new UpdateUserDTO { ProfilePicture = user.ProfilePicture });
 
-                _logger.LogInformation("Profile picture uploaded successfully for user {UserId}", id);
+                _logger.LogInformation("CUSTOM DEBUG MESSAGE: Profile picture uploaded successfully for user {UserId}", id);
 
                 return Ok(new { profilePictureUrl = user.ProfilePicture });
             }
             catch (Exception ex)
             {
                 // Log the exception (to console, file, or Application Insights)
-                _logger.LogError(ex, "Error while uploading profile picture for user {UserId}", id);
+                _logger.LogError(ex, "CUSTOM DEBUG MESSAGE: Error while uploading profile picture for user {UserId}", id);
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
