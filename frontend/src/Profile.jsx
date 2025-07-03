@@ -162,7 +162,12 @@ function Profile() {
       <div className="card" style={{ maxWidth: "600px", margin: "2rem auto" }}>
         <div className="profile-header" style={{ textAlign: "center", marginBottom: "2rem" }}>
           <img
-            src={userData.profilePicture ? userData.profilePicture : `${apiUrl}/profile-pictures/default.png`}
+            // src={userData.profilePicture ? userData.profilePicture : `${apiUrl}/profile-pictures/default.png`}
+            src={userData.profilePicture ? userData.profilePicture.startsWith("http")
+                  ? userData.profilePicture
+                  : `${apiUrl}${userData.profilePicture}`
+                  : `${apiUrl}/profile-pictures/default.png`
+            }
             alt="Profile"
             style={{
               width: "120px",

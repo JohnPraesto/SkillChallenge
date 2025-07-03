@@ -161,6 +161,7 @@ namespace SkillChallenge.Controllers
             [FromServices] IProfilePictureStorage storage)
         {
             _logger.LogInformation("CUSTOM DEBUG MESSAGE: UploadProfilePicture endpoint called for user {UserId}", id);
+
             try
             {
                 if (file == null || file.Length == 0)
@@ -177,6 +178,8 @@ namespace SkillChallenge.Controllers
                     return NotFound();
                 }
 
+                if (!string.IsNullOrEmpty(user.ProfilePicture))
+                    await storage.DeleteAsync(user.ProfilePicture);
 
                 var pictureUrl = await storage.SaveAsync(file);
 
@@ -223,10 +226,11 @@ namespace SkillChallenge.Controllers
 
         [HttpDelete("{id}")]
         [Authorize]
-        public async Task<IActionResult> DeleteUser([FromRoute] string id)
+        public async Task<IActionResult> DeleteUser([FromRoute] string id, [FromServices] IProfilePictureStorage storage)
         {
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+            var user = await _userRepo.GetUserByIdAsync(id); // kan IUserRepository returnera usern istället för att kalla på den här?
 
             if (userRole != "Admin" && currentUserId != id)
             {
@@ -239,6 +243,9 @@ namespace SkillChallenge.Controllers
             {
                 return NotFound($"User with id {id} was not found in the database");
             }
+
+            if (!string.IsNullOrEmpty(user.ProfilePicture))
+                await storage.DeleteAsync(user.ProfilePicture);
 
             return NoContent();
         }

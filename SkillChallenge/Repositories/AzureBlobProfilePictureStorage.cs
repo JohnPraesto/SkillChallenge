@@ -44,4 +44,30 @@ public class AzureBlobProfilePictureStorage : IProfilePictureStorage
         _logger.LogInformation($"CUSTOM DEBUG MESSAGE: Blob URL: {blobClient.Uri}");
         return uri;
     }
+
+    public async Task DeleteAsync(string pictureUrl)
+    {
+        if (string.IsNullOrWhiteSpace(pictureUrl))
+            return;
+
+        try
+        {
+            // Extract blob name from the URL
+            var uri = new Uri(pictureUrl);
+            var blobName = uri.Segments.Last(); // If no folders, this works
+            if (uri.Segments.Length > 2)
+                blobName = string.Join("", uri.Segments.Skip(2)); // Handles folders
+
+            var blobServiceClient = new BlobServiceClient(_connectionString);
+            var containerClient = blobServiceClient.GetBlobContainerClient(_containerName);
+            var blobClient = containerClient.GetBlobClient(blobName);
+
+            await blobClient.DeleteIfExistsAsync();
+            _logger.LogInformation($"CUSTOM DEBUG MESSAGE: Deleted blob: {blobName}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "CUSTOM DEBUG MESSAGE: Failed to delete blob for URL: {Url}", pictureUrl);
+        }
+    }
 }

@@ -20,5 +20,24 @@ namespace SkillChallenge.Repositories
 
             return $"/profile-pictures/{uniqueFileName}";
         }
+
+        public Task DeleteAsync(string pictureUrl)
+        {
+            if (string.IsNullOrWhiteSpace(pictureUrl))
+                return Task.CompletedTask;
+
+            // Remove leading slash if present
+            var relativePath = pictureUrl.StartsWith("/") ? pictureUrl.Substring(1) : pictureUrl;
+
+            // Build the absolute path
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", relativePath.Replace('/', Path.DirectorySeparatorChar));
+
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+            }
+
+            return Task.CompletedTask;
+        }
     }
 }

@@ -74,7 +74,12 @@ function Users() {
           >
             <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
               <img
-                src={user.profilePicture ? user.profilePicture : `${apiUrl}/profile-pictures/default.png`}
+                // src={user.profilePicture ? user.profilePicture : `${apiUrl}/profile-pictures/default.png`}
+                src={user.profilePicture ? user.profilePicture.startsWith("http")
+                  ? user.profilePicture
+                  : `${apiUrl}${user.profilePicture}`
+                  : `${apiUrl}/profile-pictures/default.png`
+                  }
                 alt={user.userName}
                 style={{ 
                   width: "60px", 
