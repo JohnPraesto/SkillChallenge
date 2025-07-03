@@ -76,7 +76,7 @@ function Users() {
               {/* Debugging to see filepath */}
               {user.profilePicture} 
               <img
-                src={user.profilePicture ? `${apiUrl}${user.profilePicture}`: `${apiUrl}/profile-pictures/default.png`}
+                src={user.profilePicture ? user.profilePicture : `${apiUrl}/profile-pictures/default.png`}
                 alt={user.userName}
                 style={{ 
                   width: "60px", 
