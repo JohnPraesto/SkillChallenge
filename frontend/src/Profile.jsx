@@ -164,7 +164,8 @@ function Profile() {
           {/* Debugging to see filepath */}
           {userData.profilePicture} 
           <img
-            src={userData.profilePicture ? `${apiUrl}${userData.profilePicture}`: `${apiUrl}/profile-pictures/default.png`}
+            // src={userData.profilePicture ? `${apiUrl}${userData.profilePicture}`: `${apiUrl}/profile-pictures/default.png`}
+            src={userData.profilePicture || `${apiUrl}/profile-pictures/default.png`}
             alt="Profile"
             style={{
               width: "120px",
