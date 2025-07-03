@@ -40,6 +40,8 @@ public class AzureBlobProfilePictureStorage : IProfilePictureStorage
         }
         var uri = blobClient.Uri.ToString();
         _logger.LogInformation($"CUSTOM DEBUG MESSAGE: File uploaded: {uri}");
+        _logger.LogInformation($"CUSTOM DEBUG MESSAGE: Uploading blob with name: {fileName}");
+        _logger.LogInformation($"CUSTOM DEBUG MESSAGE: Blob URL: {blobClient.Uri}");
         return uri;
     }
 }

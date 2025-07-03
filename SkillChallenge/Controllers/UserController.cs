@@ -184,7 +184,7 @@ namespace SkillChallenge.Controllers
                 await _userRepo.UpdateUserAsync(id, new UpdateUserDTO { ProfilePicture = user.ProfilePicture });
 
                 _logger.LogInformation("CUSTOM DEBUG MESSAGE: Profile picture uploaded successfully for user {UserId}", id);
-
+                _logger.LogInformation("CUSTOM DEBUG MESSAGE: Uploaded file URL: {Url}", pictureUrl);
                 return Ok(new { profilePictureUrl = user.ProfilePicture });
             }
             catch (Exception ex)
