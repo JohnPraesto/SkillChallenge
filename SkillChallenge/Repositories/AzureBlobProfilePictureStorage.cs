@@ -11,22 +11,13 @@ public class AzureBlobProfilePictureStorage : IProfilePictureStorage
     public AzureBlobProfilePictureStorage(IConfiguration config, ILogger<AzureBlobProfilePictureStorage> logger)
     {
         _logger = logger;
-        Console.WriteLine("CUSTOM DEBUG MESSAGE: AzureBlobProfilePictureStorage constructor called");
-
         _connectionString = config["AzureBlob:ConnectionString"] ?? throw new InvalidOperationException("Missing AzureBlob:ConnectionString in configuration.");
 
         _containerName = config["AzureBlob:ContainerName"] ?? throw new InvalidOperationException("Missing AzureBlob:ContainerName in configuration.");
-
-
-        Console.WriteLine("CUSTOM DEBUG MESSAGE: Connection string is: " + (_connectionString?.Substring(0, 10) ?? "null"));
-        Console.WriteLine("CUSTOM DEBUG MESSAGE: Container name is: " + _containerName);
-
-        _logger.LogInformation("CUSTOM DEBUG MESSAGE: AzureBlobProfilePictureStorage initialized.");
     }
 
     public async Task<string> SaveAsync(IFormFile file)
     {
-        _logger.LogInformation($"CUSTOM DEBUG MESSAGE: Saving file: {file.FileName}");
         var blobServiceClient = new BlobServiceClient(_connectionString);
         var containerClient = blobServiceClient.GetBlobContainerClient(_containerName);
         await containerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
@@ -39,9 +30,6 @@ public class AzureBlobProfilePictureStorage : IProfilePictureStorage
             await blobClient.UploadAsync(stream, overwrite: true);
         }
         var uri = blobClient.Uri.ToString();
-        _logger.LogInformation($"CUSTOM DEBUG MESSAGE: File uploaded: {uri}");
-        _logger.LogInformation($"CUSTOM DEBUG MESSAGE: Uploading blob with name: {fileName}");
-        _logger.LogInformation($"CUSTOM DEBUG MESSAGE: Blob URL: {blobClient.Uri}");
         return uri;
     }
 
@@ -63,11 +51,10 @@ public class AzureBlobProfilePictureStorage : IProfilePictureStorage
             var blobClient = containerClient.GetBlobClient(blobName);
 
             await blobClient.DeleteIfExistsAsync();
-            _logger.LogInformation($"CUSTOM DEBUG MESSAGE: Deleted blob: {blobName}");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "CUSTOM DEBUG MESSAGE: Failed to delete blob for URL: {Url}", pictureUrl);
+            _logger.LogError(ex, "Failed to delete blob for URL: {Url}", pictureUrl);
         }
     }
 }

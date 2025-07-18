@@ -16,21 +16,13 @@ namespace SkillChallenge.Controllers
     {
         private readonly IUserRepository _userRepo;
         private readonly UserManager<User> _userManager;
-        private readonly ILogger<UserController> _logger;
 
-        public UserController(IUserRepository userRepo, UserManager<User> userManager, ILogger<UserController> logger)
+        public UserController(IUserRepository userRepo, UserManager<User> userManager)
         {
             _userRepo = userRepo;
             _userManager = userManager;
-            _logger = logger;
         }
 
-        [HttpGet("test-log")]
-        public IActionResult TestLog()
-        {
-            _logger.LogInformation("This is a test log");
-            return Ok("Logged!");
-        }
 
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
@@ -160,21 +152,16 @@ namespace SkillChallenge.Controllers
             IFormFile file,
             [FromServices] IProfilePictureStorage storage)
         {
-            _logger.LogInformation("CUSTOM DEBUG MESSAGE: UploadProfilePicture endpoint called for user {UserId}", id);
-
             try
             {
                 if (file == null || file.Length == 0)
                 {
-                    _logger.LogWarning("CUSTOM DEBUG MESSAGE: No file uploaded for user {UserId}", id);
                     return BadRequest("No file uploaded.");
                 }
-
 
                 var user = await _userRepo.GetUserByIdAsync(id);
                 if (user == null)
                 {
-                    _logger.LogWarning("CUSTOM DEBUG MESSAGE: User not found: {UserId}", id);
                     return NotFound();
                 }
 
@@ -186,14 +173,10 @@ namespace SkillChallenge.Controllers
                 user.ProfilePicture = pictureUrl;
                 await _userRepo.UpdateUserAsync(id, new UpdateUserDTO { ProfilePicture = user.ProfilePicture });
 
-                _logger.LogInformation("CUSTOM DEBUG MESSAGE: Profile picture uploaded successfully for user {UserId}", id);
-                _logger.LogInformation("CUSTOM DEBUG MESSAGE: Uploaded file URL: {Url}", pictureUrl);
                 return Ok(new { profilePictureUrl = user.ProfilePicture });
             }
             catch (Exception ex)
             {
-                // Log the exception (to console, file, or Application Insights)
-                _logger.LogError(ex, "CUSTOM DEBUG MESSAGE: Error while uploading profile picture for user {UserId}", id);
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
