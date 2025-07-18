@@ -1,6 +1,3 @@
-using System.Net;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +7,9 @@ using SkillChallenge.DTOs;
 using SkillChallenge.DTOs.Account;
 using SkillChallenge.DTOs.User;
 using SkillChallenge.Models;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
 
 public class UserControllerIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
 {
@@ -532,5 +532,45 @@ public class UserControllerIntegrationTests : IClassFixture<WebApplicationFactor
         // Also check that old password no longer works
         var oldPasswordValid = await userManager.CheckPasswordAsync(updatedUser!, "Password123!");
         Assert.False(oldPasswordValid);
+    }
+
+    [Fact]
+    public async Task TestUploadProfilePicture()
+    {
+        // Arrange
+        var (client, services) = await SetupTestClient();
+        string userId = await GetTestId(services, "testuser1");
+        var token = await GetToken(client, "testuser1");
+
+        // Prepare a fake image file in memory
+        var imageContent = new ByteArrayContent(new byte[] { 1, 2, 3, 4, 5 });
+        imageContent.Headers.ContentType = new MediaTypeHeaderValue("image/png");
+
+        var form = new MultipartFormDataContent();
+        form.Add(imageContent, "file", "test.png");
+
+        var request = new HttpRequestMessage(HttpMethod.Post, $"/users/{userId}/upload-profile-picture")
+        {
+            Content = form
+        };
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        // Act
+        var response = await client.SendAsync(request);
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+        var result = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+        Assert.NotNull(result);
+        Assert.True(result.ContainsKey("profilePictureUrl"));
+        Assert.False(string.IsNullOrWhiteSpace(result["profilePictureUrl"]));
+
+        // Verify in DB that the user's ProfilePicture is updated
+        using var scope = services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var user = await db.Users.FindAsync(userId);
+        Assert.NotNull(user);
+        Assert.Equal(result["profilePictureUrl"], user!.ProfilePicture);
+        Assert.Contains("test.png", user.ProfilePicture);
     }
 }
