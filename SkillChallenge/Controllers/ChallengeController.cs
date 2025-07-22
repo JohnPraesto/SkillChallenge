@@ -112,6 +112,7 @@ namespace SkillChallenge.Controllers
                             ImagePath = challenge.SubCategory.ImagePath,
                         },
                 JoinedUsers = challenge.Users.Select(u => u.UserName ?? "Unknown").ToList(),
+                UploadedResults = challenge.UploadedResults.Select(ur => ur.Url ?? "Unknown").ToList(),
                 CreatedBy = challenge.CreatedBy,
                 CreatorUserName = challenge.Creator?.UserName ?? "Unknown",
             };
@@ -235,6 +236,43 @@ namespace SkillChallenge.Controllers
                 return NotFound($"Challenge or user not found.");
 
             return Ok("Left challenge successfully.");
+        }
+
+        [HttpPost("{challengeId:int}/upload-result")]
+        [Authorize(Roles = "Admin,User")]
+        public async Task<IActionResult> UploadResult([FromRoute] int challengeId, [FromBody] CreateUploadedResultDTO uploadedResultDTO, CancellationToken ct)
+        {
+            var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(currentUserId))
+            {
+                return Unauthorized();
+            }
+
+            var newUploadedResult = new UploadedResult
+            {
+                Url = uploadedResultDTO.Url,
+                ChallengeId = challengeId,
+                UserId = currentUserId,
+                SubmissionDate = DateTime.UtcNow,
+            };
+
+            var created = await _challengeRepo.AddUploadedResultToChallengeAsync(challengeId, newUploadedResult, ct);
+            return CreatedAtAction(nameof(GetChallengeById), new { id = challengeId }, newUploadedResult.Url);
+        }
+
+        [HttpDelete("{challengeId:int}/uploaded-results/{uploadedResultId:int}")]
+        [Authorize(Roles = "Admin,User")]
+        public async Task<IActionResult> DeleteUploadedResult([FromRoute] int challengeId, [FromRoute] int uploadedResultId, CancellationToken ct)
+        {
+            var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(currentUserId))
+                return Unauthorized();
+
+            var success = await _challengeRepo.DeleteUploadedResultAsync(challengeId, uploadedResultId, currentUserId, ct);
+            if (!success)
+                return NotFound("Uploaded result not found or you do not have permission to delete it.");
+
+            return NoContent();
         }
     }
 }

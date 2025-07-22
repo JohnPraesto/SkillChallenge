@@ -13,6 +13,7 @@ namespace SkillChallenge.Data
         public DbSet<Challenge> Challenges { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<SubCategory> SubCategories { get; set; }
+        public DbSet<UploadedResult> UploadedResults { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

@@ -52,6 +52,7 @@ namespace SkillChallenge.Repositories
         ) =>
             await _context
                 .Challenges.Include(c => c.Users)
+                .Include(c => c.UploadedResults)
                 .Include(c => c.SubCategory)
                 .Include(c => c.Creator)
                 .AsNoTracking()
@@ -125,6 +126,32 @@ namespace SkillChallenge.Repositories
                 challenge.Users.Remove(user);
                 await _context.SaveChangesAsync(ct);
             }
+            return true;
+        }
+
+        public async Task<bool> AddUploadedResultToChallengeAsync(int challengeId, UploadedResult uploadedResult, CancellationToken ct = default)
+        {
+            var challenge = await _context.Challenges.FirstOrDefaultAsync(c => c.ChallengeId == challengeId, ct);
+            if (challenge == null) return false;
+
+            var exists = await _context.UploadedResults.AnyAsync(ur => ur.ChallengeId == challengeId && ur.UserId == uploadedResult.UserId, ct);
+            if (exists) return false;
+
+            challenge.UploadedResults.Add(uploadedResult);
+            await _context.SaveChangesAsync(ct);
+            return true;
+        }
+
+        public async Task<bool> DeleteUploadedResultAsync(int challengeId, int uploadedResultId, string userId, CancellationToken ct = default)
+        {
+            var uploadedResult = await _context.UploadedResults
+                .FirstOrDefaultAsync(ur => ur.UploadedResultId == uploadedResultId && ur.ChallengeId == challengeId && ur.UserId == userId, ct);
+
+            if (uploadedResult == null)
+                return false;
+
+            _context.UploadedResults.Remove(uploadedResult);
+            await _context.SaveChangesAsync(ct);
             return true;
         }
     }
