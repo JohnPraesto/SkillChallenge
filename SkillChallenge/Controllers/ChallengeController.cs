@@ -256,19 +256,27 @@ namespace SkillChallenge.Controllers
                 SubmissionDate = DateTime.UtcNow,
             };
 
-            var created = await _challengeRepo.AddUploadedResultToChallengeAsync(challengeId, newUploadedResult, ct);
-            return CreatedAtAction(nameof(GetChallengeById), new { id = challengeId }, newUploadedResult.Url);
+            var result = await _challengeRepo.AddUploadedResultToChallengeAsync(challengeId, newUploadedResult, ct);
+
+            return result switch
+            {
+                UploadResultStatus.Success => CreatedAtAction(nameof(GetChallengeById), new { id = challengeId }, newUploadedResult.Url),
+                UploadResultStatus.NotJoined => StatusCode(403, "You must join the challenge before uploading a result."),
+                UploadResultStatus.AlreadyUploaded => Conflict("You have already uploaded a result for this challenge."),
+                UploadResultStatus.ChallengeNotFound => NotFound("Challenge not found."),
+                _ => StatusCode(500, "Unknown error.")
+            };
         }
 
-        [HttpDelete("{challengeId:int}/uploaded-results/{uploadedResultId:int}")]
+        [HttpDelete("{challengeId:int}/uploaded-result")]
         [Authorize(Roles = "Admin,User")]
-        public async Task<IActionResult> DeleteUploadedResult([FromRoute] int challengeId, [FromRoute] int uploadedResultId, CancellationToken ct)
+        public async Task<IActionResult> DeleteUploadedResult([FromRoute] int challengeId, CancellationToken ct)
         {
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(currentUserId))
                 return Unauthorized();
 
-            var success = await _challengeRepo.DeleteUploadedResultAsync(challengeId, uploadedResultId, currentUserId, ct);
+            var success = await _challengeRepo.DeleteUploadedResultAsync(challengeId, currentUserId, ct);
             if (!success)
                 return NotFound("Uploaded result not found or you do not have permission to delete it.");
 

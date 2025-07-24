@@ -129,24 +129,30 @@ namespace SkillChallenge.Repositories
             return true;
         }
 
-        public async Task<bool> AddUploadedResultToChallengeAsync(int challengeId, UploadedResult uploadedResult, CancellationToken ct = default)
+        public async Task<UploadResultStatus> AddUploadedResultToChallengeAsync(int challengeId, UploadedResult uploadedResult, CancellationToken ct = default)
         {
-            var challenge = await _context.Challenges.Include(c => c.UploadedResults).FirstOrDefaultAsync(c => c.ChallengeId == challengeId, ct);
-            if (challenge == null) return false;
+            var challenge = await _context.Challenges
+                .Include(c => c.Users)
+                .Include(c => c.UploadedResults)
+                .FirstOrDefaultAsync(c => c.ChallengeId == challengeId, ct);
+
+            if (challenge == null) return UploadResultStatus.ChallengeNotFound;
+
+            var hasJoined = challenge.Users.Any(u => u.Id == uploadedResult.UserId);
+            if (!hasJoined) return UploadResultStatus.NotJoined;
 
             var exists = await _context.UploadedResults.AnyAsync(ur => ur.ChallengeId == challengeId && ur.UserId == uploadedResult.UserId, ct);
-            if (exists) return false;
+            if (exists) return UploadResultStatus.AlreadyUploaded;
 
-            //challenge.UploadedResults.Add(uploadedResult);
             _context.UploadedResults.Add(uploadedResult);
             await _context.SaveChangesAsync(ct);
-            return true;
+            return UploadResultStatus.Success;
         }
 
-        public async Task<bool> DeleteUploadedResultAsync(int challengeId, int uploadedResultId, string userId, CancellationToken ct = default)
+        public async Task<bool> DeleteUploadedResultAsync(int challengeId, string userId, CancellationToken ct = default)
         {
             var uploadedResult = await _context.UploadedResults
-                .FirstOrDefaultAsync(ur => ur.UploadedResultId == uploadedResultId && ur.ChallengeId == challengeId && ur.UserId == userId, ct);
+                .FirstOrDefaultAsync(ur => ur.ChallengeId == challengeId && ur.UserId == userId, ct);
 
             if (uploadedResult == null)
                 return false;
