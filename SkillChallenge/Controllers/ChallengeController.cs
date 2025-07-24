@@ -240,7 +240,7 @@ namespace SkillChallenge.Controllers
 
         [HttpPost("{challengeId:int}/upload-result")]
         [Authorize(Roles = "Admin,User")]
-        public async Task<IActionResult> UploadResult([FromRoute] int challengeId, [FromBody] CreateUploadedResultDTO uploadedResultDTO, CancellationToken ct)
+        public async Task<IActionResult> UploadResult([FromRoute] int challengeId, [FromBody] string uploadedResultURL, CancellationToken ct)
         {
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(currentUserId))
@@ -250,7 +250,7 @@ namespace SkillChallenge.Controllers
 
             var newUploadedResult = new UploadedResult
             {
-                Url = uploadedResultDTO.Url,
+                Url = uploadedResultURL,
                 ChallengeId = challengeId,
                 UserId = currentUserId,
                 SubmissionDate = DateTime.UtcNow,

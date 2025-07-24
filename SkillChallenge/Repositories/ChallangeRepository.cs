@@ -131,13 +131,14 @@ namespace SkillChallenge.Repositories
 
         public async Task<bool> AddUploadedResultToChallengeAsync(int challengeId, UploadedResult uploadedResult, CancellationToken ct = default)
         {
-            var challenge = await _context.Challenges.FirstOrDefaultAsync(c => c.ChallengeId == challengeId, ct);
+            var challenge = await _context.Challenges.Include(c => c.UploadedResults).FirstOrDefaultAsync(c => c.ChallengeId == challengeId, ct);
             if (challenge == null) return false;
 
             var exists = await _context.UploadedResults.AnyAsync(ur => ur.ChallengeId == challengeId && ur.UserId == uploadedResult.UserId, ct);
             if (exists) return false;
 
-            challenge.UploadedResults.Add(uploadedResult);
+            //challenge.UploadedResults.Add(uploadedResult);
+            _context.UploadedResults.Add(uploadedResult);
             await _context.SaveChangesAsync(ct);
             return true;
         }
