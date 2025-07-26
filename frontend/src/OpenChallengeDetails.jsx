@@ -116,7 +116,7 @@ function OpenChallengeDetails({
       alert("Failed to remove result: " + err.message);
     }
   };
-  console.log("uploadedResults:", challenge.uploadedResults);
+  
   return (
     <>
       <div>
