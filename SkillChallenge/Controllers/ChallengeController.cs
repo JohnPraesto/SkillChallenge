@@ -112,7 +112,14 @@ namespace SkillChallenge.Controllers
                             ImagePath = challenge.SubCategory.ImagePath,
                         },
                 JoinedUsers = challenge.Users.Select(u => u.UserName ?? "Unknown").ToList(),
-                UploadedResults = challenge.UploadedResults.Select(ur => ur.Url ?? "Unknown").ToList(),
+                UploadedResults = challenge.UploadedResults.Select(ur => new UploadedResultDTO
+                {
+                    UploadedResultId = ur.UploadedResultId,
+                    Url = ur.Url,
+                    UserId = ur.UserId,
+                    SubmissionDate = ur.SubmissionDate,
+                    UserName = ur.User?.UserName ?? "Unknown",
+                }).ToList(),
                 CreatedBy = challenge.CreatedBy,
                 CreatorUserName = challenge.Creator?.UserName ?? "Unknown",
             };
@@ -264,6 +271,7 @@ namespace SkillChallenge.Controllers
                 UploadResultStatus.NotJoined => StatusCode(403, "You must join the challenge before uploading a result."),
                 UploadResultStatus.AlreadyUploaded => Conflict("You have already uploaded a result for this challenge."),
                 UploadResultStatus.ChallengeNotFound => NotFound("Challenge not found."),
+                UploadResultStatus.ChallengeEnded => Conflict("You cannot upload results to a challenge that has ended."),
                 _ => StatusCode(500, "Unknown error.")
             };
         }

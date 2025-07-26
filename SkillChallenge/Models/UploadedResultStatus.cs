@@ -5,6 +5,7 @@
         Success,
         NotJoined,
         AlreadyUploaded,
-        ChallengeNotFound
+        ChallengeNotFound,
+        ChallengeEnded
     }
 }

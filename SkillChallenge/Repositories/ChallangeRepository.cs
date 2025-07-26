@@ -52,7 +52,7 @@ namespace SkillChallenge.Repositories
         ) =>
             await _context
                 .Challenges.Include(c => c.Users)
-                .Include(c => c.UploadedResults)
+                .Include(c => c.UploadedResults).ThenInclude(ur => ur.User)
                 .Include(c => c.SubCategory)
                 .Include(c => c.Creator)
                 .AsNoTracking()
@@ -137,6 +137,9 @@ namespace SkillChallenge.Repositories
                 .FirstOrDefaultAsync(c => c.ChallengeId == challengeId, ct);
 
             if (challenge == null) return UploadResultStatus.ChallengeNotFound;
+
+            if (challenge.EndDate < DateTime.UtcNow)
+                return UploadResultStatus.ChallengeEnded;
 
             var hasJoined = challenge.Users.Any(u => u.Id == uploadedResult.UserId);
             if (!hasJoined) return UploadResultStatus.NotJoined;
