@@ -46,6 +46,7 @@ function ChallengeDetails() {
           user={user}
           navigate={navigate}
           apiUrl={apiUrl}
+          fetchChallenge={fetchChallenge}
         />
       ) : (
         <OpenChallengeDetails
