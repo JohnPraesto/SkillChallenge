@@ -15,5 +15,6 @@ namespace SkillChallenge.Interfaces
         Task<bool> RemoveUserFromChallengeAsync(int challengeId, string userId, CancellationToken ct = default);
         Task<UploadResultStatus> AddUploadedResultToChallengeAsync(int challengeId, UploadedResult uploadedResult, CancellationToken ct = default);
         Task<bool> DeleteUploadedResultAsync(int challengeId, string userId, CancellationToken ct = default);
+        Task<bool> AddOrMoveVoteAsync(int challengeId, int uploadedResultId, string userId, CancellationToken ct = default);
     }
 }

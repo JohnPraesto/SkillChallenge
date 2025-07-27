@@ -115,10 +115,18 @@ namespace SkillChallenge.Controllers
                 UploadedResults = challenge.UploadedResults.Select(ur => new UploadedResultDTO
                 {
                     UploadedResultId = ur.UploadedResultId,
+                    ChallengeId = ur.ChallengeId,
                     Url = ur.Url,
                     UserId = ur.UserId,
                     SubmissionDate = ur.SubmissionDate,
                     UserName = ur.User?.UserName ?? "Unknown",
+                    Votes = ur.Votes.Select(vote => new VoteEntity
+                    {
+                        Id = vote.Id,
+                        ChallengeId = vote.ChallengeId,
+                        UploadedResultId = vote.UploadedResultId,
+                        UserId = vote.UserId,
+                    }).ToList()
                 }).ToList(),
                 CreatedBy = challenge.CreatedBy,
                 CreatorUserName = challenge.Creator?.UserName ?? "Unknown",
@@ -289,6 +297,21 @@ namespace SkillChallenge.Controllers
                 return NotFound("Uploaded result not found or you do not have permission to delete it.");
 
             return NoContent();
+        }
+
+        [HttpPost("{challengeId:int}/uploaded-result/vote/{uploadedResultId:int}")]
+        [Authorize]
+        public async Task<IActionResult> AddVote([FromRoute] int challengeId, [FromRoute] int uploadedResultId, CancellationToken ct)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+
+            var success = await _challengeRepo.AddOrMoveVoteAsync(challengeId, uploadedResultId, userId, ct);
+            if (!success)
+                return NotFound($"Uploaded result not found.");
+
+            return Ok("Voted successfully.");
         }
     }
 }

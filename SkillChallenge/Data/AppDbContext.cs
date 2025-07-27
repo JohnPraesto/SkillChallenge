@@ -14,6 +14,7 @@ namespace SkillChallenge.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<SubCategory> SubCategories { get; set; }
         public DbSet<UploadedResult> UploadedResults { get; set; }
+        public DbSet<VoteEntity> VoteEntities { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
