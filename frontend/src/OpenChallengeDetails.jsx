@@ -92,7 +92,7 @@ function OpenChallengeDetails({
 
   const hasUploadedResult = alreadyJoined && challenge.uploadedResults?.some(r => r.userId === user.id);
 
-  const test = challenge.uploadedResults?.some(r => r.userId === user.id)
+  // const test = challenge.uploadedResults?.some(r => r.userId === user.id)
 
   const handleRemoveResult = async () => {
     try {

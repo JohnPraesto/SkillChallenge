@@ -8,8 +8,12 @@ function ClosedChallengeDetails({
   fetchChallenge }) {
     
   // Find the uploadedResultId the current user voted for (if any)
-  const userVote = challenge.uploadedResults?.flatMap(r => r.votes || [])
-    .find(vote => vote.userId === user.id);
+  // const userVote = challenge.uploadedResults?.flatMap(r => r.votes || [])
+  //   .find(vote => vote.userId === user.id);
+  const userVote = user
+  ? challenge.uploadedResults?.flatMap(r => r.votes || []).find(vote => vote.userId === user.id)
+  : null;
+
   const votedResultId = userVote?.uploadedResultId;
 
   function extractYouTubeId(url) {
@@ -28,7 +32,9 @@ function ClosedChallengeDetails({
           <ul>
             {challenge.uploadedResults.map((result, idx) => {
               // Is this result voted by the current user?
-              const isVotedByUser = result.votes?.some(vote => vote.userId === user.id);
+              // const isVotedByUser = result.votes?.some(vote => vote.userId === user.id);
+              const isVotedByUser = result.votes?.some(vote => vote.userId === user?.id) ?? false;
+
               // Has the user voted for any result?
               const userHasVoted = !!votedResultId;
 
@@ -50,6 +56,10 @@ function ClosedChallengeDetails({
                       style={btnStyle}
                       disabled={userHasVoted && !isVotedByUser}
                       onClick={async () => {
+                        if (!user) {
+                          alert("Log in to place your vote!");
+                          return;
+                        }
                         await fetch(
                           `${apiUrl}/challenges/${challenge.challengeId}/uploaded-result/vote/${result.uploadedResultId}`,
                           {
