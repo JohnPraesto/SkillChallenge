@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SkillChallenge.Data;
 
@@ -11,9 +12,11 @@ using SkillChallenge.Data;
 namespace SkillChallenge.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250722143922_AddUploadedResultTable")]
+    partial class AddUploadedResultTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -565,31 +568,6 @@ namespace SkillChallenge.Migrations
                         });
                 });
 
-            modelBuilder.Entity("SkillChallenge.Models.VoteEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ChallengeId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UploadedResultId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UploadedResultId");
-
-                    b.ToTable("VoteEntities");
-                });
-
             modelBuilder.Entity("ChallengeUser", b =>
                 {
                     b.HasOne("SkillChallenge.Models.Challenge", null)
@@ -704,15 +682,6 @@ namespace SkillChallenge.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("SkillChallenge.Models.VoteEntity", b =>
-                {
-                    b.HasOne("SkillChallenge.Models.UploadedResult", null)
-                        .WithMany("Votes")
-                        .HasForeignKey("UploadedResultId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("SkillChallenge.Models.Category", b =>
                 {
                     b.Navigation("SubCategories");
@@ -721,11 +690,6 @@ namespace SkillChallenge.Migrations
             modelBuilder.Entity("SkillChallenge.Models.Challenge", b =>
                 {
                     b.Navigation("UploadedResults");
-                });
-
-            modelBuilder.Entity("SkillChallenge.Models.UploadedResult", b =>
-                {
-                    b.Navigation("Votes");
                 });
 #pragma warning restore 612, 618
         }

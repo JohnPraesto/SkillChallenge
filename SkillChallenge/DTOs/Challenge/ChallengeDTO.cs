@@ -12,6 +12,7 @@ namespace SkillChallenge.DTOs.Challenge
         public int? SubCategoryId { get; set; }
         public SubCategoryDTO? SubCategory { get; set; }
         public List<string> JoinedUsers { get; set; } = new();
+        public List<UploadedResultDTO> UploadedResults { get; set; } = new();
         public string CreatedBy { get; set; } = string.Empty;
         public string CreatorUserName { get; set; } = string.Empty;
     }

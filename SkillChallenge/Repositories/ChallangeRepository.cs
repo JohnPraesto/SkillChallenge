@@ -52,6 +52,8 @@ namespace SkillChallenge.Repositories
         ) =>
             await _context
                 .Challenges.Include(c => c.Users)
+                .Include(c => c.UploadedResults).ThenInclude(ur => ur.User)
+                .Include(c => c.UploadedResults).ThenInclude(ur => ur.Votes)
                 .Include(c => c.SubCategory)
                 .Include(c => c.Creator)
                 .AsNoTracking()
@@ -126,6 +128,77 @@ namespace SkillChallenge.Repositories
                 await _context.SaveChangesAsync(ct);
             }
             return true;
+        }
+
+        public async Task<UploadResultStatus> AddUploadedResultToChallengeAsync(int challengeId, UploadedResult uploadedResult, CancellationToken ct = default)
+        {
+            var challenge = await _context.Challenges
+                .Include(c => c.Users)
+                .Include(c => c.UploadedResults)
+                .FirstOrDefaultAsync(c => c.ChallengeId == challengeId, ct);
+
+            if (challenge == null) return UploadResultStatus.ChallengeNotFound;
+
+            if (challenge.EndDate < DateTime.UtcNow)
+                return UploadResultStatus.ChallengeEnded;
+
+            var hasJoined = challenge.Users.Any(u => u.Id == uploadedResult.UserId);
+            if (!hasJoined) return UploadResultStatus.NotJoined;
+
+            var exists = await _context.UploadedResults.AnyAsync(ur => ur.ChallengeId == challengeId && ur.UserId == uploadedResult.UserId, ct);
+            if (exists) return UploadResultStatus.AlreadyUploaded;
+
+            _context.UploadedResults.Add(uploadedResult);
+            await _context.SaveChangesAsync(ct);
+            return UploadResultStatus.Success;
+        }
+
+        public async Task<bool> DeleteUploadedResultAsync(int challengeId, string userId, CancellationToken ct = default)
+        {
+            var uploadedResult = await _context.UploadedResults
+                .FirstOrDefaultAsync(ur => ur.ChallengeId == challengeId && ur.UserId == userId, ct);
+
+            if (uploadedResult == null)
+                return false;
+
+            _context.UploadedResults.Remove(uploadedResult);
+            await _context.SaveChangesAsync(ct);
+            return true;
+        }
+
+        public async Task<bool> AddOrMoveVoteAsync(int challengeId, int uploadedResultId, string userId, CancellationToken ct = default)
+        {
+            var existingVote = await _context.VoteEntities
+                .FirstOrDefaultAsync(v => v.ChallengeId == challengeId && v.UserId == userId, ct);
+
+            if (existingVote != null)
+            {
+                if (existingVote.UploadedResultId == uploadedResultId)
+                {
+                    // User is toggling their vote off (unvoting)
+                    _context.VoteEntities.Remove(existingVote);
+                    await _context.SaveChangesAsync(ct);
+                    return true; // Vote removed
+                }
+
+                // Move vote to new uploaded result
+                existingVote.UploadedResultId = uploadedResultId;
+                await _context.SaveChangesAsync(ct);
+                return true; // Vote moved
+            }
+            else
+            {
+                // Add new vote
+                var newVote = new VoteEntity
+                {
+                    ChallengeId = challengeId,
+                    UploadedResultId = uploadedResultId,
+                    UserId = userId
+                };
+                _context.VoteEntities.Add(newVote);
+                await _context.SaveChangesAsync(ct);
+                return true;
+            }
         }
     }
 }
