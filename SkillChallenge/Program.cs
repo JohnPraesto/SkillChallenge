@@ -10,6 +10,9 @@ using SkillChallenge.Models;
 using SkillChallenge.Repositories;
 using SkillChallenge.Services;
 
+// Testing if pushing to main 
+// and then it gets automatically deployed to azure live site
+// to see if the empty database on azure os populated with tables
 public class Program
 {
     public static async Task Main(string[] args)
