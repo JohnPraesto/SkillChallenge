@@ -20,7 +20,7 @@ function OpenChallengeDetails({
     setJoining(true);
     setMessage("");
     try {
-      const res = await fetch(`${apiUrl}/challenges/${id}/join`, {
+      const res = await fetch(`${apiUrl}/challenges/${challenge.challengeId}/join`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("token")}`,
@@ -43,7 +43,7 @@ function OpenChallengeDetails({
     setJoining(true);
     setMessage("");
     try {
-      const res = await fetch(`${apiUrl}/challenges/${id}/leave`, {
+      const res = await fetch(`${apiUrl}/challenges/${challenge.challengeId}/leave`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("token")}`,
@@ -92,7 +92,7 @@ function OpenChallengeDetails({
 
   const hasUploadedResult = alreadyJoined && challenge.uploadedResults?.some(r => r.userId === user.id);
 
-  const test = challenge.uploadedResults?.some(r => r.userId === user.id)
+  // const test = challenge.uploadedResults?.some(r => r.userId === user.id)
 
   const handleRemoveResult = async () => {
     try {
