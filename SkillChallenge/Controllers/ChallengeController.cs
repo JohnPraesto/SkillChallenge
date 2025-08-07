@@ -4,6 +4,7 @@ using SkillChallenge.DTOs.Challenge;
 using SkillChallenge.DTOs.SubCategory;
 using SkillChallenge.Interfaces;
 using SkillChallenge.Models;
+using SkillChallenge.Services;
 using System.Security.Claims;
 
 namespace SkillChallenge.Controllers
@@ -13,10 +14,12 @@ namespace SkillChallenge.Controllers
     public class ChallengeController : ControllerBase
     {
         private readonly IChallengeRepository _challengeRepo;
+        private readonly EloRatingService _eloRatingService;
 
-        public ChallengeController(IChallengeRepository challengeRepo)
+        public ChallengeController(IChallengeRepository challengeRepo, EloRatingService eloRatingService)
         {
             _challengeRepo = challengeRepo;
+            _eloRatingService = eloRatingService;
         }
 
         [HttpGet]
@@ -312,6 +315,25 @@ namespace SkillChallenge.Controllers
                 return NotFound($"Uploaded result not found.");
 
             return Ok("Voted successfully.");
+        }
+
+        [HttpPost("{challengeId:int}/submit-result")]
+        [Authorize]
+        public async Task<IActionResult> SubmitResult([FromRoute] int challengeId, CancellationToken ct)
+        {
+            var challenge = await _challengeRepo.GetChallengeByIdAsync(challengeId, ct);
+            if (challenge == null)
+                return NotFound($"Challenge with id {challengeId} was not found.");
+
+            if (!challenge.SubCategoryId.HasValue)
+                return BadRequest("Challenge does not have a subcategory.");
+
+            var categoryId = challenge.SubCategory.CategoryId;
+
+            // Ensure all users have a rating for this subcategory
+            await _eloRatingService.EnsureRatingsForParticipantsAsync(challenge.Users, categoryId, challenge.SubCategoryId.Value, ct);
+
+            return Ok("Ratings ensured for all participants.");
         }
     }
 }

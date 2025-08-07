@@ -124,6 +124,8 @@ public class Program
         builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
         builder.Services.AddScoped<ISubCategoryRepository, SubCategoryRepository>();
         builder.Services.AddScoped<IImageService, ImageService>();
+        builder.Services.AddScoped<IRatingEntityRepository, RatingEntityRepository>();
+        builder.Services.AddScoped<EloRatingService>();
 
         var storageType = builder.Configuration["Storage:Type"];
         if (storageType == "AzureBlob")
