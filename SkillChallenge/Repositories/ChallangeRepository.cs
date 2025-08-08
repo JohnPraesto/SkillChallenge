@@ -52,6 +52,7 @@ namespace SkillChallenge.Repositories
         ) =>
             await _context.Challenges
                 .Include(c => c.Users).ThenInclude(u => u.CategoryRatingEntities)
+                .Include(c => c.Users).ThenInclude(u => u.CategoryRatingEntities).ThenInclude(cr => cr.SubCategoryRatingEntities)
                 .Include(c => c.UploadedResults).ThenInclude(ur => ur.User)
                 .Include(c => c.UploadedResults).ThenInclude(ur => ur.Votes)
                 .Include(c => c.SubCategory)
