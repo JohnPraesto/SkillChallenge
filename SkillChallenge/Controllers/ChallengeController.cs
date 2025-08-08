@@ -331,8 +331,8 @@ namespace SkillChallenge.Controllers
             var categoryId = challenge.SubCategory.CategoryId;
 
             // Ensure all users have a rating for this subcategory
-            await _eloRatingService.EnsureRatingsForParticipantsAsync(challenge.Users, categoryId, challenge.SubCategoryId.Value, challenge, ct);
-
+            await _eloRatingService.EnsureRatingsExistForParticipantsAsync(challenge.Users, categoryId, challenge.SubCategoryId.Value, challenge, ct);
+            await _eloRatingService.UpdateEloRatingsAsync(challenge.Users, categoryId, challenge.SubCategoryId.Value, challenge, ct);
             return Ok("Ratings ensured for all participants.");
         }
     }

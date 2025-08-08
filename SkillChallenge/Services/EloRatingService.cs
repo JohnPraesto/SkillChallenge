@@ -20,7 +20,7 @@ namespace SkillChallenge.Services
         // Ser till att alla users i challengen har en rating i den
         // subCategory som challengen har. Om usern inte har någon rating i den
         // subCategory så får den en ny rating med värdet 1000.
-        public async Task EnsureRatingsForParticipantsAsync(IEnumerable<User> users, int categoryId, int subCategoryId, Challenge challenge, CancellationToken ct)
+        public async Task EnsureRatingsExistForParticipantsAsync(IEnumerable<User> users, int categoryId, int subCategoryId, Challenge challenge, CancellationToken ct)
         {
             // Find the UploadedResults with the most votes
             int maxVotes = challenge.UploadedResults.Max(ur => ur.Votes.Count);
@@ -62,6 +62,13 @@ namespace SkillChallenge.Services
                     }
                 }
             }
+        }
+
+        public async Task UpdateEloRatingsAsync(IEnumerable<User> users, int categoryId, int subCategoryId, Challenge challenge, CancellationToken ct)
+        {
+            // Find the UploadedResults with the most votes
+            int maxVotes = challenge.UploadedResults.Max(ur => ur.Votes.Count);
+            var topResults = challenge.UploadedResults.Where(ur => ur.Votes.Count == maxVotes).ToList();
 
             // Stores the new ratings before applying them in the foreach loop
             var newRatings = new Dictionary<SubCategoryRatingEntity, int>();
