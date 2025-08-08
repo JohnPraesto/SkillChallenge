@@ -55,6 +55,17 @@ namespace SkillChallenge.Controllers
                     UserName = user.UserName ?? string.Empty,
                     Email = user.Email ?? string.Empty,
                     ProfilePicture = user.ProfilePicture,
+                    CategoryRatingEntities = user.CategoryRatingEntities.Select(cre => new CategoryRatingDTO
+                    {
+                        CategoryId = cre.CategoryId,
+                        CategoryName = cre.Category?.CategoryName ?? string.Empty,
+                        SubCategoryRatingEntities = cre.SubCategoryRatingEntities.Select(sre => new SubCategoryRatingDTO
+                        {
+                            SubCategoryId = sre.SubCategoryId,
+                            SubCategoryName = sre.SubCategory?.SubCategoryName ?? string.Empty,
+                            Rating = sre.Rating
+                        }).ToList()
+                    }).ToList()
                 }
             );
         }
@@ -73,6 +84,17 @@ namespace SkillChallenge.Controllers
                     UserName = user.UserName ?? string.Empty,
                     Email = user.Email ?? string.Empty,
                     ProfilePicture = user.ProfilePicture,
+                    CategoryRatingEntities = user.CategoryRatingEntities.Select(cre => new CategoryRatingDTO
+                    {
+                        CategoryId = cre.CategoryId,
+                        CategoryName = cre.Category?.CategoryName ?? string.Empty,
+                        SubCategoryRatingEntities = cre.SubCategoryRatingEntities.Select(sre => new SubCategoryRatingDTO
+                        {
+                            SubCategoryId = sre.SubCategoryId,
+                            SubCategoryName = sre.SubCategory?.SubCategoryName ?? string.Empty,
+                            Rating = sre.Rating
+                        }).ToList()
+                    }).ToList()
                 }
             );
         }

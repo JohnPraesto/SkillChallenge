@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SkillChallenge.Data;
 
@@ -11,9 +12,11 @@ using SkillChallenge.Data;
 namespace SkillChallenge.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250730141043_AddingRatingEntity")]
+    partial class AddingRatingEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -249,30 +252,6 @@ namespace SkillChallenge.Migrations
                         });
                 });
 
-            modelBuilder.Entity("SkillChallenge.Models.CategoryRatingEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoryId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("CategoryRatingEntities");
-                });
-
             modelBuilder.Entity("SkillChallenge.Models.Challenge", b =>
                 {
                     b.Property<int>("ChallengeId")
@@ -351,6 +330,34 @@ namespace SkillChallenge.Migrations
                             IsPublic = true,
                             SubCategoryId = 5
                         });
+                });
+
+            modelBuilder.Entity("SkillChallenge.Models.RatingEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SubCategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RatingEntities");
                 });
 
             modelBuilder.Entity("SkillChallenge.Models.SubCategory", b =>
@@ -455,32 +462,6 @@ namespace SkillChallenge.Migrations
                             ImagePath = "images/subcategories/cat.png",
                             SubCategoryName = "Other"
                         });
-                });
-
-            modelBuilder.Entity("SkillChallenge.Models.SubCategoryRatingEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("CategoryRatingEntityId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Rating")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SubCategoryId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoryRatingEntityId");
-
-                    b.HasIndex("SubCategoryId");
-
-                    b.ToTable("SubCategoryRatingEntities");
                 });
 
             modelBuilder.Entity("SkillChallenge.Models.UploadedResult", b =>
@@ -706,23 +687,6 @@ namespace SkillChallenge.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("SkillChallenge.Models.CategoryRatingEntity", b =>
-                {
-                    b.HasOne("SkillChallenge.Models.Category", "Category")
-                        .WithMany()
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SkillChallenge.Models.User", null)
-                        .WithMany("CategoryRatingEntities")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Category");
-                });
-
             modelBuilder.Entity("SkillChallenge.Models.Challenge", b =>
                 {
                     b.HasOne("SkillChallenge.Models.User", "Creator")
@@ -741,6 +705,15 @@ namespace SkillChallenge.Migrations
                     b.Navigation("SubCategory");
                 });
 
+            modelBuilder.Entity("SkillChallenge.Models.RatingEntity", b =>
+                {
+                    b.HasOne("SkillChallenge.Models.User", null)
+                        .WithMany("RatingEntities")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("SkillChallenge.Models.SubCategory", b =>
                 {
                     b.HasOne("SkillChallenge.Models.Category", "Category")
@@ -750,21 +723,6 @@ namespace SkillChallenge.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
-                });
-
-            modelBuilder.Entity("SkillChallenge.Models.SubCategoryRatingEntity", b =>
-                {
-                    b.HasOne("SkillChallenge.Models.CategoryRatingEntity", null)
-                        .WithMany("SubCategoryRatingEntities")
-                        .HasForeignKey("CategoryRatingEntityId");
-
-                    b.HasOne("SkillChallenge.Models.SubCategory", "SubCategory")
-                        .WithMany()
-                        .HasForeignKey("SubCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("SubCategory");
                 });
 
             modelBuilder.Entity("SkillChallenge.Models.UploadedResult", b =>
@@ -800,11 +758,6 @@ namespace SkillChallenge.Migrations
                     b.Navigation("SubCategories");
                 });
 
-            modelBuilder.Entity("SkillChallenge.Models.CategoryRatingEntity", b =>
-                {
-                    b.Navigation("SubCategoryRatingEntities");
-                });
-
             modelBuilder.Entity("SkillChallenge.Models.Challenge", b =>
                 {
                     b.Navigation("UploadedResults");
@@ -817,7 +770,7 @@ namespace SkillChallenge.Migrations
 
             modelBuilder.Entity("SkillChallenge.Models.User", b =>
                 {
-                    b.Navigation("CategoryRatingEntities");
+                    b.Navigation("RatingEntities");
                 });
 #pragma warning restore 612, 618
         }

@@ -98,6 +98,37 @@ function ClosedChallengeDetails({
         ) : (
           <span> No results uploaded.</span>
         )}
+        <button
+        className="btn btn-primary"
+        style={{ marginTop: 24 }}
+        onClick={async () => {
+          try {
+            const res = await fetch(
+              `${apiUrl}/challenges/${challenge.challengeId}/submit-result`,
+              {
+                method: "POST",
+                headers: {
+                  "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                },
+              }
+            );
+            if (res.ok) {
+              alert("Results submitted successfully!");
+              if (typeof fetchChallenge === "function") fetchChallenge();
+            } else {
+              const text = await res.text();
+              alert("Failed to submit results: " + text);
+            }
+          } catch (err) {
+            alert("Error submitting results: " + err.message);
+          }
+        }}
+      >
+        Submit Results
+      </button>
+      {/* This button is to be removed and replaced by an
+      automatic function that does the same stuff when the EndDate
+      of the challenge has passed */}
       </div>
     </>
   );
