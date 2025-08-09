@@ -40,7 +40,7 @@ namespace SkillChallenge.Repositories
 
         public async Task<List<Challenge>> GetAllChallengesAsync(CancellationToken ct = default) =>
             await _context
-                .Challenges.Include(c => c.Users)
+                .Challenges.Include(c => c.Participants)
                 .Include(c => c.SubCategory)
                 .Include(c => c.Creator)
                 .AsNoTracking()
@@ -51,8 +51,9 @@ namespace SkillChallenge.Repositories
             CancellationToken ct = default
         ) =>
             await _context.Challenges
-                .Include(c => c.Users).ThenInclude(u => u.CategoryRatingEntities)
-                .Include(c => c.Users).ThenInclude(u => u.CategoryRatingEntities).ThenInclude(cr => cr.SubCategoryRatingEntities)
+                .Include(c => c.Participants)
+                .Include(c => c.Participants).ThenInclude(u => u.CategoryRatingEntities)
+                .Include(c => c.Participants).ThenInclude(u => u.CategoryRatingEntities).ThenInclude(cr => cr.SubCategoryRatingEntities)
                 .Include(c => c.UploadedResults).ThenInclude(ur => ur.User)
                 .Include(c => c.UploadedResults).ThenInclude(ur => ur.Votes)
                 .Include(c => c.SubCategory)
@@ -76,6 +77,7 @@ namespace SkillChallenge.Repositories
             existing.ChallengeName = updatedChallenge.ChallengeName;
             existing.EndDate = updatedChallenge.EndDate;
             existing.Description = updatedChallenge.Description;
+            existing.NumberOfParticipants = updatedChallenge.NumberOfParticipants;
             existing.IsPublic = updatedChallenge.IsPublic;
             existing.SubCategoryId = updatedChallenge.SubCategoryId;
 
@@ -88,44 +90,47 @@ namespace SkillChallenge.Repositories
             CancellationToken ct = default
         ) =>
             await _context
-                .Challenges.Include(c => c.Users)
+                .Challenges.Include(c => c.Participants)
                 .Include(c => c.SubCategory)
                 .Include(c => c.Creator)
                 .Where(c => c.CreatedBy == creatorId)
                 .AsNoTracking()
                 .ToListAsync(ct);
 
-        public async Task<bool> AddUserToChallengeAsync(int challengeId, string userId, CancellationToken ct = default)
+        public async Task<ChallengeJoinStatus> AddUserToChallengeAsync(int challengeId, string userId, CancellationToken ct = default)
         {
             var challenge = await _context.Challenges
-                .Include(c => c.Users)
+                .Include(c => c.Participants)
                 .FirstOrDefaultAsync(c => c.ChallengeId == challengeId, ct);
-            if (challenge == null) return false;
+            if (challenge == null) return ChallengeJoinStatus.ChallengeNotFound;
+
+            if (challenge.Participants.Count >= challenge.NumberOfParticipants)
+                return ChallengeJoinStatus.ChallengeFull;
 
             var user = await _context.Users.FindAsync(new object[] { userId }, ct);
-            if (user == null) return false;
+            if (user == null) return ChallengeJoinStatus.UserNotFound;
 
-            if (!challenge.Users.Contains(user))
-            {
-                challenge.Users.Add(user);
-                await _context.SaveChangesAsync(ct);
-            }
-            return true;
+            if (challenge.Participants.Contains(user))
+                return ChallengeJoinStatus.AlreadyJoined;
+
+            challenge.Participants.Add(user);
+            await _context.SaveChangesAsync(ct);
+            return ChallengeJoinStatus.Success;
         }
 
         public async Task<bool> RemoveUserFromChallengeAsync(int challengeId, string userId, CancellationToken ct = default)
         {
             var challenge = await _context.Challenges
-                .Include(c => c.Users)
+                .Include(c => c.Participants)
                 .FirstOrDefaultAsync(c => c.ChallengeId == challengeId, ct);
             if (challenge == null) return false;
 
             var user = await _context.Users.FindAsync(new object[] { userId }, ct);
             if (user == null) return false;
 
-            if (challenge.Users.Contains(user))
+            if (challenge.Participants.Contains(user))
             {
-                challenge.Users.Remove(user);
+                challenge.Participants.Remove(user);
                 await _context.SaveChangesAsync(ct);
             }
             return true;
@@ -134,7 +139,7 @@ namespace SkillChallenge.Repositories
         public async Task<UploadResultStatus> AddUploadedResultToChallengeAsync(int challengeId, UploadedResult uploadedResult, CancellationToken ct = default)
         {
             var challenge = await _context.Challenges
-                .Include(c => c.Users)
+                .Include(c => c.Participants)
                 .Include(c => c.UploadedResults)
                 .FirstOrDefaultAsync(c => c.ChallengeId == challengeId, ct);
 
@@ -143,7 +148,7 @@ namespace SkillChallenge.Repositories
             if (challenge.EndDate < DateTime.UtcNow)
                 return UploadResultStatus.ChallengeEnded;
 
-            var hasJoined = challenge.Users.Any(u => u.Id == uploadedResult.UserId);
+            var hasJoined = challenge.Participants.Any(u => u.Id == uploadedResult.UserId);
             if (!hasJoined) return UploadResultStatus.NotJoined;
 
             var exists = await _context.UploadedResults.AnyAsync(ur => ur.ChallengeId == challengeId && ur.UserId == uploadedResult.UserId, ct);

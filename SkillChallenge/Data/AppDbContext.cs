@@ -267,7 +267,7 @@ namespace SkillChallenge.Data
             // Many-to-many relation mellan Challenge och User
             builder
                 .Entity<Challenge>()
-                .HasMany(c => c.Users)
+                .HasMany(c => c.Participants)
                 .WithMany(u => u.Challenges)
                 .UsingEntity(j => j.ToTable("ChallengeUsers"));
         }

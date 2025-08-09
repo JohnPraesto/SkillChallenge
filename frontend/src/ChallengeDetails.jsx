@@ -28,7 +28,8 @@ function ChallengeDetails() {
   if (!challenge) return <div>Loading...</div>;
 
   const isClosed = new Date(challenge.endDate) <= new Date();
-
+  const numberOfParticipants = challenge.joinedUsers ? challenge.joinedUsers.length : 0;
+  
   return (
     <div style={{ maxWidth: 500, margin: "2em auto", padding: 24, border: "1px solid #ccc", borderRadius: 8 }}>
       <h2>{challenge.challengeName}</h2>
@@ -39,6 +40,7 @@ function ChallengeDetails() {
       />
       <div><strong>End Date:</strong> {new Date(challenge.endDate).toLocaleString()}</div>
       <div><strong>Description:</strong> {challenge.description}</div>
+      <div><strong>Number of Participants:</strong> {numberOfParticipants}/{challenge.numberOfParticipants}</div>
       <div><strong>Created by:</strong> {challenge.creatorUserName}</div>
       {isClosed ? (
         <ClosedChallengeDetails
