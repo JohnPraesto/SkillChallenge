@@ -33,6 +33,7 @@ namespace SkillChallenge.Controllers
                     ChallengeName = c.ChallengeName,
                     EndDate = c.EndDate,
                     Description = c.Description,
+                    NumberOfParticipants = c.NumberOfParticipants,
                     IsPublic = c.IsPublic,
                     SubCategory =
                         c.SubCategory == null
@@ -43,7 +44,7 @@ namespace SkillChallenge.Controllers
                                 SubCategoryName = c.SubCategory.SubCategoryName,
                                 ImagePath = c.SubCategory.ImagePath,
                             },
-                    JoinedUsers = c.Users.Select(u => u.UserName ?? "Unknown").ToList(),
+                    JoinedUsers = c.Participants.Select(u => u.UserName ?? "Unknown").ToList(),
                     CreatedBy = c.CreatedBy,
                     CreatorUserName = c.Creator?.UserName ?? "Unknown",
                 })
@@ -70,6 +71,7 @@ namespace SkillChallenge.Controllers
                     ChallengeName = c.ChallengeName,
                     EndDate = c.EndDate,
                     Description = c.Description,
+                    NumberOfParticipants = c.NumberOfParticipants,
                     IsPublic = c.IsPublic,
                     SubCategory =
                         c.SubCategory == null
@@ -80,7 +82,7 @@ namespace SkillChallenge.Controllers
                                 SubCategoryName = c.SubCategory.SubCategoryName,
                                 ImagePath = c.SubCategory.ImagePath,
                             },
-                    JoinedUsers = c.Users.Select(u => u.UserName ?? "Unknown").ToList(),
+                    JoinedUsers = c.Participants.Select(u => u.UserName ?? "Unknown").ToList(),
                     CreatedBy = c.CreatedBy,
                     CreatorUserName = c.Creator?.UserName ?? "Unknown",
                 })
@@ -104,6 +106,7 @@ namespace SkillChallenge.Controllers
                 ChallengeName = challenge.ChallengeName,
                 EndDate = challenge.EndDate,
                 Description = challenge.Description,
+                NumberOfParticipants = challenge.NumberOfParticipants,
                 IsPublic = challenge.IsPublic,
                 SubCategory =
                     challenge.SubCategory == null
@@ -114,7 +117,7 @@ namespace SkillChallenge.Controllers
                             SubCategoryName = challenge.SubCategory.SubCategoryName,
                             ImagePath = challenge.SubCategory.ImagePath,
                         },
-                JoinedUsers = challenge.Users.Select(u => u.UserName ?? "Unknown").ToList(),
+                JoinedUsers = challenge.Participants.Select(u => u.UserName ?? "Unknown").ToList(),
                 UploadedResults = challenge.UploadedResults.Select(ur => new UploadedResultDTO
                 {
                     UploadedResultId = ur.UploadedResultId,
@@ -140,10 +143,7 @@ namespace SkillChallenge.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin,User")]
-        public async Task<IActionResult> CreateChallenge(
-            [FromBody] CreateChallengeDTO createChallengeDTO,
-            CancellationToken ct
-        )
+        public async Task<IActionResult> CreateChallenge([FromBody] CreateChallengeDTO createChallengeDTO, CancellationToken ct)
         {
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(currentUserId))
@@ -156,17 +156,14 @@ namespace SkillChallenge.Controllers
                 ChallengeName = createChallengeDTO.ChallengeName,
                 EndDate = createChallengeDTO.EndDate,
                 Description = createChallengeDTO.Description,
+                NumberOfParticipants = createChallengeDTO.NumberOfParticipants,
                 IsPublic = createChallengeDTO.IsPublic,
                 SubCategoryId = createChallengeDTO.SubCategoryId,
                 CreatedBy = currentUserId,
             };
 
             var created = await _challengeRepo.CreateChallengeAsync(challenge, ct);
-            return CreatedAtAction(
-                nameof(GetChallengeById),
-                new { id = created.ChallengeId },
-                created
-            );
+            return CreatedAtAction(nameof(GetChallengeById), new { id = created.ChallengeId }, created);
         }
 
         [HttpPut("{id:int}")]
@@ -234,11 +231,15 @@ namespace SkillChallenge.Controllers
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
 
-            var success = await _challengeRepo.AddUserToChallengeAsync(challengeId, userId, ct);
-            if (!success)
-                return NotFound($"Challenge or user not found.");
-
-            return Ok("Joined challenge successfully.");
+            var result = await _challengeRepo.AddUserToChallengeAsync(challengeId, userId, ct);
+            return result switch
+            {
+                ChallengeJoinStatus.Success => Ok("Joined challenge successfully."),
+                ChallengeJoinStatus.ChallengeFull => Conflict("Challenge is already full."),
+                ChallengeJoinStatus.AlreadyJoined => Conflict("You have already joined this challenge."),
+                ChallengeJoinStatus.ChallengeNotFound or ChallengeJoinStatus.UserNotFound => NotFound("Challenge or user not found."),
+                _ => StatusCode(500, "Unknown error.")
+            };
         }
 
         [HttpPost("{challengeId:int}/leave")]
@@ -331,8 +332,8 @@ namespace SkillChallenge.Controllers
             var categoryId = challenge.SubCategory.CategoryId;
 
             // Ensure all users have a rating for this subcategory
-            await _eloRatingService.EnsureRatingsExistForParticipantsAsync(challenge.Users, categoryId, challenge.SubCategoryId.Value, challenge, ct);
-            await _eloRatingService.UpdateEloRatingsAsync(challenge.Users, categoryId, challenge.SubCategoryId.Value, challenge, ct);
+            await _eloRatingService.EnsureRatingsExistForParticipantsAsync(challenge.Participants, categoryId, challenge.SubCategoryId.Value, challenge, ct);
+            await _eloRatingService.UpdateEloRatingsAsync(challenge.Participants, categoryId, challenge.SubCategoryId.Value, challenge, ct);
             return Ok("Ratings ensured for all participants.");
         }
     }

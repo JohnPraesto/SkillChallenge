@@ -5,6 +5,7 @@ function CreateChallenge() {
   const [challengeName, setChallengeName] = useState("");
   const [description, setDescription] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [numberOfParticipants, setNumberOfParticipants] = useState("");
   const [isPublic, setIsPublic] = useState(true);
   const [subCategoryId, setSubCategoryId] = useState("");
   const [subCategories, setSubCategories] = useState([]);
@@ -39,6 +40,7 @@ function CreateChallenge() {
         body: JSON.stringify({
           challengeName,
           description,
+          numberOfParticipants: numberOfParticipants === "" ? 1000 : parseInt(numberOfParticipants, 10),
           endDate,
           isPublic,
           subCategoryId,
@@ -77,6 +79,19 @@ function CreateChallenge() {
             onChange={e => setDescription(e.target.value)}
             rows={3}
           />
+        </div>
+        <div className="form-group">
+          <label>Number of Participants</label>
+          <select
+            className="form-control"
+            value={numberOfParticipants}
+            onChange={e => setNumberOfParticipants(e.target.value)}
+          >
+            <option value="">Unlimited</option>
+            {[...Array(9)].map((_, i) => (
+              <option key={i+2} value={i+2}>{i+2}</option>
+            ))}
+          </select>
         </div>
         <div className="form-group">
           <label>End Date*</label>

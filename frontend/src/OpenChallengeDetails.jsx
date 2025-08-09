@@ -11,6 +11,7 @@ function OpenChallengeDetails({
   const [message, setMessage] = useState("");
   const [joining, setJoining] = useState(false);
   const alreadyJoined = user && challenge.joinedUsers.includes(user.userName);
+  const isFull = challenge.joinedUsers.length >= challenge.numberOfParticipants;
 
   const handleJoin = async () => {
     if (!user) {
@@ -92,8 +93,6 @@ function OpenChallengeDetails({
 
   const hasUploadedResult = alreadyJoined && challenge.uploadedResults?.some(r => r.userId === user.id);
 
-  // const test = challenge.uploadedResults?.some(r => r.userId === user.id)
-
   const handleRemoveResult = async () => {
     try {
       const res = await fetch(
@@ -140,11 +139,30 @@ function OpenChallengeDetails({
           <span> None</span>
         )}
       </div>
-      <button
+      {/* <button
         className="btn btn-primary"
         style={{ marginTop: 16 }}
         onClick={alreadyJoined ? handleLeave : handleJoin}
         disabled={joining}
+      >
+        {joining
+          ? alreadyJoined
+            ? "Leaving..."
+            : "Joining..."
+          : alreadyJoined
+          ? "Leave Challenge"
+          : "Join Challenge"}
+      </button> */}
+      <button
+        className="btn btn-primary"
+        style={{
+          marginTop: 16,
+          cursor: alreadyJoined ? "pointer" : isFull ? "not-allowed" : "pointer",
+          opacity: alreadyJoined ? 1 : isFull ? 0.6 : 1
+        }}
+        onClick={alreadyJoined ? handleLeave : handleJoin}
+        disabled={joining || (!alreadyJoined && isFull)}
+        title={!alreadyJoined && isFull ? "Maximum number of participants reached" : ""}
       >
         {joining
           ? alreadyJoined
