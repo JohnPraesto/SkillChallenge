@@ -174,6 +174,32 @@ namespace SkillChallenge.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CategoryRatingEntities",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CategoryId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CategoryRatingEntities", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CategoryRatingEntities_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CategoryRatingEntities_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
+                        principalColumn: "CategoryId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SubCategories",
                 columns: table => new
                 {
@@ -202,7 +228,10 @@ namespace SkillChallenge.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ChallengeName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    VotePeriodEnd = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsTakenDown = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    NumberOfParticipants = table.Column<int>(type: "int", nullable: false),
                     IsPublic = table.Column<bool>(type: "bit", nullable: false),
                     SubCategoryId = table.Column<int>(type: "int", nullable: true),
                     CreatedBy = table.Column<string>(type: "nvarchar(450)", nullable: false)
@@ -225,18 +254,44 @@ namespace SkillChallenge.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "SubCategoryRatingEntities",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SubCategoryId = table.Column<int>(type: "int", nullable: false),
+                    Rating = table.Column<int>(type: "int", nullable: false),
+                    CategoryRatingEntityId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SubCategoryRatingEntities", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SubCategoryRatingEntities_CategoryRatingEntities_CategoryRatingEntityId",
+                        column: x => x.CategoryRatingEntityId,
+                        principalTable: "CategoryRatingEntities",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_SubCategoryRatingEntities_SubCategories_SubCategoryId",
+                        column: x => x.SubCategoryId,
+                        principalTable: "SubCategories",
+                        principalColumn: "SubCategoryId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ChallengeUsers",
                 columns: table => new
                 {
                     ChallengesChallengeId = table.Column<int>(type: "int", nullable: false),
-                    UsersId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    ParticipantsId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ChallengeUsers", x => new { x.ChallengesChallengeId, x.UsersId });
+                    table.PrimaryKey("PK_ChallengeUsers", x => new { x.ChallengesChallengeId, x.ParticipantsId });
                     table.ForeignKey(
-                        name: "FK_ChallengeUsers_AspNetUsers_UsersId",
-                        column: x => x.UsersId,
+                        name: "FK_ChallengeUsers_AspNetUsers_ParticipantsId",
+                        column: x => x.ParticipantsId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -245,6 +300,55 @@ namespace SkillChallenge.Migrations
                         column: x => x.ChallengesChallengeId,
                         principalTable: "Challenges",
                         principalColumn: "ChallengeId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UploadedResults",
+                columns: table => new
+                {
+                    UploadedResultId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Url = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ChallengeId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    SubmissionDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UploadedResults", x => x.UploadedResultId);
+                    table.ForeignKey(
+                        name: "FK_UploadedResults_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UploadedResults_Challenges_ChallengeId",
+                        column: x => x.ChallengeId,
+                        principalTable: "Challenges",
+                        principalColumn: "ChallengeId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "VoteEntities",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ChallengeId = table.Column<int>(type: "int", nullable: false),
+                    UploadedResultId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VoteEntities", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_VoteEntities_UploadedResults_UploadedResultId",
+                        column: x => x.UploadedResultId,
+                        principalTable: "UploadedResults",
+                        principalColumn: "UploadedResultId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -307,13 +411,13 @@ namespace SkillChallenge.Migrations
 
             migrationBuilder.InsertData(
                 table: "Challenges",
-                columns: new[] { "ChallengeId", "ChallengeName", "CreatedBy", "Description", "EndDate", "IsPublic", "SubCategoryId" },
+                columns: new[] { "ChallengeId", "ChallengeName", "CreatedBy", "Description", "EndDate", "IsPublic", "IsTakenDown", "NumberOfParticipants", "SubCategoryId", "VotePeriodEnd" },
                 values: new object[,]
                 {
-                    { 1, "Nacksving", "admin-123", "Lär dig göra ett nacksving", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), true, 3 },
-                    { 2, "Guitar solo", "admin-123", "Learn this solo", new DateTime(2027, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), true, 1 },
-                    { 3, "Ace", "user-456", "Best aceg", new DateTime(2027, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), true, 7 },
-                    { 4, "Recepie", "user-456", "Best original recepie", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), true, 5 }
+                    { 1, "Nacksving", "admin-123", "Lär dig göra ett nacksving", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), true, new DateTime(2024, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), 0, 3, new DateTime(2024, 1, 8, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 2, "Guitar solo", "admin-123", "Learn this solo", new DateTime(2027, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), true, new DateTime(2027, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), 0, 1, new DateTime(2027, 1, 8, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 3, "Ace", "user-456", "Best aceg", new DateTime(2027, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), true, new DateTime(2027, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), 0, 7, new DateTime(2027, 1, 8, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 4, "Recepie", "user-456", "Best original recepie", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), true, new DateTime(2024, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), 0, 5, new DateTime(2024, 1, 8, 0, 0, 0, 0, DateTimeKind.Unspecified) }
                 });
 
             migrationBuilder.CreateIndex(
@@ -356,6 +460,16 @@ namespace SkillChallenge.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_CategoryRatingEntities_CategoryId",
+                table: "CategoryRatingEntities",
+                column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CategoryRatingEntities_UserId",
+                table: "CategoryRatingEntities",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Challenges_CreatedBy",
                 table: "Challenges",
                 column: "CreatedBy");
@@ -366,14 +480,39 @@ namespace SkillChallenge.Migrations
                 column: "SubCategoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ChallengeUsers_UsersId",
+                name: "IX_ChallengeUsers_ParticipantsId",
                 table: "ChallengeUsers",
-                column: "UsersId");
+                column: "ParticipantsId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SubCategories_CategoryId",
                 table: "SubCategories",
                 column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SubCategoryRatingEntities_CategoryRatingEntityId",
+                table: "SubCategoryRatingEntities",
+                column: "CategoryRatingEntityId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SubCategoryRatingEntities_SubCategoryId",
+                table: "SubCategoryRatingEntities",
+                column: "SubCategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UploadedResults_ChallengeId",
+                table: "UploadedResults",
+                column: "ChallengeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UploadedResults_UserId",
+                table: "UploadedResults",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VoteEntities_UploadedResultId",
+                table: "VoteEntities",
+                column: "UploadedResultId");
         }
 
         /// <inheritdoc />
@@ -398,7 +537,19 @@ namespace SkillChallenge.Migrations
                 name: "ChallengeUsers");
 
             migrationBuilder.DropTable(
+                name: "SubCategoryRatingEntities");
+
+            migrationBuilder.DropTable(
+                name: "VoteEntities");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "CategoryRatingEntities");
+
+            migrationBuilder.DropTable(
+                name: "UploadedResults");
 
             migrationBuilder.DropTable(
                 name: "Challenges");

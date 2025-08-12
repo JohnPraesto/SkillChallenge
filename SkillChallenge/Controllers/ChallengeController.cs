@@ -32,6 +32,8 @@ namespace SkillChallenge.Controllers
                     ChallengeId = c.ChallengeId,
                     ChallengeName = c.ChallengeName,
                     EndDate = c.EndDate,
+                    VotePeriodEnd = c.VotePeriodEnd,
+                    IsTakenDown = c.IsTakenDown,
                     Description = c.Description,
                     NumberOfParticipants = c.NumberOfParticipants,
                     IsPublic = c.IsPublic,
@@ -70,6 +72,8 @@ namespace SkillChallenge.Controllers
                     ChallengeId = c.ChallengeId,
                     ChallengeName = c.ChallengeName,
                     EndDate = c.EndDate,
+                    VotePeriodEnd = c.VotePeriodEnd,
+                    IsTakenDown = c.IsTakenDown,
                     Description = c.Description,
                     NumberOfParticipants = c.NumberOfParticipants,
                     IsPublic = c.IsPublic,
@@ -105,6 +109,8 @@ namespace SkillChallenge.Controllers
                 ChallengeId = challenge.ChallengeId,
                 ChallengeName = challenge.ChallengeName,
                 EndDate = challenge.EndDate,
+                VotePeriodEnd = challenge.VotePeriodEnd,
+                IsTakenDown = challenge.IsTakenDown,
                 Description = challenge.Description,
                 NumberOfParticipants = challenge.NumberOfParticipants,
                 IsPublic = challenge.IsPublic,
@@ -151,10 +157,16 @@ namespace SkillChallenge.Controllers
                 return Unauthorized();
             }
 
+            var endDate = createChallengeDTO.EndDate;
+            var votePeriodEnd = endDate.AddDays(7);
+            var isTakenDown = votePeriodEnd.AddDays(7);
+
             var challenge = new Challenge
             {
                 ChallengeName = createChallengeDTO.ChallengeName,
-                EndDate = createChallengeDTO.EndDate,
+                EndDate = endDate,
+                VotePeriodEnd = votePeriodEnd,
+                IsTakenDown = isTakenDown,
                 Description = createChallengeDTO.Description,
                 NumberOfParticipants = createChallengeDTO.NumberOfParticipants,
                 IsPublic = createChallengeDTO.IsPublic,
@@ -188,10 +200,16 @@ namespace SkillChallenge.Controllers
                 return Forbid("You can only update your own challenges");
             }
 
+            var endDate = updateChallengeDTO.EndDate;
+            var votePeriodEnd = endDate.AddDays(7);
+            var isTakenDown = votePeriodEnd.AddDays(7);
+
             var updatedChallenge = new Challenge
             {
                 ChallengeName = updateChallengeDTO.ChallengeName,
-                EndDate = updateChallengeDTO.EndDate,
+                EndDate = endDate,
+                VotePeriodEnd = votePeriodEnd,
+                IsTakenDown = isTakenDown,
                 Description = updateChallengeDTO.Description,
                 IsPublic = updateChallengeDTO.IsPublic,
                 SubCategoryId = updateChallengeDTO.SubCategoryId,

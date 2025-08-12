@@ -1,6 +1,48 @@
 ﻿using SkillChallenge.Interfaces;
 using SkillChallenge.Models;
 
+// Ratinguppdatering med fler deltagare
+// En users rating ska uppdateras jämfört både(?)
+// de som har fler votes och de som har färre.
+// Zeus fick 5 röster
+// Oden fick 4 röster
+// Adam fick 3 röster
+// Berta fick 2 röster
+// Cecar fick 1 röst
+// Ta fram snittet av alla ratings utom din egen.
+// För att ta fram din relativa position sorerar du rösterna ascending.
+// Så den som fick flest röster hamnar sist i listan.
+// Du jämför den positionen med antalet deltagare i challengen.
+// Till exempel Zeuz har position 5 i en lista med 5 deltagare.
+// 5 delat på 5 = 1.
+// Så värdet 1 skickas med som actual outcome
+// float rating_to_be_transfered = k_factor * (ACTUAL OUTCOME - user_win_chance);
+// Oden fick 4 röster. 4/5 = 0.8
+// Så nu behöver inte get_new_rating()-metoden en win del och en lose del.
+// However, den som är på sista plats kommer alltså få 1/5 = 0.2.
+// Men den som är sist ska ju ha 0. Och den som är först ska ha 1.
+// Hur ska jag lösa det?
+// 5/5 = 1
+// 4/5 = 0.8
+// 3/5 = 0.6
+// 2/5 = 0.4
+// 1/5 = 0.2
+// I need five evend out values between 0 and 1.
+// 1 divided by the number of participants minus 1!
+// participantFactor = 1 / (actualParticipantCount - 1)
+// Then take the index position of the users uploaded result in the uploadedResults list and multiply by the participantFactor
+// participantFactor = 1 / (5 - 1) = 0.25
+// Zeus index position is 4 in a list of 5 participants
+// Zeus = 4 * 0.25 = 1
+// Oden = 3 * 0.25 = 0.75
+// Adam = 2 * 0.25 = 0.5
+// Berta = 1 * 0.25 = 0.25
+// Cecar = 0 * 0.25 = 0
+// There you go.
+
+
+
+
 namespace SkillChallenge.Services
 {
     public class EloRatingService
@@ -22,10 +64,6 @@ namespace SkillChallenge.Services
         // subCategory så får den en ny rating med värdet 1000.
         public async Task EnsureRatingsExistForParticipantsAsync(IEnumerable<User> users, int categoryId, int subCategoryId, Challenge challenge, CancellationToken ct)
         {
-            // Find the UploadedResults with the most votes
-            int maxVotes = challenge.UploadedResults.Max(ur => ur.Votes.Count);
-            var topResults = challenge.UploadedResults.Where(ur => ur.Votes.Count == maxVotes).ToList();
-
             foreach (var user in users)
             {
                 var categoryRating = user.CategoryRatingEntities.FirstOrDefault(c => c.CategoryId == categoryId);
@@ -46,6 +84,7 @@ namespace SkillChallenge.Services
                         }
                     };
                     await _ratingEntityRepository.AddAsync(newCategoryRating, ct);
+                    user.CategoryRatingEntities.Add(newCategoryRating);
                 }
                 else
                 {
@@ -66,40 +105,63 @@ namespace SkillChallenge.Services
 
         public async Task UpdateEloRatingsAsync(IEnumerable<User> users, int categoryId, int subCategoryId, Challenge challenge, CancellationToken ct)
         {
-            // Find the UploadedResults with the most votes
-            int maxVotes = challenge.UploadedResults.Max(ur => ur.Votes.Count);
-            var topResults = challenge.UploadedResults.Where(ur => ur.Votes.Count == maxVotes).ToList();
+            // Sort uploaded results by votes ascending
+            var uploadedResults = challenge.UploadedResults.OrderBy(ur => ur.Votes.Count).ToList();
+
+            int actualPartcipantCount = users.Count();
+            Console.WriteLine($"Actual participant count: {actualPartcipantCount}");
+
+            float participantFactor = 1f / (actualPartcipantCount - 1);
+            Console.WriteLine($"Participant factor: {participantFactor}");
 
             // Stores the new ratings before applying them in the foreach loop
             var newRatings = new Dictionary<SubCategoryRatingEntity, int>();
-            // This foreach loop takes a users rating and averages all
-            // opponent ratings into one rating.
+
+            int sumOfAllParticipantsRating = 0;
+            // Get rating sum of all participants
             foreach (var user in users)
             {
-                // Get user rating
-                int opponentRatingSum = 0;
-                bool userWon = topResults.Any(r => r.UserId == user.Id);
+                // First time a user get a rating in a new category this happens userCategoryRatingEntity was null.
+                // System.NullReferenceException: 'Object reference not set to an instance of an object.'
+                // But not if I do it again
+                var userCategoryRatingEntity = user.CategoryRatingEntities.FirstOrDefault(c => c.CategoryId == categoryId);
+                var userSubCategoryRatingEntity = userCategoryRatingEntity.SubCategoryRatingEntities.FirstOrDefault(s => s.SubCategoryId == subCategoryId);
+                if (userSubCategoryRatingEntity == null) continue;
+                int userRating = userSubCategoryRatingEntity.Rating;
+                sumOfAllParticipantsRating += userRating;
+            }
+
+            foreach (var user in users)
+            {
+                // Find the index of the uploaded result that has this users user id
+                // Find the uploaded result for this user
+                var userResult = uploadedResults.FirstOrDefault(ur => ur.UserId == user.Id);
+                if (userResult == null) continue;
+
+                // The index of the users uploaded result in the uploadedResults list
+                int position = uploadedResults.IndexOf(userResult);
+                Console.WriteLine($"User: {user.UserName}, Position: {position}, Votes: {userResult.Votes.Count}");
+                // OR
+                //// The index of the uploadedResult that has the same number of votes as the userResult
+                //int position = uploadedResults.FindIndex(ur => ur.Votes.Count == userResult.Votes.Count);
+
+                //float userWinFactor = (float)position / actualPartcipantCount;
+                float userWinFactor = (float)position * participantFactor;
+                Console.WriteLine($"User: {user.UserName}, Win Factor: {userWinFactor}");
+
                 var categoryRatingEntity = user.CategoryRatingEntities.FirstOrDefault(c => c.CategoryId == categoryId);
                 var subCategoryRatingEntity = categoryRatingEntity.SubCategoryRatingEntities.FirstOrDefault(s => s.SubCategoryId == subCategoryId);
                 if (subCategoryRatingEntity == null) continue;
                 int old_user_rating = subCategoryRatingEntity.Rating;
 
-                // Get all opponent ratings
-                foreach (var opponent in users)
-                {
-                    var opponentCategoryRatingEntity = opponent.CategoryRatingEntities.FirstOrDefault(c => c.CategoryId == categoryId);
-                    var opponentSubCategoryRatingEntity = opponentCategoryRatingEntity.SubCategoryRatingEntities.FirstOrDefault(s => s.SubCategoryId == subCategoryId);
-                    if (opponentSubCategoryRatingEntity == null) continue;
-                    int opponent_rating = opponentSubCategoryRatingEntity.Rating;
-                    opponentRatingSum += opponent_rating;
-                }
-                opponentRatingSum -= old_user_rating; // Remove self rating
-                int opponent_rating_average = (int)Math.Round((double)opponentRatingSum / (users.Count() - 1)); // Average opponent ratings
+                sumOfAllParticipantsRating -= old_user_rating; // Remove self rating
+                int opponentRatingAverage = (int)Math.Round((double)sumOfAllParticipantsRating / (actualPartcipantCount - 1));
+                sumOfAllParticipantsRating += old_user_rating; // Put it back in for the next iteration
 
                 float user_prevalue = get_prevalue(old_user_rating, c_value);
-                float opponent_prevalue = get_prevalue(opponent_rating_average, c_value);
+                float opponent_prevalue = get_prevalue(opponentRatingAverage, c_value);
                 float user_win_chance = get_win_chance(user_prevalue, opponent_prevalue);
-                int new_rating = get_new_rating(old_user_rating, k_factor, userWon, user_win_chance);
+                int new_rating = get_new_rating(old_user_rating, k_factor, userWinFactor, user_win_chance);
                 newRatings[subCategoryRatingEntity] = new_rating;
             }
 
@@ -138,23 +200,12 @@ namespace SkillChallenge.Services
             return user_prevalue / (user_prevalue + opponent_prevalue);
         }
         // DRAWS NOT SET UP YET
-        public static int get_new_rating(int old_rating, int k_factor, bool win, float user_win_chance)
+        public static int get_new_rating(int old_rating, int k_factor, float winFactor, float user_win_chance)
         {
-            if (win)
-            {
-                float rating_to_be_transfered = k_factor * (1 - user_win_chance);
-                float new_rating = old_rating + rating_to_be_transfered;
-                int new_rating_as_int = (int)Math.Round(new_rating);
-                return new_rating_as_int;
-            }
-            else
-            {
-
-                float rating_to_be_transfered = k_factor * (0 - user_win_chance);
-                float new_rating = old_rating + rating_to_be_transfered;
-                int new_rating_as_int = (int)Math.Round(new_rating);
-                return new_rating_as_int;
-            }
+            float rating_to_be_transfered = k_factor * (winFactor - user_win_chance);
+            float new_rating = old_rating + rating_to_be_transfered;
+            int new_rating_as_int = (int)Math.Round(new_rating);
+            return new_rating_as_int;
         }
     }
 }

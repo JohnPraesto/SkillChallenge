@@ -61,11 +61,7 @@ namespace SkillChallenge.Repositories
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.ChallengeId == id, ct);
 
-        public async Task<Challenge?> UpdateChallengeAsync(
-            int id,
-            Challenge updatedChallenge,
-            CancellationToken ct = default
-        )
+        public async Task<Challenge?> UpdateChallengeAsync(int id, Challenge updatedChallenge, CancellationToken ct = default)
         {
             var existing = await _context.Challenges.FirstOrDefaultAsync(
                 c => c.ChallengeId == id,
@@ -76,6 +72,8 @@ namespace SkillChallenge.Repositories
 
             existing.ChallengeName = updatedChallenge.ChallengeName;
             existing.EndDate = updatedChallenge.EndDate;
+            existing.VotePeriodEnd = updatedChallenge.VotePeriodEnd;
+            existing.IsTakenDown = updatedChallenge.IsTakenDown;
             existing.Description = updatedChallenge.Description;
             existing.NumberOfParticipants = updatedChallenge.NumberOfParticipants;
             existing.IsPublic = updatedChallenge.IsPublic;

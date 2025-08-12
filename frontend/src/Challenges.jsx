@@ -13,16 +13,65 @@ function Challenges() {
   const { showError } = useToast();
   const apiUrl = import.meta.env.VITE_API_URL;
 
+  // useEffect(() => {
+  //   Promise.all([
+  //     fetch(apiUrl + "/challenges").then(res => res.json()),
+  //     fetch(apiUrl + "/categories").then(res => res.json())
+  //   ])
+  //   .then(([challengesData, categoriesData]) => {
+  //     setChallenges(challengesData);
+  //     setFilteredChallenges(challengesData);
+  //     setCategories(categoriesData);
+  //     setLoading(false);
+  //   })
+  //   .catch(err => {
+  //     showError("Failed to load challenges");
+  //     setLoading(false);
+  //   });
+  // }, [showError]);
+
+  // if (loading) return (
+  //   <div className="container fade-in">
+  //     <LoadingSkeleton type="card" count={6} />
+  //   </div>
+  // );
+
+  // TODO:
+  // skapa en ny component för finishedChallenges?
+  // Den ska inte ha vote knappar
+  // den ska visa WINNER: {winnerName}
+  // samt typ sortera uploaded resultaten utefter antalet röster
+
   useEffect(() => {
     Promise.all([
       fetch(apiUrl + "/challenges").then(res => res.json()),
       fetch(apiUrl + "/categories").then(res => res.json())
     ])
     .then(([challengesData, categoriesData]) => {
-      setChallenges(challengesData);
-      setFilteredChallenges(challengesData);
-      setCategories(categoriesData);
-      setLoading(false);
+      // Remove challenges with IsTakenDown in the past
+      // SKALL REFAKTORISERAS FÖR EFFEKTIV DELETIONS OF OLD CHALLENGES AT SCALE
+      const now = new Date();
+      const validChallenges = [];
+      const deletePromises = [];
+
+      challengesData.forEach(challenge => {
+        if (challenge.isTakenDown && new Date(challenge.isTakenDown) < now) {
+          // Call your delete endpoint
+          deletePromises.push(
+            fetch(`${apiUrl}/challenges/${challenge.challengeId}`, { method: "DELETE" })
+          );
+        } else {
+          validChallenges.push(challenge);
+        }
+      });
+
+      // Wait for all deletes to finish, then update state
+      Promise.all(deletePromises).then(() => {
+        setChallenges(validChallenges);
+        setFilteredChallenges(validChallenges);
+        setCategories(categoriesData);
+        setLoading(false);
+      });
     })
     .catch(err => {
       showError("Failed to load challenges");
@@ -30,15 +79,10 @@ function Challenges() {
     });
   }, [showError]);
 
-  if (loading) return (
-    <div className="container fade-in">
-      <LoadingSkeleton type="card" count={6} />
-    </div>
-  );
-
   const now = new Date();
-  const futureChallenges = filteredChallenges.filter(ch => new Date(ch.endDate) > now);
-  const pastChallenges = filteredChallenges.filter(ch => new Date(ch.endDate) <= now);
+  const openChallenges = filteredChallenges.filter(ch => new Date(ch.endDate) > now);
+  const closedChallenges = filteredChallenges.filter(ch => new Date(ch.endDate) <= now && new Date(ch.votePeriodEnd) > now);
+  const finishedChallenges = filteredChallenges.filter(ch => new Date(ch.votePeriodEnd) <= now);
 
   const ChallengeCard = ({ challenge, index }) => (
     <div 
@@ -71,19 +115,71 @@ function Challenges() {
         categories={categories}
       />
 
-      <div className="two-column-layout">
+      <div className="three-column-challenges">
+        {/* Open Challenges */}
+        <div className="challenge-column">
+          <h2 className="challenge-header" style={{ color: "var(--primary-color)" }}>
+            🔥 Open ({openChallenges.length})
+          </h2>
+          {openChallenges.length === 0 ? (
+            <div className="card bounce-in" style={{ textAlign: "center", padding: "2rem" }}>
+              <p>No open challenges found.</p>
+              <button className="btn btn-primary pulse">Create First Challenge</button>
+            </div>
+          ) : (
+            openChallenges.map((ch, index) => (
+              <ChallengeCard key={ch.challengeId} challenge={ch} index={index} />
+            ))
+          )}
+        </div>
+
+        {/* Closed Challenges */}
+        <div className="challenge-column">
+          <h2 className="challenge-header" style={{ color: "#666" }}>
+            ✅ Closed ({closedChallenges.length})
+          </h2>
+          {closedChallenges.length === 0 ? (
+            <div className="card bounce-in" style={{ textAlign: "center", padding: "2rem" }}>
+              <p>No closed challenges found.</p>
+            </div>
+          ) : (
+            closedChallenges.map((ch, index) => (
+              <ChallengeCard key={ch.challengeId} challenge={ch} index={index} />
+            ))
+          )}
+        </div>
+
+        {/* Finished Challenges */}
+        <div className="challenge-column">
+          <h2 className="challenge-header" style={{ color: "#999" }}>
+            🏁 Finished ({finishedChallenges.length})
+          </h2>
+          {finishedChallenges.length === 0 ? (
+            <div className="card bounce-in" style={{ textAlign: "center", padding: "2rem" }}>
+              <p>No finished challenges found.</p>
+            </div>
+          ) : (
+            finishedChallenges.map((ch, index) => (
+              <ChallengeCard key={ch.challengeId} challenge={ch} index={index} />
+            ))
+          )}
+        </div>
+
+
+      {/* <div className="two-column-layout">
+
         <div className="slide-in-left">
           <h2 style={{ textAlign: "center", color: "var(--primary-color)" }}>
-            🔥 Open Challenges ({futureChallenges.length})
+            🔥 Open Challenges ({openChallenges.length})
           </h2>
-          {futureChallenges.length === 0 ? (
+          {openChallenges.length === 0 ? (
             <div className="card bounce-in" style={{ textAlign: "center", padding: "2rem" }}>
               <p>No open challenges found.</p>
               <button className="btn btn-primary pulse">Create First Challenge</button>
             </div>
           ) : (
             <div className="challenges-grid">
-              {futureChallenges.map((ch, index) => (
+              {openChallenges.map((ch, index) => (
                 <ChallengeCard key={ch.challengeId} challenge={ch} index={index} />
               ))}
             </div>
@@ -92,20 +188,38 @@ function Challenges() {
 
         <div className="slide-in-right">
           <h2 style={{ textAlign: "center", color: "#666" }}>
-            ✅ Closed Challenges ({pastChallenges.length})
+            ✅ Closed Challenges ({closedChallenges.length})
           </h2>
-          {pastChallenges.length === 0 ? (
+          {closedChallenges.length === 0 ? (
             <div className="card bounce-in" style={{ textAlign: "center", padding: "2rem" }}>
               <p>No closed challenges found.</p>
             </div>
           ) : (
             <div className="challenges-grid">
-              {pastChallenges.map((ch, index) => (
+              {closedChallenges.map((ch, index) => (
                 <ChallengeCard key={ch.challengeId} challenge={ch} index={index} />
               ))}
             </div>
           )}
         </div>
+
+        <div className="slide-in-bottom" style={{ marginTop: "2rem" }}>
+          <h2 style={{ textAlign: "center", color: "#999" }}>
+            🏁 Finished Challenges ({finishedChallenges.length})
+          </h2>
+          {finishedChallenges.length === 0 ? (
+            <div className="card bounce-in" style={{ textAlign: "center", padding: "2rem" }}>
+              <p>No finished challenges found.</p>
+            </div>
+          ) : (
+            <div className="challenges-grid">
+              {finishedChallenges.map((ch, index) => (
+                <ChallengeCard key={ch.challengeId} challenge={ch} index={index} />
+              ))}
+            </div>
+          )}
+        </div> */}
+
       </div>
     </div>
   );
