@@ -36,8 +36,21 @@ function Register() {
         showSuccess("Account created successfully! Please sign in.");
         navigate("/login");
       } else {
-        const error = await response.json();
-        showError("Registration failed. Please try again.");
+        let errorMsg = "Registration failed. Please try again.";
+        try {
+          const errorData = await response.json();
+          // If backend returns a list of errors (IdentityError)
+          if (Array.isArray(errorData)) {
+            errorMsg = errorData.map(e => e.description || e.code || JSON.stringify(e)).join(" ");
+          } else if (typeof errorData === "string") {
+            errorMsg = errorData;
+          } else if (errorData?.message) {
+            errorMsg = errorData.message;
+          }
+        } catch {
+          // fallback to default error message
+        }
+        showError(errorMsg);
       }
     } catch (err) {
       showError("Connection error. Please try again.");

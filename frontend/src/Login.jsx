@@ -35,8 +35,17 @@ function Login() {
         showSuccess("Welcome back! 🎉");
         navigate("/");
       } else {
-        const error = await response.json();
-        showError("Invalid username or password");
+        let errorMsg = "Invalid username or password";
+        try{
+          const errorData = await response.json();
+          if (typeof errorData === "string"){
+            errorMsg = errorData;
+          } else if (errorData?.message){
+            errorMsg = errorData.message;
+          }
+        } catch {
+          showError(errorMsg);
+        }
       }
     } catch (err) {
       showError("Connection error. Please try again.");
