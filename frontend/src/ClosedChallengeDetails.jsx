@@ -32,7 +32,6 @@ function ClosedChallengeDetails({
           <ul>
             {challenge.uploadedResults.map((result, idx) => {
               // Is this result voted by the current user?
-              // const isVotedByUser = result.votes?.some(vote => vote.userId === user.id);
               const isVotedByUser = result.votes?.some(vote => vote.userId === user?.id) ?? false;
 
               // Has the user voted for any result?

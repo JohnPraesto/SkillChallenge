@@ -40,6 +40,9 @@ using SkillChallenge.Models;
 // Cecar = 0 * 0.25 = 0
 // There you go.
 
+// The k-factor could be adjusted mot antal deltagare.
+// Fler deltagare, högre k-factor.
+
 
 
 
@@ -121,9 +124,6 @@ namespace SkillChallenge.Services
             // Get rating sum of all participants
             foreach (var user in users)
             {
-                // First time a user get a rating in a new category this happens userCategoryRatingEntity was null.
-                // System.NullReferenceException: 'Object reference not set to an instance of an object.'
-                // But not if I do it again
                 var userCategoryRatingEntity = user.CategoryRatingEntities.FirstOrDefault(c => c.CategoryId == categoryId);
                 var userSubCategoryRatingEntity = userCategoryRatingEntity.SubCategoryRatingEntities.FirstOrDefault(s => s.SubCategoryId == subCategoryId);
                 if (userSubCategoryRatingEntity == null) continue;

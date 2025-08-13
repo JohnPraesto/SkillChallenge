@@ -13,35 +13,6 @@ function Challenges() {
   const { showError } = useToast();
   const apiUrl = import.meta.env.VITE_API_URL;
 
-  // useEffect(() => {
-  //   Promise.all([
-  //     fetch(apiUrl + "/challenges").then(res => res.json()),
-  //     fetch(apiUrl + "/categories").then(res => res.json())
-  //   ])
-  //   .then(([challengesData, categoriesData]) => {
-  //     setChallenges(challengesData);
-  //     setFilteredChallenges(challengesData);
-  //     setCategories(categoriesData);
-  //     setLoading(false);
-  //   })
-  //   .catch(err => {
-  //     showError("Failed to load challenges");
-  //     setLoading(false);
-  //   });
-  // }, [showError]);
-
-  // if (loading) return (
-  //   <div className="container fade-in">
-  //     <LoadingSkeleton type="card" count={6} />
-  //   </div>
-  // );
-
-  // TODO:
-  // skapa en ny component för finishedChallenges?
-  // Den ska inte ha vote knappar
-  // den ska visa WINNER: {winnerName}
-  // samt typ sortera uploaded resultaten utefter antalet röster
-
   useEffect(() => {
     Promise.all([
       fetch(apiUrl + "/challenges").then(res => res.json()),
