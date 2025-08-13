@@ -5,6 +5,8 @@
         public int ChallengeId { get; set; }
         public string ChallengeName { get; set; } = string.Empty;
         public DateTime EndDate { get; set; }
+        public DateTime VotePeriodEnd { get; set; }
+        public DateTime IsTakenDown { get; set; }
         public string Description { get; set; } = string.Empty;
         public int NumberOfParticipants { get; set; }
         public bool IsPublic { get; set; }

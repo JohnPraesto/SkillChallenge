@@ -299,11 +299,17 @@ namespace SkillChallenge.Migrations
                     b.Property<bool>("IsPublic")
                         .HasColumnType("bit");
 
+                    b.Property<DateTime>("IsTakenDown")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("NumberOfParticipants")
                         .HasColumnType("int");
 
                     b.Property<int?>("SubCategoryId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("VotePeriodEnd")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("ChallengeId");
 
@@ -322,8 +328,10 @@ namespace SkillChallenge.Migrations
                             Description = "Lär dig göra ett nacksving",
                             EndDate = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsPublic = true,
+                            IsTakenDown = new DateTime(2024, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             NumberOfParticipants = 0,
-                            SubCategoryId = 3
+                            SubCategoryId = 3,
+                            VotePeriodEnd = new DateTime(2024, 1, 8, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
@@ -333,8 +341,10 @@ namespace SkillChallenge.Migrations
                             Description = "Learn this solo",
                             EndDate = new DateTime(2027, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsPublic = true,
+                            IsTakenDown = new DateTime(2027, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             NumberOfParticipants = 0,
-                            SubCategoryId = 1
+                            SubCategoryId = 1,
+                            VotePeriodEnd = new DateTime(2027, 1, 8, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
@@ -344,8 +354,10 @@ namespace SkillChallenge.Migrations
                             Description = "Best aceg",
                             EndDate = new DateTime(2027, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsPublic = true,
+                            IsTakenDown = new DateTime(2027, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             NumberOfParticipants = 0,
-                            SubCategoryId = 7
+                            SubCategoryId = 7,
+                            VotePeriodEnd = new DateTime(2027, 1, 8, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
@@ -355,8 +367,10 @@ namespace SkillChallenge.Migrations
                             Description = "Best original recepie",
                             EndDate = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsPublic = true,
+                            IsTakenDown = new DateTime(2024, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             NumberOfParticipants = 0,
-                            SubCategoryId = 5
+                            SubCategoryId = 5,
+                            VotePeriodEnd = new DateTime(2024, 1, 8, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         });
                 });
 

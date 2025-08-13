@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import OpenChallengeDetails from "./OpenChallengeDetails";
 import ClosedChallengeDetails from "./ClosedChallengeDetails";
+import FinishedChallengeDetails from "./FinishedChallengeDetails";
 
 function ChallengeDetails() {
   const { id } = useParams();
@@ -27,7 +28,10 @@ function ChallengeDetails() {
   if (error) return <div style={{ color: "red" }}>{error}</div>;
   if (!challenge) return <div>Loading...</div>;
 
-  const isClosed = new Date(challenge.endDate) <= new Date();
+  const now = new Date();
+  const isOpen = new Date(challenge.endDate) > now;
+  const isClosed = new Date(challenge.endDate) <= now && new Date(challenge.votePeriodEnd) > now;
+  const isFinished = new Date(challenge.votePeriodEnd) <= now;
   const numberOfParticipants = challenge.joinedUsers ? challenge.joinedUsers.length : 0;
   
   return (
@@ -38,11 +42,21 @@ function ChallengeDetails() {
         alt={challenge.subCategory.subCategoryName || "Category"}
         style={{ width: 300, height: 300, objectFit: "cover", borderRadius: 8, marginBottom: 12 }}
       />
-      <div><strong>End Date:</strong> {new Date(challenge.endDate).toLocaleString()}</div>
+      <div><strong>Admission closes:</strong> {new Date(challenge.endDate).toLocaleString()}</div>
+      <div><strong>Voting closes:</strong> {new Date(challenge.votePeriodEnd).toLocaleString()}</div>
       <div><strong>Description:</strong> {challenge.description}</div>
       <div><strong>Number of Participants:</strong> {numberOfParticipants}/{challenge.numberOfParticipants}</div>
       <div><strong>Created by:</strong> {challenge.creatorUserName}</div>
-      {isClosed ? (
+      {isOpen && (
+        <OpenChallengeDetails
+          challenge={challenge}
+          user={user}
+          navigate={navigate}
+          apiUrl={apiUrl}
+          fetchChallenge={fetchChallenge}
+        />
+      )}
+      {isClosed && (
         <ClosedChallengeDetails
           challenge={challenge}
           user={user}
@@ -50,8 +64,9 @@ function ChallengeDetails() {
           apiUrl={apiUrl}
           fetchChallenge={fetchChallenge}
         />
-      ) : (
-        <OpenChallengeDetails
+      )}
+      {isFinished && (
+        <FinishedChallengeDetails
           challenge={challenge}
           user={user}
           navigate={navigate}
