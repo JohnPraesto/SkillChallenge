@@ -47,7 +47,23 @@ function Profile() {
         body: JSON.stringify({ [field]: value }),
       });
 
-      if (!res.ok) throw new Error("Update failed");
+      if (!res.ok) {
+        let errorMsg = "Update failed";
+        try {
+          const errorData = await res.json();
+          if (Array.isArray(errorData)) {
+            errorMsg = errorData.map(e => e.description || e.code || JSON.stringify(e)).join(" ");
+          } else if (typeof errorData === "string") {
+            errorMsg = errorData;
+          } else if (errorData?.message) {
+            errorMsg = errorData.message;
+          }
+        } catch {
+          // fallback to default error message
+        }
+        showError(errorMsg);
+        return;
+      }
       
       const updated = await res.json();
       if (updated.token) login(updated.token);
@@ -162,7 +178,6 @@ function Profile() {
       <div className="card" style={{ maxWidth: "600px", margin: "2rem auto" }}>
         <div className="profile-header" style={{ textAlign: "center", marginBottom: "2rem" }}>
           <img
-            // src={userData.profilePicture ? userData.profilePicture : `${apiUrl}/profile-pictures/default.png`}
             src={userData.profilePicture ? userData.profilePicture.startsWith("http")
                   ? userData.profilePicture
                   : `${apiUrl}${userData.profilePicture}`

@@ -30,24 +30,18 @@ namespace ASPNET_VisualStudio_Tutorial.Controllers
         public async Task<IActionResult> Login(LoginDTO loginDTO)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
-            var user = await _userManager.Users.FirstOrDefaultAsync(x =>
-                x.UserName == loginDTO.UserName.ToLower()
-            );
+
+            var user = await _userManager.Users.FirstOrDefaultAsync(x => x.UserName == loginDTO.UserName.ToLower());
 
             if (user == null)
                 return Unauthorized("Invalid username!");
 
-            var result = await _signinManager.CheckPasswordSignInAsync(
-                user,
-                loginDTO.Password,
-                false
-            );
+            var result = await _signinManager.CheckPasswordSignInAsync(user, loginDTO.Password, false);
 
             if (!result.Succeeded)
                 return Unauthorized("Username not found or password incorrect");
+
             var token = await _tokenService.CreateToken(user);
             return Ok(
                 new NewUserDTO
