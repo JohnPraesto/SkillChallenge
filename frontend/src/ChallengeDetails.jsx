@@ -42,7 +42,8 @@ function ChallengeDetails() {
         alt={challenge.subCategory.subCategoryName || "Category"}
         style={{ width: 300, height: 300, objectFit: "cover", borderRadius: 8, marginBottom: 12 }}
       />
-      <div><strong>End Date:</strong> {new Date(challenge.endDate).toLocaleString()}</div>
+      <div><strong>Admission closes:</strong> {new Date(challenge.endDate).toLocaleString()}</div>
+      <div><strong>Voting closes:</strong> {new Date(challenge.votePeriodEnd).toLocaleString()}</div>
       <div><strong>Description:</strong> {challenge.description}</div>
       <div><strong>Number of Participants:</strong> {numberOfParticipants}/{challenge.numberOfParticipants}</div>
       <div><strong>Created by:</strong> {challenge.creatorUserName}</div>
