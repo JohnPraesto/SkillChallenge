@@ -76,7 +76,6 @@ namespace SkillChallenge.Repositories
             existing.IsTakenDown = updatedChallenge.IsTakenDown;
             existing.Description = updatedChallenge.Description;
             existing.NumberOfParticipants = updatedChallenge.NumberOfParticipants;
-            existing.IsPublic = updatedChallenge.IsPublic;
             existing.SubCategoryId = updatedChallenge.SubCategoryId;
 
             await _context.SaveChangesAsync(ct);

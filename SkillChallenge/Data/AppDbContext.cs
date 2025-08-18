@@ -201,7 +201,6 @@ namespace SkillChallenge.Data
                     VotePeriodEnd = new DateTime(2024, 01, 08),
                     IsTakenDown = new DateTime(2024, 01, 15),
                     Description = "Lär dig göra ett nacksving",
-                    IsPublic = true,
                     SubCategoryId = 3,
                     CreatedBy = "admin-123"
                 },
@@ -213,7 +212,6 @@ namespace SkillChallenge.Data
                     VotePeriodEnd = new DateTime(2027, 01, 08),
                     IsTakenDown = new DateTime(2027, 01, 15),
                     Description = "Learn this solo",
-                    IsPublic = true,
                     SubCategoryId = 1,
                     CreatedBy = "admin-123"
                 },
@@ -225,7 +223,6 @@ namespace SkillChallenge.Data
                     VotePeriodEnd = new DateTime(2027, 01, 08),
                     IsTakenDown = new DateTime(2027, 01, 15),
                     Description = "Best aceg",
-                    IsPublic = true,
                     SubCategoryId = 7,
                     CreatedBy = "user-456"
                 },
@@ -237,7 +234,6 @@ namespace SkillChallenge.Data
                     VotePeriodEnd = new DateTime(2024, 01, 08),
                     IsTakenDown = new DateTime(2024, 01, 15),
                     Description = "Best original recepie",
-                    IsPublic = true,
                     SubCategoryId = 5,
                     CreatedBy = "user-456"
                 });

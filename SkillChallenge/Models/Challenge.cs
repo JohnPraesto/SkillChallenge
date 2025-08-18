@@ -9,7 +9,6 @@
         public DateTime IsTakenDown { get; set; }
         public string Description { get; set; } = string.Empty;
         public int NumberOfParticipants { get; set; }
-        public bool IsPublic { get; set; }
         public int? SubCategoryId { get; set; }
         public SubCategory? SubCategory { get; set; }
         public ICollection<UploadedResult> UploadedResults { get; set; } = new List<UploadedResult>();

@@ -36,7 +36,6 @@ namespace SkillChallenge.Controllers
                     IsTakenDown = c.IsTakenDown,
                     Description = c.Description,
                     NumberOfParticipants = c.NumberOfParticipants,
-                    IsPublic = c.IsPublic,
                     SubCategory =
                         c.SubCategory == null
                             ? null
@@ -76,7 +75,6 @@ namespace SkillChallenge.Controllers
                     IsTakenDown = c.IsTakenDown,
                     Description = c.Description,
                     NumberOfParticipants = c.NumberOfParticipants,
-                    IsPublic = c.IsPublic,
                     SubCategory =
                         c.SubCategory == null
                             ? null
@@ -113,7 +111,6 @@ namespace SkillChallenge.Controllers
                 IsTakenDown = challenge.IsTakenDown,
                 Description = challenge.Description,
                 NumberOfParticipants = challenge.NumberOfParticipants,
-                IsPublic = challenge.IsPublic,
                 SubCategory =
                     challenge.SubCategory == null
                         ? null
@@ -169,7 +166,6 @@ namespace SkillChallenge.Controllers
                 IsTakenDown = isTakenDown,
                 Description = createChallengeDTO.Description,
                 NumberOfParticipants = createChallengeDTO.NumberOfParticipants,
-                IsPublic = createChallengeDTO.IsPublic,
                 SubCategoryId = createChallengeDTO.SubCategoryId,
                 CreatedBy = currentUserId,
             };
@@ -211,7 +207,6 @@ namespace SkillChallenge.Controllers
                 VotePeriodEnd = votePeriodEnd,
                 IsTakenDown = isTakenDown,
                 Description = updateChallengeDTO.Description,
-                IsPublic = updateChallengeDTO.IsPublic,
                 SubCategoryId = updateChallengeDTO.SubCategoryId,
             };
 

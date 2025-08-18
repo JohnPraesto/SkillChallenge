@@ -11,7 +11,6 @@ namespace SkillChallenge.DTOs.Challenge
         public DateTime IsTakenDown { get; set; }
         public string Description { get; set; } = string.Empty;
         public int NumberOfParticipants { get; set; }
-        public bool IsPublic { get; set; }
         public int? SubCategoryId { get; set; }
         public SubCategoryDTO? SubCategory { get; set; }
         public List<string> JoinedUsers { get; set; } = new();

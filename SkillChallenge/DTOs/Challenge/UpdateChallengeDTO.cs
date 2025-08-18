@@ -6,7 +6,6 @@
         public DateTime EndDate { get; set; }
         public string Description { get; set; } = string.Empty;
         public int NumberOfParticipants { get; set; }
-        public bool IsPublic { get; set; }
         public int? SubCategoryId { get; set; }
     }
 }
