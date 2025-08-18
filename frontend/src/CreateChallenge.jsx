@@ -99,6 +99,7 @@ function CreateChallenge() {
             value={endDate}
             onChange={e => setEndDate(e.target.value)}
             required
+            min={new Date().toISOString().split("T")[0]}
           />
         </div>
         <div className="form-group">
