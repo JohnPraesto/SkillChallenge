@@ -42,6 +42,10 @@ using SkillChallenge.Models;
 
 // The k-factor could be adjusted mot antal deltagare.
 // Fler deltagare, högre k-factor.
+// ACTUAL OUTCOME kanske också can be adjusted based on the number of participants.
+// Kan den vara mer än 1 och mindre än 0?
+// Annars så kan alla deltagare lägga poäng i en pott (som ev baseras på k-factorn)
+// och sedan fördelas den potten ut till deltagarna baserat på deras relativa position.
 
 
 

@@ -81,7 +81,11 @@ body {
 
 /* Navbar Styles */
 .navbar {
-  position: fixed;
+  /* position: fixed; */
+  position:absolute;
+  /* position:relative; */
+  /* position:static; */
+  /* position:sticky; */
   top: 0;
   left: 0;
   width: 100%;
