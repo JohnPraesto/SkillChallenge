@@ -22,6 +22,8 @@ namespace SkillChallenge.Data
         {
             base.OnModelCreating(builder);
 
+            builder.Entity<User>().HasIndex(u => u.Email).IsUnique();
+
             List<IdentityRole> roles = new List<IdentityRole>
             {
                 new IdentityRole

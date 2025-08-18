@@ -7,6 +7,7 @@ function Register() {
     username: "",
     email: "",
     password: "",
+    confirmPassword: "",
   });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -19,6 +20,10 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (form.password !== form.confirmPassword) {
+      showError("Passwords do not match.");
+      return;
+    }
     setLoading(true);
 
     try {
@@ -29,6 +34,7 @@ function Register() {
           username: form.username,
           email: form.email,
           password: form.password,
+          confirmPassword: form.confirmPassword,
         }),
       });
 
@@ -39,13 +45,18 @@ function Register() {
         let errorMsg = "Registration failed. Please try again.";
         try {
           const errorData = await response.json();
-          // If backend returns a list of errors (IdentityError)
           if (Array.isArray(errorData)) {
             errorMsg = errorData.map(e => e.description || e.code || JSON.stringify(e)).join(" ");
           } else if (typeof errorData === "string") {
             errorMsg = errorData;
           } else if (errorData?.message) {
             errorMsg = errorData.message;
+          }
+          else if (typeof errorData === "object" && errorData !== null) {
+            // Handle ASP.NET ModelState errors
+            errorMsg = Object.values(errorData)
+              .flat()
+              .join(" ");
           }
         } catch {
           // fallback to default error message
@@ -112,6 +123,23 @@ function Register() {
                 type="password"
                 placeholder="Create a password"
                 value={form.password}
+                onChange={handleChange}
+                className="form-control auth-input"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="confirmPassword">Confirm Password</label>
+            <div className="input-wrapper">
+              <span className="input-icon">🔒</span>
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                placeholder="Repeat your password"
+                value={form.confirmPassword}
                 onChange={handleChange}
                 className="form-control auth-input"
                 required

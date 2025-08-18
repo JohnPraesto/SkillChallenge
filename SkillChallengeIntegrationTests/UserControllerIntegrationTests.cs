@@ -128,6 +128,7 @@ public class UserControllerIntegrationTests : IClassFixture<WebApplicationFactor
             Username = "newadmin",
             Email = "newadmin@example.com",
             Password = "NewAdminPass123!",
+            ConfirmPassword = "NewAdminPass123!",
         };
 
         // Act

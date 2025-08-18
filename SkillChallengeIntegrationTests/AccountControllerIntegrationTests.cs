@@ -1,13 +1,12 @@
-﻿using System.Net;
-using System.Net.Http.Json;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SkillChallenge.Data;
-using SkillChallenge.DTOs;
 using SkillChallenge.DTOs.Account;
 using SkillChallenge.Models;
+using System.Net;
+using System.Net.Http.Json;
 
 public class AccountControllerIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
 {
@@ -92,6 +91,7 @@ public class AccountControllerIntegrationTests : IClassFixture<WebApplicationFac
             Username = "newuser",
             Email = "newuser@example.com",
             Password = "NewPass123!",
+            ConfirmPassword = "NewPass123!",
         };
 
         // Act
@@ -123,8 +123,9 @@ public class AccountControllerIntegrationTests : IClassFixture<WebApplicationFac
         var newUser = new RegisterUserDTO
         {
             Username = "testuser1",
-            Email = "testuser1@example.com",
+            Email = "testuser1@example2.com",
             Password = "NewPass123!",
+            ConfirmPassword = "NewPass123!",
         };
 
         // Act
