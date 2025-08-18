@@ -6,7 +6,6 @@ function CreateChallenge() {
   const [description, setDescription] = useState("");
   const [endDate, setEndDate] = useState("");
   const [numberOfParticipants, setNumberOfParticipants] = useState("");
-  const [isPublic, setIsPublic] = useState(true);
   const [subCategoryId, setSubCategoryId] = useState("");
   const [subCategories, setSubCategories] = useState([]);
   const [error, setError] = useState("");
@@ -42,7 +41,6 @@ function CreateChallenge() {
           description,
           numberOfParticipants: numberOfParticipants === "" ? 1000 : parseInt(numberOfParticipants, 10),
           endDate,
-          isPublic,
           subCategoryId,
         }),
       });
@@ -118,16 +116,6 @@ function CreateChallenge() {
               </option>
             ))}
           </select>
-        </div>
-        <div className="form-group">
-          <label>
-            <input
-              type="checkbox"
-              checked={isPublic}
-              onChange={e => setIsPublic(e.target.checked)}
-            />{" "}
-            Public Challenge
-          </label>
         </div>
         {error && <div style={{ color: "red", marginBottom: 8 }}>{error}</div>}
         {message && <div style={{ color: "green", marginBottom: 8 }}>{message}</div>}
