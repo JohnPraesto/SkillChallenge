@@ -52,6 +52,12 @@ function Register() {
           } else if (errorData?.message) {
             errorMsg = errorData.message;
           }
+          else if (typeof errorData === "object" && errorData !== null) {
+            // Handle ASP.NET ModelState errors
+            errorMsg = Object.values(errorData)
+              .flat()
+              .join(" ");
+          }
         } catch {
           // fallback to default error message
         }

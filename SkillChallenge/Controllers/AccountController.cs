@@ -62,6 +62,13 @@ namespace ASPNET_VisualStudio_Tutorial.Controllers
                 {
                     return BadRequest(ModelState);
                 }
+
+                var emailExists = await _userManager.Users.AnyAsync(u => u.Email == registerDTO.Email);
+                if (emailExists)
+                {
+                    return BadRequest(new { Email = new[] { "Email is already in use." } });
+                }
+
                 var user = new User { UserName = registerDTO.Username, Email = registerDTO.Email };
                 var createdUser = await _userManager.CreateAsync(user, registerDTO.Password);
 
