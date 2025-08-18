@@ -10,7 +10,6 @@ export function SearchAndFilter({
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [sortBy, setSortBy] = useState("newest");
-  const [showOnlyOpen, setShowOnlyOpen] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -33,12 +32,6 @@ export function SearchAndFilter({
       );
     }
 
-    // Filtrera endast öppna
-    if (showOnlyOpen) {
-      const now = new Date();
-      filtered = filtered.filter(challenge => new Date(challenge.endDate) > now);
-    }
-
     // Sortera
     filtered.sort((a, b) => {
       switch (sortBy) {
@@ -56,7 +49,7 @@ export function SearchAndFilter({
     });
 
     onFilteredChallenges(filtered);
-  }, [searchTerm, selectedCategory, sortBy, showOnlyOpen, challenges]);
+  }, [searchTerm, selectedCategory, sortBy, challenges]);
 
   const handleCreateChallenge = () => {
     if (!user) {
@@ -104,14 +97,6 @@ export function SearchAndFilter({
           <option value="alphabetical">A-Z</option>
         </select>
 
-        <label className="checkbox-label">
-          <input
-            type="checkbox"
-            checked={showOnlyOpen}
-            onChange={(e) => setShowOnlyOpen(e.target.checked)}
-          />
-          Only Open Challenges
-        </label>
         <button
           className="btn btn-primary"
           style={{ marginLeft: 16 }}
