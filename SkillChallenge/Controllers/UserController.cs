@@ -272,6 +272,16 @@ namespace SkillChallenge.Controllers
                 return NotFound($"User with id {id} was not found in the database");
 
             var currentRoles = await _userManager.GetRolesAsync(user);
+
+            if (currentRoles.Contains("Admin") && role == "User")
+            {
+                var admins = await _userManager.GetUsersInRoleAsync("Admin");
+                if (admins.Count == 1)
+                {
+                    return BadRequest("There must be at least one admin.");
+                }
+            }
+
             var removeResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
 
             if (!removeResult.Succeeded)
