@@ -50,6 +50,20 @@ function Admin() {
     }
   };
 
+  const handleDeleteUser = async (userId) => {
+    const token = localStorage.getItem("token");
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
+    const res = await fetch(`${apiUrl}/users/${userId}`, {
+      method: "DELETE",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
+    });
+    if (res.ok) {
+      setUsers((prev) => prev.filter((u) => u.id !== userId));
+    }
+  };
+
   const sortedUsers = [...users].sort((a, b) => a.userName.localeCompare(b.userName));
   const totalPages = Math.ceil(sortedUsers.length / USERS_PER_PAGE);
   const paginatedUsers = sortedUsers.slice(
@@ -103,6 +117,20 @@ function Admin() {
                         <option value="User">User</option>
                         <option value="Admin">Admin</option>
                       </select>
+                      <button
+                        onClick={() => handleDeleteUser(u.id)}
+                        style={{
+                          marginLeft: 8,
+                          background: "red",
+                          color: "white",
+                          border: "none",
+                          padding: "2px 8px",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))}
