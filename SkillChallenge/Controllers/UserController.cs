@@ -6,6 +6,7 @@ using SkillChallenge.DTOs.Account;
 using SkillChallenge.DTOs.User;
 using SkillChallenge.Interfaces;
 using SkillChallenge.Models;
+using System.Data;
 using System.Security.Claims;
 
 namespace SkillChallenge.Controllers
@@ -34,6 +35,7 @@ namespace SkillChallenge.Controllers
                     Id = u.Id,
                     UserName = u.UserName ?? string.Empty,
                     Email = u.Email ?? string.Empty,
+                    Role = string.Join(", ", _userManager.GetRolesAsync(u).Result),
                     ProfilePicture = u.ProfilePicture,
                 })
                 .ToList();
@@ -45,8 +47,11 @@ namespace SkillChallenge.Controllers
         public async Task<IActionResult> GetUserById([FromRoute] string id)
         {
             var user = await _userRepo.GetUserByIdAsync(id);
+
             if (user == null)
                 return NotFound($"User with id '{id}' was not found in the database");
+
+            var role = await _userManager.GetRolesAsync(user);
 
             return Ok(
                 new DisplayUserDTO
@@ -54,6 +59,7 @@ namespace SkillChallenge.Controllers
                     Id = user.Id,
                     UserName = user.UserName ?? string.Empty,
                     Email = user.Email ?? string.Empty,
+                    Role = role.FirstOrDefault(),
                     ProfilePicture = user.ProfilePicture,
                     CategoryRatingEntities = user.CategoryRatingEntities.Select(cre => new CategoryRatingDTO
                     {
@@ -77,12 +83,15 @@ namespace SkillChallenge.Controllers
             if (user == null)
                 return NotFound($"User with username '{username}' was not found in the database");
 
+            var role = await _userManager.GetRolesAsync(user);
+
             return Ok(
                 new DisplayUserDTO
                 {
                     Id = user.Id,
                     UserName = user.UserName ?? string.Empty,
                     Email = user.Email ?? string.Empty,
+                    Role = role.FirstOrDefault(),
                     ProfilePicture = user.ProfilePicture,
                     CategoryRatingEntities = user.CategoryRatingEntities.Select(cre => new CategoryRatingDTO
                     {
