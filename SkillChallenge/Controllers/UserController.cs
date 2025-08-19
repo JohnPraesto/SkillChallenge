@@ -158,7 +158,6 @@ namespace SkillChallenge.Controllers
             );
         }
 
-
         [HttpPost("{id}/upload-profile-picture")]
         public async Task<IActionResult> UploadProfilePicture(
             string id,
@@ -244,6 +243,37 @@ namespace SkillChallenge.Controllers
                 await storage.DeleteAsync(user.ProfilePicture);
 
             return NoContent();
+        }
+
+        [HttpPut("{id}/change-role")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateUserRole([FromRoute] string id, [FromBody] string role)
+        {
+            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            if (userRole != "Admin")
+                return Forbid();
+
+            if (role != "Admin" && role != "User")
+                return BadRequest("Role must be either 'Admin' or 'User'.");
+
+            var user = await _userManager.FindByIdAsync(id);
+
+            if (user == null)
+                return NotFound($"User with id {id} was not found in the database");
+
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            var removeResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
+
+            if (!removeResult.Succeeded)
+                return StatusCode(500, removeResult.Errors);
+
+            var addResult = await _userManager.AddToRoleAsync(user, role);
+
+            if (!addResult.Succeeded)
+                return StatusCode(500, addResult.Errors);
+
+            return Ok($"User role updated to '{role}'.");
         }
     }
 }
