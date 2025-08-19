@@ -232,6 +232,11 @@ namespace SkillChallenge.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteUser([FromRoute] string id, [FromServices] IProfilePictureStorage storage)
         {
+            if (id == "admin-123")
+            {
+                return BadRequest("The master admin cannot be deleted.");
+            }
+
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
             var user = await _userRepo.GetUserByIdAsync(id); // kan IUserRepository returnera usern istället för att kalla på den här?

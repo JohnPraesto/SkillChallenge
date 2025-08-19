@@ -176,11 +176,7 @@ namespace SkillChallenge.Controllers
 
         [HttpPut("{id:int}")]
         [Authorize(Roles = "Admin,User")]
-        public async Task<IActionResult> UpdateChallenge(
-            [FromRoute] int id,
-            [FromBody] UpdateChallengeDTO updateChallengeDTO,
-            CancellationToken ct
-        )
+        public async Task<IActionResult> UpdateChallenge([FromRoute] int id, [FromBody] UpdateChallengeDTO updateChallengeDTO, CancellationToken ct)
         {
             var challenge = await _challengeRepo.GetChallengeByIdAsync(id, ct);
             if (challenge == null)
