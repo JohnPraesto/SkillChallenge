@@ -35,6 +35,7 @@ namespace SkillChallenge.Controllers
                 {
                     SubCategoryId = uc.SubCategoryId,
                     SubCategoryName = uc.SubCategoryName,
+                    ImagePath = uc.ImagePath,
                     CategoryId = uc.CategoryId,
                     CategoryName = uc.Category?.CategoryName ?? string.Empty,
                 })
@@ -90,7 +91,7 @@ namespace SkillChallenge.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin,User")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateSubCategory(
             [FromForm] CreateSubCategoryDTO dto,
             CancellationToken ct
@@ -138,12 +139,8 @@ namespace SkillChallenge.Controllers
         }
 
         [HttpPut("{id:int}")]
-        [Authorize(Roles = "Admin,User")]
-        public async Task<IActionResult> UpdateSubCategory(
-            [FromRoute] int id,
-            [FromBody] UpdateSubCategoryDTO updateSubCategoryDTO,
-            CancellationToken ct
-        )
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateSubCategory([FromRoute] int id, [FromForm] UpdateSubCategoryDTO updateSubCategoryDTO, CancellationToken ct)
         {
             if (!await _categoryRepo.CategoryExistsAsync(updateSubCategoryDTO.CategoryId, ct))
             {
@@ -152,23 +149,45 @@ namespace SkillChallenge.Controllers
                 );
             }
 
-            var subCategoryToUpdate = new SubCategory
-            {
-                SubCategoryName = updateSubCategoryDTO.SubCategoryName,
-                CategoryId = updateSubCategoryDTO.CategoryId,
-            };
-
-            var subCategory = await _subCategoryRepo.UpdateSubCategoryAsync(
-                id,
-                subCategoryToUpdate,
-                ct
-            );
-            if (subCategory == null)
+            var existing = await _subCategoryRepo.GetSubCategoryByIdAsync(id, ct);
+            if (existing == null)
             {
                 return NotFound($"SubCategory with id {id} was not found in the database");
             }
 
-            return Ok(subCategory);
+            if (updateSubCategoryDTO.Image != null)
+            {
+                // Delete old image if not null or default
+                if (!string.IsNullOrEmpty(existing.ImagePath) && !existing.ImagePath.Contains("default"))
+                {
+                    var fullPath = Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        "wwwroot",
+                        existing.ImagePath
+                    );
+                    if (System.IO.File.Exists(fullPath))
+                        System.IO.File.Delete(fullPath);
+                }
+                existing.ImagePath = await _imageService.SaveImageAsync(updateSubCategoryDTO.Image, "subcategories");
+            }
+
+            existing.SubCategoryName = updateSubCategoryDTO.SubCategoryName;
+            existing.CategoryId = updateSubCategoryDTO.CategoryId;
+
+            await _subCategoryRepo.UpdateSubCategoryAsync(id, existing, ct);
+
+            var category = await _categoryRepo.GetCategoryByIdAsync(existing.CategoryId, ct);
+
+            var subCategoryDTO = new SubCategoryDTO
+            {
+                SubCategoryId = existing.SubCategoryId,
+                SubCategoryName = existing.SubCategoryName,
+                CategoryId = existing.CategoryId,
+                CategoryName = category?.CategoryName ?? string.Empty,
+                ImagePath = _imageService.GetImageUrl(existing.ImagePath),
+            };
+
+            return Ok(subCategoryDTO);
         }
 
         [HttpDelete("{id:int}")]

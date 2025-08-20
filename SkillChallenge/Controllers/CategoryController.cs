@@ -30,6 +30,7 @@ namespace SkillChallenge.Controllers
                 {
                     CategoryId = c.CategoryId,
                     CategoryName = c.CategoryName,
+                    ImagePath = c.ImagePath,
                     SubCategories = c
                         .SubCategories.Select(uc => new SubCategoryDTO
                         {
@@ -97,7 +98,7 @@ namespace SkillChallenge.Controllers
             {
                 CategoryId = created.CategoryId,
                 CategoryName = created.CategoryName,
-                ImageUrl = _imageService.GetImageUrl(created.ImagePath),
+                ImagePath = _imageService.GetImageUrl(created.ImagePath),
                 SubCategories = new List<SubCategoryDTO>(),
             };
 
@@ -110,11 +111,7 @@ namespace SkillChallenge.Controllers
 
         [HttpPut("{id:int}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateCategory(
-            [FromRoute] int id,
-            [FromForm] UpdateCategoryDTO updateCategoryDTO,
-            CancellationToken ct
-        )
+        public async Task<IActionResult> UpdateCategory([FromRoute] int id, [FromForm] UpdateCategoryDTO updateCategoryDTO, CancellationToken ct)
         {
             var existingCategory = await _categoryRepo.GetCategoryByIdAsync(id, ct);
             if (existingCategory == null)
@@ -122,10 +119,7 @@ namespace SkillChallenge.Controllers
 
             if (updateCategoryDTO.Image != null)
             {
-                if (
-                    !string.IsNullOrEmpty(existingCategory.ImagePath)
-                    && !existingCategory.ImagePath.Contains("default")
-                )
+                if (!string.IsNullOrEmpty(existingCategory.ImagePath) && !existingCategory.ImagePath.Contains("default"))
                 {
                     var fullPath = Path.Combine(
                         Directory.GetCurrentDirectory(),
@@ -149,7 +143,7 @@ namespace SkillChallenge.Controllers
             {
                 CategoryId = existingCategory.CategoryId,
                 CategoryName = existingCategory.CategoryName,
-                ImageUrl = _imageService.GetImageUrl(existingCategory.ImagePath),
+                ImagePath = _imageService.GetImageUrl(existingCategory.ImagePath),
                 SubCategories = new List<SubCategoryDTO>(),
             };
 

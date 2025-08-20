@@ -82,7 +82,7 @@ function AdminChallenges() {
                 {paginatedChallenges.map((u) => (
                   <tr key={u.challengeId}>
                     <td>{u.challengeName}</td>
-                    <td>{u.createdBy}</td>
+                    <td>{u.creatorUserName}</td>
                     <td>
                       <button
                         onClick={() => handleDeleteChallenge(u.challengeId)}
