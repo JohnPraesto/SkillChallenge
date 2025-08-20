@@ -61,6 +61,17 @@ namespace SkillChallenge.Repositories
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.ChallengeId == id, ct);
 
+        public async Task<List<Challenge>> GetChallengesByChallengeNameAsync(string challengeName, CancellationToken ct = default)
+        {
+            return await _context.Challenges
+                .Include(c => c.Participants)
+                .Include(c => c.SubCategory)
+                .Include(c => c.Creator)
+                .AsNoTracking()
+                .Where(c => c.ChallengeName == challengeName)
+                .ToListAsync(ct);
+        }
+
         public async Task<Challenge?> UpdateChallengeAsync(int id, Challenge updatedChallenge, CancellationToken ct = default)
         {
             var existing = await _context.Challenges.FirstOrDefaultAsync(

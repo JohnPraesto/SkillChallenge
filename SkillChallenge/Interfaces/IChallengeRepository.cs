@@ -6,6 +6,7 @@ namespace SkillChallenge.Interfaces
     {
         Task<List<Challenge>> GetAllChallengesAsync(CancellationToken ct = default);
         Task<Challenge?> GetChallengeByIdAsync(int id, CancellationToken ct = default);
+        Task<List<Challenge>> GetChallengesByChallengeNameAsync(string challengeName, CancellationToken ct = default);
         Task<Challenge> CreateChallengeAsync(Challenge challenge, CancellationToken ct = default);
         Task<Challenge?> UpdateChallengeAsync(int id, Challenge updatedChallenge, CancellationToken ct = default);
         Task<Challenge?> DeleteChallengeAsync(int id, CancellationToken ct = default);
