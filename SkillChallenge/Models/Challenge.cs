@@ -13,7 +13,7 @@
         public SubCategory? SubCategory { get; set; }
         public ICollection<UploadedResult> UploadedResults { get; set; } = new List<UploadedResult>();
         public ICollection<User> Participants { get; set; } = new List<User>();
-        public string CreatedBy { get; set; } = string.Empty;
+        public string? CreatedBy { get; set; }
         public User? Creator { get; set; }
     }
 }

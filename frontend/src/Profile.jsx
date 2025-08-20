@@ -219,6 +219,12 @@ function Profile() {
             >
               Change Picture
             </button>
+
+            {user.roles === "Admin" && (
+            <button className="btn btn-warning" onClick={() => window.location.href = "/admin"}>
+              Admin Dashboard
+            </button>)}
+
           </div>
 
           {/* Username Form */}

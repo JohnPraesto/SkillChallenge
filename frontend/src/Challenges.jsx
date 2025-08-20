@@ -95,7 +95,6 @@ function Challenges() {
           {openChallenges.length === 0 ? (
             <div className="card bounce-in" style={{ textAlign: "center", padding: "2rem" }}>
               <p>No open challenges found.</p>
-              <button className="btn btn-primary pulse">Create First Challenge</button>
             </div>
           ) : (
             openChallenges.map((ch, index) => (
@@ -135,62 +134,6 @@ function Challenges() {
             ))
           )}
         </div>
-
-
-      {/* <div className="two-column-layout">
-
-        <div className="slide-in-left">
-          <h2 style={{ textAlign: "center", color: "var(--primary-color)" }}>
-            🔥 Open Challenges ({openChallenges.length})
-          </h2>
-          {openChallenges.length === 0 ? (
-            <div className="card bounce-in" style={{ textAlign: "center", padding: "2rem" }}>
-              <p>No open challenges found.</p>
-              <button className="btn btn-primary pulse">Create First Challenge</button>
-            </div>
-          ) : (
-            <div className="challenges-grid">
-              {openChallenges.map((ch, index) => (
-                <ChallengeCard key={ch.challengeId} challenge={ch} index={index} />
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="slide-in-right">
-          <h2 style={{ textAlign: "center", color: "#666" }}>
-            ✅ Closed Challenges ({closedChallenges.length})
-          </h2>
-          {closedChallenges.length === 0 ? (
-            <div className="card bounce-in" style={{ textAlign: "center", padding: "2rem" }}>
-              <p>No closed challenges found.</p>
-            </div>
-          ) : (
-            <div className="challenges-grid">
-              {closedChallenges.map((ch, index) => (
-                <ChallengeCard key={ch.challengeId} challenge={ch} index={index} />
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="slide-in-bottom" style={{ marginTop: "2rem" }}>
-          <h2 style={{ textAlign: "center", color: "#999" }}>
-            🏁 Finished Challenges ({finishedChallenges.length})
-          </h2>
-          {finishedChallenges.length === 0 ? (
-            <div className="card bounce-in" style={{ textAlign: "center", padding: "2rem" }}>
-              <p>No finished challenges found.</p>
-            </div>
-          ) : (
-            <div className="challenges-grid">
-              {finishedChallenges.map((ch, index) => (
-                <ChallengeCard key={ch.challengeId} challenge={ch} index={index} />
-              ))}
-            </div>
-          )}
-        </div> */}
-
       </div>
     </div>
   );

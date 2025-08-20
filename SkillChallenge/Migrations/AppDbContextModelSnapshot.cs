@@ -286,7 +286,6 @@ namespace SkillChallenge.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Description")
@@ -746,8 +745,7 @@ namespace SkillChallenge.Migrations
                     b.HasOne("SkillChallenge.Models.User", "Creator")
                         .WithMany()
                         .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("SkillChallenge.Models.SubCategory", "SubCategory")
                         .WithMany()

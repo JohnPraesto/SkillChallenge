@@ -64,21 +64,16 @@ namespace SkillChallenge.Repositories
         public async Task<bool> SubCategoryExistsAsync(int id, CancellationToken ct = default) =>
             await _context.SubCategories.AnyAsync(uc => uc.SubCategoryId == id, ct);
 
-        public async Task<SubCategory?> UpdateSubCategoryAsync(
-            int id,
-            SubCategory updatedSubCategory,
-            CancellationToken ct = default
-        )
+        public async Task<SubCategory?> UpdateSubCategoryAsync(int id, SubCategory updatedSubCategory, CancellationToken ct = default)
         {
-            var existing = await _context.SubCategories.FirstOrDefaultAsync(
-                uc => uc.SubCategoryId == id,
-                ct
-            );
+            var existing = await _context.SubCategories.FirstOrDefaultAsync(uc => uc.SubCategoryId == id, ct);
             if (existing is null)
                 return null;
 
             existing.SubCategoryName = updatedSubCategory.SubCategoryName;
+            existing.ImagePath = updatedSubCategory.ImagePath;
             existing.CategoryId = updatedSubCategory.CategoryId;
+
             await _context.SaveChangesAsync(ct);
             return existing;
         }

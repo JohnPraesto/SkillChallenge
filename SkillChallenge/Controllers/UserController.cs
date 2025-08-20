@@ -6,6 +6,7 @@ using SkillChallenge.DTOs.Account;
 using SkillChallenge.DTOs.User;
 using SkillChallenge.Interfaces;
 using SkillChallenge.Models;
+using System.Data;
 using System.Security.Claims;
 
 namespace SkillChallenge.Controllers
@@ -34,6 +35,7 @@ namespace SkillChallenge.Controllers
                     Id = u.Id,
                     UserName = u.UserName ?? string.Empty,
                     Email = u.Email ?? string.Empty,
+                    Role = string.Join(", ", _userManager.GetRolesAsync(u).Result),
                     ProfilePicture = u.ProfilePicture,
                 })
                 .ToList();
@@ -45,8 +47,11 @@ namespace SkillChallenge.Controllers
         public async Task<IActionResult> GetUserById([FromRoute] string id)
         {
             var user = await _userRepo.GetUserByIdAsync(id);
+
             if (user == null)
                 return NotFound($"User with id '{id}' was not found in the database");
+
+            var role = await _userManager.GetRolesAsync(user);
 
             return Ok(
                 new DisplayUserDTO
@@ -54,6 +59,7 @@ namespace SkillChallenge.Controllers
                     Id = user.Id,
                     UserName = user.UserName ?? string.Empty,
                     Email = user.Email ?? string.Empty,
+                    Role = role.FirstOrDefault(),
                     ProfilePicture = user.ProfilePicture,
                     CategoryRatingEntities = user.CategoryRatingEntities.Select(cre => new CategoryRatingDTO
                     {
@@ -77,12 +83,15 @@ namespace SkillChallenge.Controllers
             if (user == null)
                 return NotFound($"User with username '{username}' was not found in the database");
 
+            var role = await _userManager.GetRolesAsync(user);
+
             return Ok(
                 new DisplayUserDTO
                 {
                     Id = user.Id,
                     UserName = user.UserName ?? string.Empty,
                     Email = user.Email ?? string.Empty,
+                    Role = role.FirstOrDefault(),
                     ProfilePicture = user.ProfilePicture,
                     CategoryRatingEntities = user.CategoryRatingEntities.Select(cre => new CategoryRatingDTO
                     {
@@ -158,7 +167,6 @@ namespace SkillChallenge.Controllers
             );
         }
 
-
         [HttpPost("{id}/upload-profile-picture")]
         public async Task<IActionResult> UploadProfilePicture(
             string id,
@@ -224,6 +232,11 @@ namespace SkillChallenge.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteUser([FromRoute] string id, [FromServices] IProfilePictureStorage storage)
         {
+            if (id == "admin-123")
+            {
+                return BadRequest("The master admin cannot be deleted.");
+            }
+
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
             var user = await _userRepo.GetUserByIdAsync(id); // kan IUserRepository returnera usern istället för att kalla på den här?
@@ -244,6 +257,47 @@ namespace SkillChallenge.Controllers
                 await storage.DeleteAsync(user.ProfilePicture);
 
             return NoContent();
+        }
+
+        [HttpPut("{id}/change-role")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateUserRole([FromRoute] string id, [FromBody] string role)
+        {
+            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            if (userRole != "Admin")
+                return Forbid();
+
+            if (role != "Admin" && role != "User")
+                return BadRequest("Role must be either 'Admin' or 'User'.");
+
+            var user = await _userManager.FindByIdAsync(id);
+
+            if (user == null)
+                return NotFound($"User with id {id} was not found in the database");
+
+            var currentRoles = await _userManager.GetRolesAsync(user);
+
+            if (currentRoles.Contains("Admin") && role == "User")
+            {
+                var admins = await _userManager.GetUsersInRoleAsync("Admin");
+                if (admins.Count == 1)
+                {
+                    return BadRequest("There must be at least one admin.");
+                }
+            }
+
+            var removeResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
+
+            if (!removeResult.Succeeded)
+                return StatusCode(500, removeResult.Errors);
+
+            var addResult = await _userManager.AddToRoleAsync(user, role);
+
+            if (!addResult.Succeeded)
+                return StatusCode(500, addResult.Errors);
+
+            return Ok($"User role updated to '{role}'.");
         }
     }
 }

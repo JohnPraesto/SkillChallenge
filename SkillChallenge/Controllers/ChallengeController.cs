@@ -144,6 +144,44 @@ namespace SkillChallenge.Controllers
             return Ok(challengeDTO);
         }
 
+        [HttpGet("{challengeName}")]
+        public async Task<IActionResult> GetChallengesByChallengeName([FromRoute] string challengeName, CancellationToken ct)
+        {
+            var challenges = await _challengeRepo.GetChallengesByChallengeNameAsync(challengeName, ct);
+            bool isEmpty = !challenges.Any();
+            if (isEmpty)
+            {
+                return NotFound($"No challenge named {challengeName} was found in the database");
+            }
+
+            var challengeDTOs = challenges
+                .Select(c => new ChallengeDTO
+                {
+                    ChallengeId = c.ChallengeId,
+                    ChallengeName = c.ChallengeName,
+                    EndDate = c.EndDate,
+                    VotePeriodEnd = c.VotePeriodEnd,
+                    IsTakenDown = c.IsTakenDown,
+                    Description = c.Description,
+                    NumberOfParticipants = c.NumberOfParticipants,
+                    SubCategory =
+                        c.SubCategory == null
+                            ? null
+                            : new SubCategoryDTO
+                            {
+                                SubCategoryId = c.SubCategory.SubCategoryId,
+                                SubCategoryName = c.SubCategory.SubCategoryName,
+                                ImagePath = c.SubCategory.ImagePath,
+                            },
+                    JoinedUsers = c.Participants.Select(u => u.UserName ?? "Unknown").ToList(),
+                    CreatedBy = c.CreatedBy,
+                    CreatorUserName = c.Creator?.UserName ?? "Unknown",
+                })
+                .ToList();
+
+            return Ok(challengeDTOs);
+        }
+
         [HttpPost]
         [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> CreateChallenge([FromBody] CreateChallengeDTO createChallengeDTO, CancellationToken ct)
@@ -176,11 +214,7 @@ namespace SkillChallenge.Controllers
 
         [HttpPut("{id:int}")]
         [Authorize(Roles = "Admin,User")]
-        public async Task<IActionResult> UpdateChallenge(
-            [FromRoute] int id,
-            [FromBody] UpdateChallengeDTO updateChallengeDTO,
-            CancellationToken ct
-        )
+        public async Task<IActionResult> UpdateChallenge([FromRoute] int id, [FromBody] UpdateChallengeDTO updateChallengeDTO, CancellationToken ct)
         {
             var challenge = await _challengeRepo.GetChallengeByIdAsync(id, ct);
             if (challenge == null)

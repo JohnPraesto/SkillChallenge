@@ -252,7 +252,7 @@ namespace SkillChallenge.Data
                 .HasOne(c => c.Creator)
                 .WithMany()
                 .HasForeignKey(c => c.CreatedBy)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.SetNull);
 
             // Challenge -> SubCategory
             builder

@@ -30,7 +30,6 @@ namespace SkillChallenge.Repositories
                 .ThenInclude(cre => cre.SubCategoryRatingEntities)
                 .ThenInclude(sre => sre.SubCategory)
                 .FirstOrDefaultAsync(u => u.Id == id);
-            //return await _userManager.FindByIdAsync(id);
         }
 
         public async Task<User?> GetUserByUsernameAsync(string username)
@@ -40,7 +39,6 @@ namespace SkillChallenge.Repositories
                 .ThenInclude(cre => cre.SubCategoryRatingEntities)
                 .ThenInclude(sre => sre.SubCategory)
                 .FirstOrDefaultAsync(u => u.UserName == username);
-            //return await _userManager.FindByNameAsync(username);
         }
 
         public async Task<User> CreateUserAsync(User user)

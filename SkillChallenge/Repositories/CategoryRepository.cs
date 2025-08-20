@@ -47,20 +47,15 @@ namespace SkillChallenge.Repositories
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.CategoryId == id, ct);
 
-        public async Task<Category?> UpdateCategoryAsync(
-            int id,
-            Category updatedCategory,
-            CancellationToken ct = default
-        )
+        public async Task<Category?> UpdateCategoryAsync(int id, Category updatedCategory, CancellationToken ct = default)
         {
-            var existing = await _context.Categories.FirstOrDefaultAsync(
-                c => c.CategoryId == id,
-                ct
-            );
+            var existing = await _context.Categories.FirstOrDefaultAsync(c => c.CategoryId == id, ct);
             if (existing is null)
                 return null;
 
             existing.CategoryName = updatedCategory.CategoryName;
+            existing.ImagePath = updatedCategory.ImagePath;
+
             await _context.SaveChangesAsync(ct);
             return existing;
         }
