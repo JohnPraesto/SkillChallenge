@@ -48,15 +48,15 @@ namespace SkillChallenge.Data
                 var adminUser = new User
                 {
                     Id = "admin-123",
-                    UserName = "admin",
-                    NormalizedUserName = "ADMIN",
-                    Email = "admin@skillchallenge.com",
-                    NormalizedEmail = "ADMIN@SKILLCHALLENGE.COM",
+                    UserName = "john",
+                    NormalizedUserName = "JOHN",
+                    Email = "john_praesto@hotmail.com",
+                    NormalizedEmail = "JOHN_PRAESTO@HOTMAIL.COM",
                     EmailConfirmed = true,
                     SecurityStamp = "STATIC-ADMIN-SECURITY-STAMP",
                     ConcurrencyStamp = "STATIC-ADMIN-CONCURRENCY-STAMP",
                     PasswordHash =
-                        "AQAAAAIAAYagAAAAEIzZ1ipYa+9PoN6PNCJektB+44UdZJWEv/RnJtum84hmALg1Z4Gl5h9C0nDM2CIXOw==",
+                        "AQAAAAIAAYagAAAAEKQDRjO0QissdKacQsQZ2Y1zSJc3ZLNbEbCSfwKwBAX0WOoLI0gqJo/T76Yu6SvbDg==",
                 };
 
                 var testUser = new User
