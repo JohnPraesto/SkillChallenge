@@ -180,7 +180,7 @@ function Profile() {
           <img
             src={userData.profilePicture ? userData.profilePicture.startsWith("http")
                   ? userData.profilePicture
-                  : `${apiUrl}${userData.profilePicture}`
+                  : `${apiUrl}/${userData.profilePicture}`
                   : `${apiUrl}/profile-pictures/default.png`
             }
             alt="Profile"

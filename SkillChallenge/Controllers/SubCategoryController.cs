@@ -92,10 +92,7 @@ namespace SkillChallenge.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> CreateSubCategory(
-            [FromForm] CreateSubCategoryDTO dto,
-            CancellationToken ct
-        )
+        public async Task<IActionResult> CreateSubCategory([FromForm] CreateSubCategoryDTO dto, CancellationToken ct)
         {
             // Kontrollera att kategorin finns
             var category = await _categoryRepo.GetCategoryByIdAsync(dto.CategoryId, ct);
@@ -105,7 +102,7 @@ namespace SkillChallenge.Controllers
             string imagePath = null;
             if (dto.Image != null)
             {
-                imagePath = await _imageService.SaveImageAsync(dto.Image, "subcategories");
+                imagePath = await _imageService.SaveImageAsync(dto.Image, "subcategory-images");
             }
             else
             {
@@ -160,15 +157,9 @@ namespace SkillChallenge.Controllers
                 // Delete old image if not null or default
                 if (!string.IsNullOrEmpty(existing.ImagePath) && !existing.ImagePath.Contains("default"))
                 {
-                    var fullPath = Path.Combine(
-                        Directory.GetCurrentDirectory(),
-                        "wwwroot",
-                        existing.ImagePath
-                    );
-                    if (System.IO.File.Exists(fullPath))
-                        System.IO.File.Delete(fullPath);
+                    await _imageService.DeleteImageAsync(existing.ImagePath);
                 }
-                existing.ImagePath = await _imageService.SaveImageAsync(updateSubCategoryDTO.Image, "subcategories");
+                existing.ImagePath = await _imageService.SaveImageAsync(updateSubCategoryDTO.Image, "subcategory-images");
             }
 
             existing.SubCategoryName = updateSubCategoryDTO.SubCategoryName;
@@ -194,11 +185,16 @@ namespace SkillChallenge.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteSubCategory([FromRoute] int id, CancellationToken ct)
         {
-            var subCategory = await _subCategoryRepo.DeleteSubCategoryAsync(id, ct);
+            var subCategory = await _subCategoryRepo.GetSubCategoryByIdAsync(id, ct);
             if (subCategory == null)
+                return NotFound($"Category with id {id} was not found in the database");
+
+            if (!string.IsNullOrEmpty(subCategory.ImagePath) && !subCategory.ImagePath.Contains("default"))
             {
-                return NotFound($"SubCategory with id {id} was not found in the database");
+                await _imageService.DeleteImageAsync(subCategory.ImagePath);
             }
+
+            await _categoryRepo.DeleteCategoryAsync(id, ct);
             return NoContent();
         }
     }

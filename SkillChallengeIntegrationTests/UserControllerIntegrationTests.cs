@@ -572,6 +572,8 @@ public class UserControllerIntegrationTests : IClassFixture<WebApplicationFactor
         var user = await db.Users.FindAsync(userId);
         Assert.NotNull(user);
         Assert.Equal(result["profilePictureUrl"], user!.ProfilePicture);
-        Assert.Contains("test.png", user.ProfilePicture);
+        Assert.Contains("profile-pictures/", user.ProfilePicture);
+        Assert.EndsWith(".png", user.ProfilePicture);
+        Assert.False(string.IsNullOrWhiteSpace(result["profilePictureUrl"]));
     }
 }

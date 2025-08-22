@@ -75,18 +75,15 @@ namespace SkillChallenge.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> CreateCategory(
-            [FromForm] CreateCategoryDTO dto,
-            CancellationToken ct
-        )
+        public async Task<IActionResult> CreateCategory([FromForm] CreateCategoryDTO dto, CancellationToken ct)
         {
             string imagePath = "";
             if (dto.Image != null)
             {
-                imagePath = await _imageService.SaveImageAsync(dto.Image, "categories");
+                imagePath = await _imageService.SaveImageAsync(dto.Image, "category-images");
             }
             else
-            {
+            {   // Den här finns inte längre?
                 imagePath = "images/categories/default.png";
             }
 
@@ -121,18 +118,9 @@ namespace SkillChallenge.Controllers
             {
                 if (!string.IsNullOrEmpty(existingCategory.ImagePath) && !existingCategory.ImagePath.Contains("default"))
                 {
-                    var fullPath = Path.Combine(
-                        Directory.GetCurrentDirectory(),
-                        "wwwroot",
-                        existingCategory.ImagePath
-                    );
-                    if (System.IO.File.Exists(fullPath))
-                        System.IO.File.Delete(fullPath);
+                    await _imageService.DeleteImageAsync(existingCategory.ImagePath);
                 }
-                existingCategory.ImagePath = await _imageService.SaveImageAsync(
-                    updateCategoryDTO.Image,
-                    "categories"
-                );
+                existingCategory.ImagePath = await _imageService.SaveImageAsync(updateCategoryDTO.Image, "category-images");
             }
 
             existingCategory.CategoryName = updateCategoryDTO.CategoryName;
@@ -158,17 +146,9 @@ namespace SkillChallenge.Controllers
             if (category == null)
                 return NotFound($"Category with id {id} was not found in the database");
 
-            if (
-                !string.IsNullOrEmpty(category.ImagePath) && !category.ImagePath.Contains("default")
-            )
+            if (!string.IsNullOrEmpty(category.ImagePath) && !category.ImagePath.Contains("default"))
             {
-                var fullPath = Path.Combine(
-                    Directory.GetCurrentDirectory(),
-                    "wwwroot",
-                    category.ImagePath
-                );
-                if (System.IO.File.Exists(fullPath))
-                    System.IO.File.Delete(fullPath);
+                await _imageService.DeleteImageAsync(category.ImagePath);
             }
 
             await _categoryRepo.DeleteCategoryAsync(id, ct);

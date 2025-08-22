@@ -6,6 +6,7 @@ using SkillChallenge.DTOs.Account;
 using SkillChallenge.DTOs.User;
 using SkillChallenge.Interfaces;
 using SkillChallenge.Models;
+using SkillChallenge.Services;
 using System.Data;
 using System.Security.Claims;
 
@@ -168,10 +169,7 @@ namespace SkillChallenge.Controllers
         }
 
         [HttpPost("{id}/upload-profile-picture")]
-        public async Task<IActionResult> UploadProfilePicture(
-            string id,
-            IFormFile file,
-            [FromServices] IProfilePictureStorage storage)
+        public async Task<IActionResult> UploadProfilePicture(string id, IFormFile file, [FromServices] IImageService imageService)
         {
             try
             {
@@ -187,9 +185,9 @@ namespace SkillChallenge.Controllers
                 }
 
                 if (!string.IsNullOrEmpty(user.ProfilePicture))
-                    await storage.DeleteAsync(user.ProfilePicture);
+                    await imageService.DeleteImageAsync(user.ProfilePicture);
 
-                var pictureUrl = await storage.SaveAsync(file);
+                var pictureUrl = await imageService.SaveImageAsync(file, "profile-pictures");
 
                 user.ProfilePicture = pictureUrl;
                 await _userRepo.UpdateUserAsync(id, new UpdateUserDTO { ProfilePicture = user.ProfilePicture });
@@ -230,7 +228,7 @@ namespace SkillChallenge.Controllers
 
         [HttpDelete("{id}")]
         [Authorize]
-        public async Task<IActionResult> DeleteUser([FromRoute] string id, [FromServices] IProfilePictureStorage storage)
+        public async Task<IActionResult> DeleteUser([FromRoute] string id, [FromServices] IImageService imageService)
         {
             if (id == "admin-123")
             {
@@ -239,7 +237,7 @@ namespace SkillChallenge.Controllers
 
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
-            var user = await _userRepo.GetUserByIdAsync(id); // kan IUserRepository returnera usern istället för att kalla på den här?
+            var user = await _userRepo.GetUserByIdAsync(id);
 
             if (userRole != "Admin" && currentUserId != id)
             {
@@ -254,7 +252,7 @@ namespace SkillChallenge.Controllers
             }
 
             if (!string.IsNullOrEmpty(user.ProfilePicture))
-                await storage.DeleteAsync(user.ProfilePicture);
+                await imageService.DeleteImageAsync(user.ProfilePicture);
 
             return NoContent();
         }

@@ -368,3 +368,9 @@ appsettings.Development.json
 SkillChallenge/wwwroot/profile-pictures/*
 !SkillChallenge/wwwroot/profile-pictures/.gitkeep
 !SkillChallenge/wwwroot/profile-pictures/default.png
+
+SkillChallenge/wwwroot/category-images/*
+!SkillChallenge/wwwroot/category-images/.gitkeep
+
+SkillChallenge/wwwroot/subcategory-images/*
+!SkillChallenge/wwwroot/subcategory-images/.gitkeep
