@@ -130,11 +130,11 @@ public class Program
         var storageType = builder.Configuration["Storage:Type"];
         if (storageType == "AzureBlob")
         {
-            builder.Services.AddScoped<IProfilePictureStorage, AzureBlobProfilePictureStorage>();
+            builder.Services.AddScoped<IImageService, AzureBlobImageService>();
         }
         else
         {
-            builder.Services.AddScoped<IProfilePictureStorage, LocalProfilePictureStorage>();
+            builder.Services.AddScoped<IImageService, ImageService>();
         }
 
         var app = builder.Build();
