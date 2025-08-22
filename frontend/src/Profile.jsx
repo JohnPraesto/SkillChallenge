@@ -18,7 +18,6 @@ function Profile() {
   const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    console.log("AuthContext user:", user);
   }, [user]);
 
   useEffect(() => {
