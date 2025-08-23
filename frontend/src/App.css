@@ -67,7 +67,8 @@
 
 body {
   margin: 0;
-  padding-top: 80px;
+  /* padding-top: 80px; */
+  padding-top: 100px;
   font-family: 'Inter', system-ui, sans-serif;
   background: var(--background);
   color: var(--text);
@@ -81,7 +82,7 @@ body {
 
 /* Navbar Styles */
 .navbar {
-  position:absolute;
+  position:fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -847,11 +848,6 @@ body {
 .challenge-card {
     max-width: 100%;
   }
-  
-  /* .two-column-layout {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  } */
 
   /* Responsive: stack columns on mobile */
   @media (max-width: 900px) {
@@ -876,7 +872,8 @@ body {
   }
   
   body {
-    padding-top: 120px;
+    /* padding-top: 120px; */
+    padding-top: 220px;
   }
 }
 
