@@ -6,6 +6,8 @@ function CreateChallenge() {
   const [description, setDescription] = useState("");
   const [endDate, setEndDate] = useState("");
   const [numberOfParticipants, setNumberOfParticipants] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [categories, setCategories] = useState([]);
   const [subCategoryId, setSubCategoryId] = useState("");
   const [subCategories, setSubCategories] = useState([]);
   const [error, setError] = useState("");
@@ -14,18 +16,21 @@ function CreateChallenge() {
   const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    // Fetch subcategories for the dropdown
-    fetch(apiUrl + "/subcategories")
-      .then(res => res.ok ? res.json() : Promise.reject("Failed to fetch subcategories"))
-      .then(data => setSubCategories(data))
-      .catch(() => setSubCategories([]));
+    fetch(apiUrl + "/categories")
+      .then(res => res.ok ? res.json() : Promise.reject("Failed to fetch categories"))
+      .then(data => setCategories(data))
+      .catch(() => setCategories([]));
   }, []);
+
+  const filteredSubCategories = categoryId
+    ? (categories.find(cat => String(cat.categoryId) === String(categoryId))?.subCategories || [])
+    : [];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setMessage("");
-    if (!challengeName || !endDate || !subCategoryId) {
+    if (!challengeName || !endDate || !subCategoryId || !categoryId) {
       setError("Please fill in all required fields.");
       return;
     }
@@ -56,6 +61,8 @@ function CreateChallenge() {
     }
   };
 
+  console.log(categories, categoryId, filteredSubCategories);
+
   return (
     <div className="container fade-in" style={{ maxWidth: 500, margin: "2em auto" }}>
       <h2>Create Challenge</h2>
@@ -82,13 +89,14 @@ function CreateChallenge() {
           <label>Number of Participants</label>
           <select
             className="form-control"
-            value={numberOfParticipants}
+            value={numberOfParticipants || "2"}
             onChange={e => setNumberOfParticipants(e.target.value)}
+            required
           >
-            <option value="">Unlimited</option>
             {[...Array(9)].map((_, i) => (
               <option key={i+2} value={i+2}>{i+2}</option>
             ))}
+            <option value="">Unlimited</option>
           </select>
         </div>
         <div className="form-group">
@@ -103,15 +111,35 @@ function CreateChallenge() {
           />
         </div>
         <div className="form-group">
+          <label>Category*</label>
+          <select
+            className="form-control"
+            value={categoryId}
+            onChange={e => {
+              setCategoryId(e.target.value);
+              setSubCategoryId(""); // Reset subcategory when category changes
+            }}
+            required
+          >
+            <option value="">Select category</option>
+            {categories.map(cat => (
+              <option key={cat.categoryId} value={cat.categoryId}>
+                {cat.categoryName}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="form-group">
           <label>Subcategory*</label>
           <select
             className="form-control"
             value={subCategoryId}
             onChange={e => setSubCategoryId(e.target.value)}
             required
+            disabled={!categoryId}
           >
             <option value="">Select subcategory</option>
-            {subCategories.map(sub => (
+            {filteredSubCategories.map(sub => (
               <option key={sub.subCategoryId} value={sub.subCategoryId}>
                 {sub.subCategoryName}
               </option>

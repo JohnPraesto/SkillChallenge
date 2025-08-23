@@ -31,7 +31,7 @@ useEffect(() => {
     <img
       src={user.profilePicture ? user.profilePicture.startsWith("http")
         ? user.profilePicture
-        : `${apiUrl}${user.profilePicture}`
+        : `${apiUrl}/${user.profilePicture}`
         : `${apiUrl}/profile-pictures/default.png`
       }
       style={{width: "200px", height: "200px", objectFit: "cover", border: "3px solid var(--primary-color)"}}/>
