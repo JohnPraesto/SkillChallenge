@@ -63,7 +63,11 @@ function Challenges() {
     >
       {challenge.subCategory?.imagePath && (
         <img
-          src={challenge.subCategory.imagePath}
+          src={
+            challenge.subCategory?.imagePath?.startsWith("http")
+              ? challenge.subCategory.imagePath
+              : `${apiUrl}/${challenge.subCategory.imagePath}`
+          }
           alt={challenge.subCategory.subCategoryName || "Category"}
           loading="lazy"
         />

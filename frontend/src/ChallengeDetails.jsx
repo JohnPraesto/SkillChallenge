@@ -38,7 +38,11 @@ function ChallengeDetails() {
     <div style={{ maxWidth: 500, margin: "2em auto", padding: 24, border: "1px solid #ccc", borderRadius: 8 }}>
       <h2>{challenge.challengeName}</h2>
       <img
-        src={challenge.subCategory.imagePath}
+        src={
+            challenge.subCategory?.imagePath?.startsWith("http")
+              ? challenge.subCategory.imagePath
+              : `${apiUrl}/${challenge.subCategory.imagePath}`
+          }
         alt={challenge.subCategory.subCategoryName || "Category"}
         style={{ width: 300, height: 300, objectFit: "cover", borderRadius: 8, marginBottom: 12 }}
       />
