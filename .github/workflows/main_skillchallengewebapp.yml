@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy ASP.Net Core app to Azure Web App - SkillChallengeWebApp
+name: Build and deploy SkillChallenge (Web + Function)
 
 on:
   push:
@@ -56,8 +56,11 @@ jobs:
       - name: Publish
         run: dotnet publish ./SkillChallenge/SkillChallenge.csproj -c Release -o publish --no-build --self-contained false
 
-      - name: Check output contents
-        run: dir publish
+      - name: Publish Azure Functions
+        run: dotnet publish ./SkillChallenge.AzureFunctions/SkillChallenge.AzureFunctions.csproj -c Release -o publish/functions --no-build --self-contained false
+
+      #- name: Check output contents
+      #  run: dir publish
 
       - name: Upload published app as artifact
         uses: actions/upload-artifact@v4
@@ -65,7 +68,7 @@ jobs:
           name: published-app
           path: ./publish
 
-  deploy:
+  deploy-webapp:
     runs-on: windows-latest
     needs: build
     permissions:
@@ -93,3 +96,29 @@ jobs:
           slot-name: 'Production'
           package: ./publish
 
+  deploy-functions:
+    runs-on: windows-latest
+    needs: build
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Download published artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: published-apps
+          path: ./publish
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy to Azure Functions
+        uses: Azure/functions-action@v1
+        with:
+          app-name: 'SkillChallengeAzureFunctions'
+          package: ./publish/functions
