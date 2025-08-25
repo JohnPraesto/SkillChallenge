@@ -80,20 +80,25 @@ body {
 }
 
 /* Navbar Styles */
+
 .navbar {
   position:absolute;
   top: 0;
-  left: 0;
   width: 100%;
   z-index: 1000;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   padding: 1rem 2rem;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
   box-shadow: var(--shadow);
+}
+
+.navbar-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 1.5rem;
 }
 
 .navbar-brand {
@@ -109,11 +114,32 @@ body {
   transform: scale(1.05);
 }
 
-.navbar-nav {
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius);
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 500;
+  font-size: 1rem;
+  transition: all var(--transition-fast);
+  position: relative;
+  background: none;
+  border: none;
+}
+
+.nav-link:hover {
+  background: var(--surface);
+  transform: translateY(-2px);
+}
+
+/* .navbar-nav {
   display: flex;
   gap: 1rem;
   align-items: center;
-}
+} */
 
 .brand-icon {
   font-size: 2rem;

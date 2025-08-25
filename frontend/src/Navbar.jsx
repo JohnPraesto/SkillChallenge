@@ -10,21 +10,21 @@ function Navbar() {
 
   return (
     <nav className="navbar">
-      <Link to="/" className="navbar-brand">
-        <span className="brand-icon">⚡</span>
-        <span className="brand-text">
-          <span className="brand-skill">Skill</span>
-          <span className="brand-challenge">Challenge</span>
-        </span>
-      </Link>
+      <div className="navbar-flex">
+        <Link to="/" className="navbar-brand">
+          <span className="brand-icon">⚡</span>
+          <span className="brand-text">
+            <span className="brand-skill">Skill</span>
+            <span className="brand-challenge">Challenge</span>
+          </span>
+        </Link>
 
-      <Link to="/about" className="navbar-brand">
-        <span className="brand-text">
-          <span className="brand-skill">About</span>
-        </span>
-      </Link>
-      
-      <div className="navbar-nav">
+        <Link to="/about" className="navbar-brand">
+          <span className="brand-text">
+            <span className="brand-skill">About</span>
+          </span>
+        </Link>
+        
         <Link to="/" className="nav-link">
           <span className="nav-icon">🏆</span>
           Challenges
@@ -37,7 +37,7 @@ function Navbar() {
         <ThemeToggle />
         
         {user?.userName ? (
-          <div className="user-menu">
+          <>
             <button 
               className="btn btn-outline logout-btn" 
               onClick={() => { logout(); navigate("/login"); }}
@@ -53,9 +53,9 @@ function Navbar() {
               <img src={userIcon} alt="User" className="user-avatar" />
               <span className="user-name">{user.userName}</span>
             </button>
-          </div>
+          </>
         ) : (
-          <div className="auth-buttons">
+          <>
             <Link to="/login" className="btn btn-outline">
               <span className="nav-icon">🔑</span>
               Sign In
@@ -64,9 +64,9 @@ function Navbar() {
               <span className="nav-icon">✨</span>
               Sign Up
             </Link>
-          </div>
+          </>
         )}
-      </div>
+      </div>  
     </nav>
   );
 }
