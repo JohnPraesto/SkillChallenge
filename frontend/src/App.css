@@ -67,7 +67,6 @@
 
 body {
   margin: 0;
-  /* padding-top: 80px; */
   padding-top: 100px;
   font-family: 'Inter', system-ui, sans-serif;
   background: var(--background);

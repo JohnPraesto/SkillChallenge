@@ -61,8 +61,6 @@ function CreateChallenge() {
     }
   };
 
-  console.log(categories, categoryId, filteredSubCategories);
-
   return (
     <div className="container fade-in" style={{ maxWidth: 500, margin: "2em auto" }}>
       <h2>Create Challenge</h2>
@@ -96,7 +94,7 @@ function CreateChallenge() {
             {[...Array(9)].map((_, i) => (
               <option key={i+2} value={i+2}>{i+2}</option>
             ))}
-            <option value="">Unlimited</option>
+            <option value="1000">1000</option>
           </select>
         </div>
         <div className="form-group">
