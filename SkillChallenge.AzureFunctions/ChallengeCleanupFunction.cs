@@ -16,7 +16,7 @@ namespace SkillChallenge.AzureFunctions
         }
 
         [Function("DeleteChallengesWithPastIsTakenDownDate")]
-        public void Run([TimerTrigger("0 0 0 * * * *")] TimerInfo myTimer)
+        public void Run([TimerTrigger("0 0 0 * * *")] TimerInfo myTimer)
         {
             var now = DateTime.UtcNow;
             var oldChallenges = _dbContext.Challenges.Where(c => c.IsTakenDown < now).ToList();
