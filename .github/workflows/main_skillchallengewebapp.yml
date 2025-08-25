@@ -107,7 +107,7 @@ jobs:
       - name: Download published artifact
         uses: actions/download-artifact@v4
         with:
-          name: published-apps
+          name: published-app
           path: ./publish
 
       - name: Login to Azure
@@ -122,4 +122,5 @@ jobs:
         with:
           app-name: 'SkillChallengeAzureFunctions'
           package: ./publish/functions
+
 
