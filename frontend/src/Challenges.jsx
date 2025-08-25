@@ -13,36 +13,15 @@ function Challenges() {
   const { showError } = useToast();
   const apiUrl = import.meta.env.VITE_API_URL;
 
-  useEffect(() => {
+    useEffect(() => {
     Promise.all([
       fetch(apiUrl + "/challenges").then(res => res.json()),
       fetch(apiUrl + "/categories").then(res => res.json())
     ])
     .then(([challengesData, categoriesData]) => {
-      // Remove challenges with IsTakenDown in the past
-      // SKALL REFAKTORISERAS FÖR EFFEKTIV DELETIONS OF OLD CHALLENGES AT SCALE
-      const now = new Date();
-      const validChallenges = [];
-      const deletePromises = [];
-
-      challengesData.forEach(challenge => {
-        if (challenge.isTakenDown && new Date(challenge.isTakenDown) < now) {
-          // Call your delete endpoint
-          deletePromises.push(
-            fetch(`${apiUrl}/challenges/${challenge.challengeId}`, { method: "DELETE" })
-          );
-        } else {
-          validChallenges.push(challenge);
-        }
-      });
-
-      // Wait for all deletes to finish, then update state
-      Promise.all(deletePromises).then(() => {
-        setChallenges(validChallenges);
-        setFilteredChallenges(validChallenges);
-        setCategories(categoriesData);
-        setLoading(false);
-      });
+      setChallenges(challengesData);
+      setCategories(categoriesData);
+      setLoading(false);
     })
     .catch(err => {
       showError("Failed to load challenges");
