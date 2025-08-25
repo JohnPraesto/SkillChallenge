@@ -17,6 +17,12 @@ function Navbar() {
           <span className="brand-challenge">Challenge</span>
         </span>
       </Link>
+
+      <Link to="/about" className="navbar-brand">
+        <span className="brand-text">
+          <span className="brand-skill">About</span>
+        </span>
+      </Link>
       
       <div className="navbar-nav">
         <Link to="/" className="nav-link">

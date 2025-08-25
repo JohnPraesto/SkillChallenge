@@ -1115,3 +1115,61 @@ img {
     transform: translateY(0);
   }
 }
+
+.about-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 60vh;
+  padding: 2rem 1rem;
+}
+
+.about-card {
+  background: var(--surface);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  padding: 2.5rem 2rem;
+  max-width: 1000px;
+  width: 100%;
+  border: 1px solid var(--border);
+  animation: fadeIn 0.7s;
+}
+
+.about-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  letter-spacing: -1px;
+}
+
+.about-list {
+  list-style: disc inside;
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  padding-left: 1rem;
+}
+
+.about-list li {
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+}
+
+.about-contact {
+  text-align: center;
+  font-size: 1rem;
+  color: var(--primary-color);
+  margin-top: 1.5rem;
+  font-weight: 500;
+}
+
+.dark-mode .about-card {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.dark-mode .about-list {
+  color: var(--text-secondary);
+}
