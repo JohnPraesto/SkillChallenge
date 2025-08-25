@@ -59,8 +59,8 @@ jobs:
       - name: Publish Azure Functions
         run: dotnet publish ./SkillChallenge.AzureFunctions/SkillChallenge.AzureFunctions.csproj -c Release -o publish/functions --no-build --self-contained false
 
-      #- name: Check output contents
-      #  run: dir publish
+      - name: Check output contents
+        run: dir publish
 
       - name: Upload published app as artifact
         uses: actions/upload-artifact@v4
@@ -122,3 +122,4 @@ jobs:
         with:
           app-name: 'SkillChallengeAzureFunctions'
           package: ./publish/functions
+
