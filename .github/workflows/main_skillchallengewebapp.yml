@@ -92,4 +92,3 @@ jobs:
           app-name: 'SkillChallengeWebApp'
           slot-name: 'Production'
           package: ./publish
-
