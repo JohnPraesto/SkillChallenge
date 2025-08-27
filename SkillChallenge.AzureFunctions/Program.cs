@@ -1,6 +1,8 @@
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using SkillChallenge.Data;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
@@ -8,6 +10,9 @@ var host = new HostBuilder()
     {
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
+        services.AddDbContext<AppDbContext>(options =>
+            options.UseSqlServer(
+                Environment.GetEnvironmentVariable("SqlConnectionString")));
     })
     .Build();
 
