@@ -1,71 +1,42 @@
-name: Build and deploy Azure Function App - SkillChallengeAzureFunctions
+name: Build and Deploy SkillChallenge to Azure
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
-
-env:
-  PROJECT_PATH: SkillChallenge.AzureFunctions/SkillChallenge.AzureFunctions.csproj
-  PUBLISH_DIR: ./publish-functions
-  DOTNET_VERSION: '8.x'
-  AZURE_FUNCTIONAPP_NAME: SkillChallengeAzureFunctions
 
 jobs:
-  build:
-    runs-on: windows-latest
-    permissions:
-      contents: read
+  build-and-deploy:
+    runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      # Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Setup .NET SDK
+      # Setup .NET
+      - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
+          dotnet-version: '8.0.x'
 
-      - name: Restore
-        run: dotnet restore "${{ env.PROJECT_PATH }}"
+      # Restore dependencies
+      - name: Restore dependencies
+        run: dotnet restore SkillChallenge.sln
 
-      - name: Publish (create function publish folder)
-        run: dotnet publish "${{ env.PROJECT_PATH }}" -c Release -o "${{ env.PUBLISH_DIR }}" /p:GenerateRuntimeConfigurationFiles=true
+      # Build
+      - name: Build
+        run: dotnet build SkillChallenge.sln --configuration Release --no-restore
 
-      - name: Show publish contents (for debugging)
-        run: |
-          echo "=== publish dir ==="
-          ls -la "${{ env.PUBLISH_DIR }}"
+      # Publish (create folder for deployment)
+      - name: Publish
+        run: dotnet publish SkillChallenge/SkillChallenge.csproj -c Release -o ./publish
 
-      - name: Upload published function app as artifact
-        uses: actions/upload-artifact@v4
+      # Deploy to Azure Web App
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
         with:
-          name: published-functions
-          path: ${{ env.PUBLISH_DIR }}
-
-  deploy:
-    runs-on: windows-latest
-    needs: build
-    permissions:
-      id-token: write
-      contents: read
-
-    steps:
-      - name: Download published artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: published-functions
-          path: ${{ env.PUBLISH_DIR }}
-
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Deploy to Azure Functions
-        uses: Azure/functions-action@v1
-        with:
-          app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
-          package: ${{ env.PUBLISH_DIR }}
+          app-name: skillchallenge   # <-- change if your Azure Web App has a different name
+          slot-name: production
+          package: ./publish
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
