@@ -27,7 +27,7 @@ jobs:
         run: dotnet build ./SkillChallenge.AzureFunctions/SkillChallenge.AzureFunctions.csproj --configuration Release --no-restore
 
       - name: Publish Azure Functions
-        run: dotnet publish ./SkillChallenge.AzureFunctions/SkillChallenge.AzureFunctions.csproj --configuration Release --output ./publish-functions --no-build --self-contained false
+        run: dotnet publish ./SkillChallenge.AzureFunctions/SkillChallenge.AzureFunctions.csproj -c Release -o ./publish-functions /p:GenerateRuntimeConfigurationFiles=true
 
       - name: Upload published function app as artifact
         uses: actions/upload-artifact@v4
