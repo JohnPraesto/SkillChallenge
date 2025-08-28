@@ -6,6 +6,12 @@ on:
       - main
   workflow_dispatch:
 
+env:
+  PROJECT_PATH: SkillChallenge.AzureFunctions/SkillChallenge.AzureFunctions.csproj
+  PUBLISH_DIR: ./publish-functions
+  DOTNET_VERSION: '8.x'
+  AZURE_FUNCTIONAPP_NAME: SkillChallengeAzureFunctions
+
 jobs:
   build:
     runs-on: windows-latest
@@ -15,25 +21,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up .NET Core
+      - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.x'
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Restore dependencies
-        run: dotnet restore
+      - name: Restore
+        run: dotnet restore "${{ env.PROJECT_PATH }}"
 
-      - name: Build
-        run: dotnet build ./SkillChallenge.AzureFunctions/SkillChallenge.AzureFunctions.csproj --configuration Release --no-restore
+      - name: Publish (create function publish folder)
+        run: dotnet publish "${{ env.PROJECT_PATH }}" -c Release -o "${{ env.PUBLISH_DIR }}" /p:GenerateRuntimeConfigurationFiles=true
 
-      - name: Publish Azure Functions
-        run: dotnet publish ./SkillChallenge.AzureFunctions/SkillChallenge.AzureFunctions.csproj -c Release -o ./publish-functions /p:GenerateRuntimeConfigurationFiles=true
+      - name: Show publish contents (for debugging)
+        run: |
+          echo "=== publish dir ==="
+          ls -la "${{ env.PUBLISH_DIR }}"
 
       - name: Upload published function app as artifact
         uses: actions/upload-artifact@v4
         with:
           name: published-functions
-          path: ./publish-functions
+          path: ${{ env.PUBLISH_DIR }}
 
   deploy:
     runs-on: windows-latest
@@ -47,9 +55,9 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: published-functions
-          path: ./publish-functions
+          path: ${{ env.PUBLISH_DIR }}
 
-      - name: Login to Azure
+      - name: Azure Login
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -59,5 +67,5 @@ jobs:
       - name: Deploy to Azure Functions
         uses: Azure/functions-action@v1
         with:
-          app-name: 'SkillChallengeAzureFunctions'
-          package: ./publish-functions
+          app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+          package: ${{ env.PUBLISH_DIR }}
