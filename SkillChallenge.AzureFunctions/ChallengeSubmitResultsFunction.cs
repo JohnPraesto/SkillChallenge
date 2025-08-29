@@ -24,7 +24,7 @@ namespace SkillChallenge.AzureFunctions
         {
             var now = DateTime.UtcNow;
             var challengesToSubmit = await _dbContext.Challenges
-                .Include(c => c.Participants)
+                .Include(c => c.Participants).ThenInclude(p => p.CategoryRatingEntities).ThenInclude(cre => cre.SubCategoryRatingEntities)
                 .Include(c => c.SubCategory)
                 .Include(c => c.UploadedResults).ThenInclude(ur => ur.Votes)
                 .Where(c => c.VotePeriodEnd < now && !c.ResultsSubmitted)
