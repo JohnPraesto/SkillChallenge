@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SkillChallenge.Data;
+using SkillChallenge.Interfaces;
+using SkillChallenge.Repositories;
+using SkillChallenge.Services;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
@@ -13,6 +16,8 @@ var host = new HostBuilder()
         services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(
                 Environment.GetEnvironmentVariable("SqlConnectionString")));
+        services.AddScoped<IRatingEntityRepository, RatingEntityRepository>();
+        services.AddScoped<EloRatingService>();
     })
     .Build();
 
