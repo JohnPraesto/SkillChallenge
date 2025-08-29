@@ -20,7 +20,7 @@ namespace SkillChallenge.AzureFunctions
         }
 
         [Function("SubmitResultsForChallengesWithPastVotePeriodEndDate")]
-        public async Task Run([TimerTrigger("0 0 * * * *")] TimerInfo myTimer)
+        public async Task Run([TimerTrigger("0 0 0 * * *")] TimerInfo myTimer)
         {
             var now = DateTime.UtcNow;
             var challengesToSubmit = await _dbContext.Challenges
