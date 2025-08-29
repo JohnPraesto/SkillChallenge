@@ -34,9 +34,6 @@ function Challenges() {
   const closedChallenges = filteredChallenges.filter(ch => new Date(ch.endDate) <= now && ch.resultsSubmitted === false);
   const finishedChallenges = filteredChallenges.filter(ch => new Date(ch.votePeriodEnd) <= now && ch.resultsSubmitted === true);
 
-  console.log(closedChallenges)
-  console.log(filteredChallenges)
-
   const ChallengeCard = ({ challenge, index }) => (
     <div 
       className="card challenge-card stagger-item" 
