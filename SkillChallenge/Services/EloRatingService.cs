@@ -54,15 +54,13 @@ namespace SkillChallenge.Services
 {
     public class EloRatingService
     {
-        private readonly IUserRepository _userRepository;
         private readonly IRatingEntityRepository _ratingEntityRepository;
 
         int k_factor = 32;
         int c_value = 400;
 
-        public EloRatingService(IUserRepository userRepository, IRatingEntityRepository ratingEntityRepository)
+        public EloRatingService(IRatingEntityRepository ratingEntityRepository)
         {
-            _userRepository = userRepository;
             _ratingEntityRepository = ratingEntityRepository;
         }
 
