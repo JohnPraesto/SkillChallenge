@@ -69,7 +69,7 @@ namespace SkillChallenge.Services
         // Ser till att alla users i challengen har en rating i den
         // subCategory som challengen har. Om usern inte har någon rating i den
         // subCategory så får den en ny rating med värdet 1000.
-        public async Task EnsureRatingsExistForParticipantsAsync(IEnumerable<User> users, int categoryId, int subCategoryId, Challenge challenge, CancellationToken ct)
+        public async Task EnsureRatingsExistForParticipantsAsync(IEnumerable<User> users, int categoryId, int subCategoryId, CancellationToken ct) // Can Challenge challenge be removed?
         {
             foreach (var user in users)
             {
@@ -144,14 +144,12 @@ namespace SkillChallenge.Services
 
                 // The index of the users uploaded result in the uploadedResults list
                 int position = uploadedResults.IndexOf(userResult);
-                Console.WriteLine($"User: {user.UserName}, Position: {position}, Votes: {userResult.Votes.Count}");
                 // OR
                 //// The index of the uploadedResult that has the same number of votes as the userResult
                 //int position = uploadedResults.FindIndex(ur => ur.Votes.Count == userResult.Votes.Count);
 
                 //float userWinFactor = (float)position / actualPartcipantCount;
                 float userWinFactor = (float)position * participantFactor;
-                Console.WriteLine($"User: {user.UserName}, Win Factor: {userWinFactor}");
 
                 var categoryRatingEntity = user.CategoryRatingEntities.FirstOrDefault(c => c.CategoryId == categoryId);
                 var subCategoryRatingEntity = categoryRatingEntity.SubCategoryRatingEntities.FirstOrDefault(s => s.SubCategoryId == subCategoryId);

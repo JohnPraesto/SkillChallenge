@@ -15,5 +15,6 @@
         public ICollection<User> Participants { get; set; } = new List<User>();
         public string? CreatedBy { get; set; }
         public User? Creator { get; set; }
+        public bool ResultsSubmitted { get; set; } = false;
     }
 }
