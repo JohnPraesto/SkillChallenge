@@ -17,5 +17,6 @@ namespace SkillChallenge.DTOs.Challenge
         public List<UploadedResultDTO> UploadedResults { get; set; } = new();
         public string CreatedBy { get; set; } = string.Empty;
         public string CreatorUserName { get; set; } = string.Empty;
+        public bool ResultsSubmitted { get; set; }
     }
 }

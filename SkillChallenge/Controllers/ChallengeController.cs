@@ -48,6 +48,7 @@ namespace SkillChallenge.Controllers
                     JoinedUsers = c.Participants.Select(u => u.UserName ?? "Unknown").ToList(),
                     CreatedBy = c.CreatedBy,
                     CreatorUserName = c.Creator?.UserName ?? "Unknown",
+                    ResultsSubmitted = c.ResultsSubmitted,
                 })
                 .ToList();
 
@@ -87,6 +88,7 @@ namespace SkillChallenge.Controllers
                     JoinedUsers = c.Participants.Select(u => u.UserName ?? "Unknown").ToList(),
                     CreatedBy = c.CreatedBy,
                     CreatorUserName = c.Creator?.UserName ?? "Unknown",
+                    ResultsSubmitted = c.ResultsSubmitted,
                 })
                 .ToList();
 
@@ -139,6 +141,7 @@ namespace SkillChallenge.Controllers
                 }).ToList(),
                 CreatedBy = challenge.CreatedBy,
                 CreatorUserName = challenge.Creator?.UserName ?? "Unknown",
+                ResultsSubmitted = challenge.ResultsSubmitted,
             };
 
             return Ok(challengeDTO);
@@ -176,6 +179,7 @@ namespace SkillChallenge.Controllers
                     JoinedUsers = c.Participants.Select(u => u.UserName ?? "Unknown").ToList(),
                     CreatedBy = c.CreatedBy,
                     CreatorUserName = c.Creator?.UserName ?? "Unknown",
+                    ResultsSubmitted = c.ResultsSubmitted,
                 })
                 .ToList();
 

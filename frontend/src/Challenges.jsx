@@ -31,8 +31,11 @@ function Challenges() {
 
   const now = new Date();
   const openChallenges = filteredChallenges.filter(ch => new Date(ch.endDate) > now);
-  const closedChallenges = filteredChallenges.filter(ch => new Date(ch.endDate) <= now && new Date(ch.votePeriodEnd) > now);
-  const finishedChallenges = filteredChallenges.filter(ch => new Date(ch.votePeriodEnd) <= now);
+  const closedChallenges = filteredChallenges.filter(ch => new Date(ch.endDate) <= now && ch.resultsSubmitted === false);
+  const finishedChallenges = filteredChallenges.filter(ch => new Date(ch.votePeriodEnd) <= now && ch.resultsSubmitted === true);
+
+  console.log(closedChallenges)
+  console.log(filteredChallenges)
 
   const ChallengeCard = ({ challenge, index }) => (
     <div 
