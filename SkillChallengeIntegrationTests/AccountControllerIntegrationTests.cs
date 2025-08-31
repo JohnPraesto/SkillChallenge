@@ -95,7 +95,7 @@ public class AccountControllerIntegrationTests : IClassFixture<WebApplicationFac
         };
 
         // Act
-        var response = await client.PostAsJsonAsync("/account/register", newUser);
+        var response = await client.PostAsJsonAsync("/api/account/register", newUser);
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -129,7 +129,7 @@ public class AccountControllerIntegrationTests : IClassFixture<WebApplicationFac
         };
 
         // Act
-        var response = await client.PostAsJsonAsync("/account/register", newUser);
+        var response = await client.PostAsJsonAsync("/api/account/register", newUser);
 
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -152,7 +152,7 @@ public class AccountControllerIntegrationTests : IClassFixture<WebApplicationFac
         };
 
         // Act
-        var response = await client.PostAsJsonAsync("/account/register", newUser);
+        var response = await client.PostAsJsonAsync("/api/account/register", newUser);
 
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -167,7 +167,7 @@ public class AccountControllerIntegrationTests : IClassFixture<WebApplicationFac
         var loginDto = new LoginDTO { UserName = "testuser1", Password = "Password123!" };
 
         // Act
-        var response = await client.PostAsJsonAsync("/account/login", loginDto);
+        var response = await client.PostAsJsonAsync("/api/account/login", loginDto);
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -186,7 +186,7 @@ public class AccountControllerIntegrationTests : IClassFixture<WebApplicationFac
         var loginDto = new LoginDTO { UserName = "nonexistentuser", Password = "DoesNotMatter123" };
 
         // Act
-        var response = await client.PostAsJsonAsync("/account/login", loginDto);
+        var response = await client.PostAsJsonAsync("/api/account/login", loginDto);
 
         // Assert
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -203,7 +203,7 @@ public class AccountControllerIntegrationTests : IClassFixture<WebApplicationFac
         var loginDto = new LoginDTO { UserName = "testuser1", Password = "WrongPassword123" };
 
         // Act
-        var response = await client.PostAsJsonAsync("/account/login", loginDto);
+        var response = await client.PostAsJsonAsync("/api/account/login", loginDto);
 
         // Assert
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);

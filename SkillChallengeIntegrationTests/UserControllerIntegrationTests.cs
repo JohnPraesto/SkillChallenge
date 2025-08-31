@@ -110,7 +110,7 @@ public class UserControllerIntegrationTests : IClassFixture<WebApplicationFactor
     private async Task<string> GetToken(HttpClient client, string user)
     {
         var loginDto = new LoginDTO { UserName = user, Password = "Password123!" };
-        var loginResponse = await client.PostAsJsonAsync("/account/login", loginDto);
+        var loginResponse = await client.PostAsJsonAsync("/api/account/login", loginDto);
         loginResponse.EnsureSuccessStatusCode();
         var loginResult = await loginResponse.Content.ReadFromJsonAsync<NewUserDTO>();
         return loginResult!.Token;
@@ -132,7 +132,7 @@ public class UserControllerIntegrationTests : IClassFixture<WebApplicationFactor
         };
 
         // Act
-        var request = new HttpRequestMessage(HttpMethod.Post, "/users/create-admin")
+        var request = new HttpRequestMessage(HttpMethod.Post, "/api/users/create-admin")
         {
             Content = JsonContent.Create(newAdmin),
         };
@@ -170,7 +170,7 @@ public class UserControllerIntegrationTests : IClassFixture<WebApplicationFactor
         };
 
         // Act
-        var request = new HttpRequestMessage(HttpMethod.Post, "/users/create-admin")
+        var request = new HttpRequestMessage(HttpMethod.Post, "/api/users/create-admin")
         {
             Content = JsonContent.Create(newAdmin),
         };
@@ -195,7 +195,7 @@ public class UserControllerIntegrationTests : IClassFixture<WebApplicationFactor
         var (client, _) = await SetupTestClient();
 
         // Act
-        var response = await client.GetAsync("/users");
+        var response = await client.GetAsync("/api/users");
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -213,7 +213,7 @@ public class UserControllerIntegrationTests : IClassFixture<WebApplicationFactor
         string id = await GetTestId(services, "testuser2");
 
         // Act
-        var response = await client.GetAsync($"/users/id/{id}");
+        var response = await client.GetAsync($"/api/users/id/{id}");
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -230,7 +230,7 @@ public class UserControllerIntegrationTests : IClassFixture<WebApplicationFactor
         string testuserId = "nonexistinguserID";
 
         // Act
-        var response = await client.GetAsync($"/users/id/{testuserId}");
+        var response = await client.GetAsync($"/api/users/id/{testuserId}");
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -245,7 +245,7 @@ public class UserControllerIntegrationTests : IClassFixture<WebApplicationFactor
         var (client, _) = await SetupTestClient();
 
         // Act
-        var response = await client.GetAsync("/users/username/testuser2");
+        var response = await client.GetAsync("/api/users/username/testuser2");
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -262,7 +262,7 @@ public class UserControllerIntegrationTests : IClassFixture<WebApplicationFactor
         string testuser = "nonexistinguser";
 
         // Act
-        var response = await client.GetAsync($"/users/username/{testuser}");
+        var response = await client.GetAsync($"/api/users/username/{testuser}");
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -279,7 +279,7 @@ public class UserControllerIntegrationTests : IClassFixture<WebApplicationFactor
         var token = await GetToken(client, "testadmin");
 
         // Act
-        var request = new HttpRequestMessage(HttpMethod.Delete, $"/users/{userToDeleteId}");
+        var request = new HttpRequestMessage(HttpMethod.Delete, $"/api/users/{userToDeleteId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         var response = await client.SendAsync(request);
 
@@ -301,7 +301,7 @@ public class UserControllerIntegrationTests : IClassFixture<WebApplicationFactor
         var token = await GetToken(client, "testuser1");
 
         // Act
-        var request = new HttpRequestMessage(HttpMethod.Delete, $"/users/{userToDeleteId}");
+        var request = new HttpRequestMessage(HttpMethod.Delete, $"/api/users/{userToDeleteId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         var response = await client.SendAsync(request);
 
@@ -322,7 +322,7 @@ public class UserControllerIntegrationTests : IClassFixture<WebApplicationFactor
         var token = await GetToken(client, "testuser1");
 
         // Act
-        var request = new HttpRequestMessage(HttpMethod.Delete, $"/users/{userToDeleteId}");
+        var request = new HttpRequestMessage(HttpMethod.Delete, $"/api/users/{userToDeleteId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         var response = await client.SendAsync(request);
 
@@ -343,7 +343,7 @@ public class UserControllerIntegrationTests : IClassFixture<WebApplicationFactor
         var token = await GetToken(client, "testadmin");
 
         // Act
-        var request = new HttpRequestMessage(HttpMethod.Delete, $"/users/{testId}");
+        var request = new HttpRequestMessage(HttpMethod.Delete, $"/api/users/{testId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         var response = await client.SendAsync(request);
 
@@ -369,7 +369,7 @@ public class UserControllerIntegrationTests : IClassFixture<WebApplicationFactor
         };
 
         // Act
-        var request = new HttpRequestMessage(HttpMethod.Put, $"/users/{userId}")
+        var request = new HttpRequestMessage(HttpMethod.Put, $"/api/users/{userId}")
         {
             Content = JsonContent.Create(userUpdate),
         };
@@ -407,7 +407,7 @@ public class UserControllerIntegrationTests : IClassFixture<WebApplicationFactor
         };
 
         // Act
-        var request = new HttpRequestMessage(HttpMethod.Put, $"/users/{userId}")
+        var request = new HttpRequestMessage(HttpMethod.Put, $"/api/users/{userId}")
         {
             Content = JsonContent.Create(userUpdate),
         };
@@ -445,7 +445,7 @@ public class UserControllerIntegrationTests : IClassFixture<WebApplicationFactor
         };
 
         // Act
-        var request = new HttpRequestMessage(HttpMethod.Put, $"/users/{userId}")
+        var request = new HttpRequestMessage(HttpMethod.Put, $"/api/users/{userId}")
         {
             Content = JsonContent.Create(userUpdate),
         };
@@ -476,7 +476,7 @@ public class UserControllerIntegrationTests : IClassFixture<WebApplicationFactor
         };
 
         // Act
-        var request = new HttpRequestMessage(HttpMethod.Put, $"/users/{userId}")
+        var request = new HttpRequestMessage(HttpMethod.Put, $"/api/users/{userId}")
         {
             Content = JsonContent.Create(userUpdate),
         };
@@ -508,7 +508,7 @@ public class UserControllerIntegrationTests : IClassFixture<WebApplicationFactor
         };
 
         // Act
-        var request = new HttpRequestMessage(HttpMethod.Post, $"/users/{userId}/change-password")
+        var request = new HttpRequestMessage(HttpMethod.Post, $"/api/users/{userId}/change-password")
         {
             Content = JsonContent.Create(changeDTO),
         };
@@ -546,7 +546,7 @@ public class UserControllerIntegrationTests : IClassFixture<WebApplicationFactor
         var form = new MultipartFormDataContent();
         form.Add(imageContent, "file", "test.png");
 
-        var request = new HttpRequestMessage(HttpMethod.Post, $"/users/{userId}/upload-profile-picture")
+        var request = new HttpRequestMessage(HttpMethod.Post, $"/api/users/{userId}/upload-profile-picture")
         {
             Content = form
         };
