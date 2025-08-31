@@ -60,7 +60,7 @@ function ClosedChallengeDetails({
                           return;
                         }
                         await fetch(
-                          `${apiUrl}/challenges/${challenge.challengeId}/uploaded-result/vote/${result.uploadedResultId}`,
+                          `${apiUrl}/api/challenges/${challenge.challengeId}/uploaded-result/vote/${result.uploadedResultId}`,
                           {
                             method: "POST",
                             headers: {

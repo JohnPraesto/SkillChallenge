@@ -8,7 +8,7 @@ using SkillChallenge.Services;
 namespace SkillChallenge.Controllers
 {
     [ApiController]
-    [Route("subcategories")]
+    [Route("/api/subcategories")]
     public class SubCategoryController : ControllerBase
     {
         private readonly ISubCategoryRepository _subCategoryRepo;

@@ -23,7 +23,7 @@ function Profile() {
   useEffect(() => {
     if (!user?.id) return;
     
-    fetch(`${apiUrl}/users/id/${user.id}`)
+    fetch(`${apiUrl}/api/users/id/${user.id}`)
       .then(res => res.ok ? res.json() : Promise.reject("Failed to fetch user"))
       .then(data => {
         setUserData(data);
@@ -37,7 +37,7 @@ function Profile() {
 
   const handleUpdate = async (field, value) => {
     try {
-      const res = await fetch(`${apiUrl}/users/${user.id}`, {
+      const res = await fetch(`${apiUrl}/api/users/${user.id}`, {
         method: "PUT",
         headers: { 
           "Content-Type": "application/json",
@@ -78,7 +78,7 @@ function Profile() {
 
   const handleChangePassword = async () => {
     try {
-      const res = await fetch(`${apiUrl}/users/${userData.id}/change-password`, {
+      const res = await fetch(`${apiUrl}/api/users/${userData.id}/change-password`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -109,7 +109,7 @@ function Profile() {
     try {
       const uploadData = new FormData();
       uploadData.append("file", formData.pictureFile);
-      const res = await fetch(`${apiUrl}/users/${user.id}/upload-profile-picture`, {
+      const res = await fetch(`${apiUrl}/api/users/${user.id}/upload-profile-picture`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("token")}`
@@ -131,7 +131,7 @@ function Profile() {
     if (!window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) return;
     
     try {
-      const res = await fetch(`${apiUrl}/users/${user.id}`, {
+      const res = await fetch(`${apiUrl}/api/users/${user.id}`, {
         method: "DELETE",
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("token")}`

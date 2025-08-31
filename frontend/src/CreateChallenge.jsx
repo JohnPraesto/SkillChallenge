@@ -16,7 +16,7 @@ function CreateChallenge() {
   const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    fetch(apiUrl + "/categories")
+    fetch(apiUrl + "/api/categories")
       .then(res => res.ok ? res.json() : Promise.reject("Failed to fetch categories"))
       .then(data => setCategories(data))
       .catch(() => setCategories([]));
@@ -35,7 +35,7 @@ function CreateChallenge() {
       return;
     }
     try {
-      const res = await fetch(apiUrl + "/challenges", {
+      const res = await fetch(apiUrl + "/api/challenges", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -9,7 +9,7 @@ using SkillChallenge.Services;
 namespace SkillChallenge.Controllers
 {
     [ApiController]
-    [Route("categories")]
+    [Route("/api/categories")]
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryRepository _categoryRepo;

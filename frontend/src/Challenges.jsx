@@ -15,8 +15,8 @@ function Challenges() {
 
     useEffect(() => {
     Promise.all([
-      fetch(apiUrl + "/challenges").then(res => res.json()),
-      fetch(apiUrl + "/categories").then(res => res.json())
+      fetch(apiUrl + "/api/challenges").then(res => res.json()),
+      fetch(apiUrl + "/api/categories").then(res => res.json())
     ])
     .then(([challengesData, categoriesData]) => {
       setChallenges(challengesData);

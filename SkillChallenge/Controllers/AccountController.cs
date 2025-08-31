@@ -7,7 +7,7 @@ using SkillChallenge.Models;
 
 namespace ASPNET_VisualStudio_Tutorial.Controllers
 {
-    [Route("account")]
+    [Route("/api/account")]
     [ApiController]
     public class AccountController : ControllerBase
     {

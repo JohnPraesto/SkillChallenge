@@ -20,7 +20,7 @@ function Login() {
     setLoading(true);
     
     try {
-      const response = await fetch(apiUrl + "/account/login", {
+      const response = await fetch(apiUrl + "/api/account/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

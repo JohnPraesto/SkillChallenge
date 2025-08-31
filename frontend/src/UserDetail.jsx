@@ -11,7 +11,7 @@ function UserDetail() {
   const apiUrl = import.meta.env.VITE_API_URL;
 
 useEffect(() => {
-  fetch(`${apiUrl}/users/username/${userName}`)
+  fetch(`${apiUrl}/api/users/username/${userName}`)
     .then(res => {
       if (!res.ok) {
         return res.text().then(text => { throw new Error(text); });

@@ -172,6 +172,20 @@ public class Program
 
         app.MapFallbackToFile("index.html");
 
+        // Fallback to serve React app for non-API routes
+        app.MapFallback(context =>
+        {
+            // Only serve index.html if the path does not start with /api
+            if (!context.Request.Path.StartsWithSegments("/api"))
+            {
+                context.Response.ContentType = "text/html";
+                return context.Response.SendFileAsync(Path.Combine(app.Environment.WebRootPath!, "index.html"));
+            }
+
+            context.Response.StatusCode = 404;
+            return Task.CompletedTask;
+        });
+
         await app.RunAsync();
     }
 }

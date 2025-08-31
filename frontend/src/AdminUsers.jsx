@@ -15,7 +15,7 @@ function AdminUsers() {
 
   const fetchUsers = async (query = "") => {
     setLoading(true);
-    let url = `${apiUrl}/users`;
+    let url = `${apiUrl}/api/users`;
     if (query) url += `/username/${query}`;
     const res = await fetch(url);
     if (res.ok) {
@@ -33,7 +33,7 @@ function AdminUsers() {
 
   const handleRoleChange = async (userId, newRole) => {
     const token = localStorage.getItem("token");
-    const res = await fetch(`${apiUrl}/users/${userId}/change-role`, {
+    const res = await fetch(`${apiUrl}/api/users/${userId}/change-role`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -53,7 +53,7 @@ function AdminUsers() {
   const handleDeleteUser = async (userId) => {
     const token = localStorage.getItem("token");
     if (!window.confirm("Are you sure you want to delete this user?")) return;
-    const res = await fetch(`${apiUrl}/users/${userId}`, {
+    const res = await fetch(`${apiUrl}/api/users/${userId}`, {
       method: "DELETE",
       headers: {
         "Authorization": `Bearer ${token}`,

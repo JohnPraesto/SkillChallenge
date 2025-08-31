@@ -19,7 +19,7 @@ function AdminCategories() {
   const fetchCategories = async () => {
     setLoading(true);
     const token = localStorage.getItem("token");
-    const res = await fetch(`${apiUrl}/categories`, {
+    const res = await fetch(`${apiUrl}/api/categories`, {
       headers: { "Authorization": `Bearer ${token}` }
     });
     if (res.ok) {
@@ -32,7 +32,7 @@ function AdminCategories() {
     const handleDeleteCategory = async (categoryId) => {
     const token = localStorage.getItem("token");
     if (!window.confirm("Delete this category and all its subcategories?")) return;
-    const res = await fetch(`${apiUrl}/categories/${categoryId}`, {
+    const res = await fetch(`${apiUrl}/api/categories/${categoryId}`, {
       method: "DELETE",
       headers: { "Authorization": `Bearer ${token}` }
     });
@@ -44,7 +44,7 @@ function AdminCategories() {
   const handleDeleteSubCategory = async (subCategoryId, categoryId) => {
     const token = localStorage.getItem("token");
     if (!window.confirm("Delete this subcategory?")) return;
-    const res = await fetch(`${apiUrl}/subcategories/${subCategoryId}`, {
+    const res = await fetch(`${apiUrl}/api/subcategories/${subCategoryId}`, {
       method: "DELETE",
       headers: { "Authorization": `Bearer ${token}` }
     });
@@ -71,7 +71,7 @@ return (
           e.preventDefault();
           const formData = new FormData(e.target);
           const token = localStorage.getItem("token");
-          const res = await fetch(`${apiUrl}/categories`, {
+          const res = await fetch(`${apiUrl}/api/categories`, {
             method: "POST",
             headers: {
               Authorization: `Bearer ${token}`,
@@ -163,7 +163,7 @@ return (
                         formData.append("Image", editCategoryImage);
                       }
                       const token = localStorage.getItem("token");
-                      const res = await fetch(`${apiUrl}/categories/${cat.categoryId}`, {
+                      const res = await fetch(`${apiUrl}/api/categories/${cat.categoryId}`, {
                         method: "PUT",
                         headers: { Authorization: `Bearer ${token}` },
                         body: formData,
@@ -292,7 +292,7 @@ return (
                           }
                           const token = localStorage.getItem("token");
                           const res = await fetch(
-                            `${apiUrl}/subcategories/${sub.subCategoryId}`,
+                            `${apiUrl}/api/subcategories/${sub.subCategoryId}`,
                             {
                               method: "PUT",
                               headers: { Authorization: `Bearer ${token}` },
@@ -418,7 +418,7 @@ return (
                       formData.append("Image", subCatInputs[cat.categoryId].file);
                     }
                     const token = localStorage.getItem("token");
-                    const res = await fetch(`${apiUrl}/subcategories`, {
+                    const res = await fetch(`${apiUrl}/api/subcategories`, {
                       method: "POST",
                       headers: { Authorization: `Bearer ${token}` },
                       body: formData,

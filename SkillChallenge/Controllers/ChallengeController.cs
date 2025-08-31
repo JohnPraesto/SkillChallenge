@@ -10,7 +10,7 @@ using System.Security.Claims;
 namespace SkillChallenge.Controllers
 {
     [ApiController]
-    [Route("challenges")]
+    [Route("/api/challenges")]
     public class ChallengeController : ControllerBase
     {
         private readonly IChallengeRepository _challengeRepo;

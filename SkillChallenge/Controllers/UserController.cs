@@ -13,7 +13,7 @@ using System.Security.Claims;
 namespace SkillChallenge.Controllers
 {
     [ApiController]
-    [Route("/users")]
+    [Route("/api/users")]
     public class UserController : ControllerBase
     {
         private readonly IUserRepository _userRepo;

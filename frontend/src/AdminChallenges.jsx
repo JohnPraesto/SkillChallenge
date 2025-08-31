@@ -15,7 +15,7 @@ function AdminChallenges() {
 
   const fetchChallenges = async (query = "") => {
     setLoading(true);
-    let url = `${apiUrl}/challenges`;
+    let url = `${apiUrl}/api/challenges`;
     if (query) url += `/${query}`;
     const res = await fetch(url);
     if (res.ok) {
@@ -33,7 +33,7 @@ function AdminChallenges() {
 
   const handleDeleteChallenge = async (challengeId) => {
     const token = localStorage.getItem("token");
-    const res = await fetch(`${apiUrl}/challenges/${challengeId}`, {
+    const res = await fetch(`${apiUrl}/api/challenges/${challengeId}`, {
       method: "DELETE",
       headers: {
         "Authorization": `Bearer ${token}`,

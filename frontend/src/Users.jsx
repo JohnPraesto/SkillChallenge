@@ -11,7 +11,7 @@ function Users() {
   const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    fetch(apiUrl + "/users")
+    fetch(apiUrl + "/api/users")
       .then(res => {
         if (!res.ok) throw new Error("Failed to fetch users");
         return res.json();

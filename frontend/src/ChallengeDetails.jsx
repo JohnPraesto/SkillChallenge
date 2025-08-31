@@ -14,7 +14,7 @@ function ChallengeDetails() {
   const apiUrl = import.meta.env.VITE_API_URL;
 
   const fetchChallenge = () => {
-    fetch(`${apiUrl}/challenges/${id}`)
+    fetch(`${apiUrl}/api/challenges/${id}`)
       .then(res => res.ok ? res.json() : Promise.reject("Failed to fetch challenge"))
       .then(data => setChallenge(data))
       .catch(err => setError(err.toString()));
