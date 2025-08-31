@@ -33,10 +33,7 @@ namespace SkillChallenge.Controllers
             var displayUsers = users
                 .Select(u => new DisplayUserDTO
                 {
-                    Id = u.Id,
                     UserName = u.UserName ?? string.Empty,
-                    Email = u.Email ?? string.Empty,
-                    Role = string.Join(", ", _userManager.GetRolesAsync(u).Result),
                     ProfilePicture = u.ProfilePicture,
                 })
                 .ToList();
@@ -57,10 +54,7 @@ namespace SkillChallenge.Controllers
             return Ok(
                 new DisplayUserDTO
                 {
-                    Id = user.Id,
                     UserName = user.UserName ?? string.Empty,
-                    Email = user.Email ?? string.Empty,
-                    Role = role.FirstOrDefault(),
                     ProfilePicture = user.ProfilePicture,
                     CategoryRatingEntities = user.CategoryRatingEntities.Select(cre => new CategoryRatingDTO
                     {
@@ -89,10 +83,7 @@ namespace SkillChallenge.Controllers
             return Ok(
                 new DisplayUserDTO
                 {
-                    Id = user.Id,
                     UserName = user.UserName ?? string.Empty,
-                    Email = user.Email ?? string.Empty,
-                    Role = role.FirstOrDefault(),
                     ProfilePicture = user.ProfilePicture,
                     CategoryRatingEntities = user.CategoryRatingEntities.Select(cre => new CategoryRatingDTO
                     {
@@ -131,9 +122,7 @@ namespace SkillChallenge.Controllers
             return Ok(
                 new DisplayUserDTO
                 {
-                    Id = user.Id,
                     UserName = user.UserName,
-                    Email = user.Email,
                     ProfilePicture = user.ProfilePicture,
                 }
             );
@@ -160,9 +149,7 @@ namespace SkillChallenge.Controllers
             return Ok(
                 new DisplayUserDTO
                 {
-                    Id = user.Id,
                     UserName = user.UserName ?? string.Empty,
-                    Email = user.Email ?? string.Empty,
                     ProfilePicture = user.ProfilePicture,
                 }
             );
