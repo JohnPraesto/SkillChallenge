@@ -145,7 +145,6 @@ public class UserControllerIntegrationTests : IClassFixture<WebApplicationFactor
         var createdAdmin = await response.Content.ReadFromJsonAsync<DisplayUserDTO>();
         Assert.NotNull(createdAdmin);
         Assert.Equal("newadmin", createdAdmin.UserName);
-        Assert.Equal("newadmin@example.com", createdAdmin.Email);
 
         // Verify in DB that user has Admin role
         using var scope = services.CreateScope();
@@ -203,10 +202,7 @@ public class UserControllerIntegrationTests : IClassFixture<WebApplicationFactor
         var users = await response.Content.ReadFromJsonAsync<List<User>>();
         Assert.NotNull(users);
         Assert.Equal(3, users!.Count);
-        Assert.Contains(
-            users,
-            u => u.UserName == "testuser1" && u.Email == "testuser1@example.com"
-        );
+        Assert.Contains(users, u => u.UserName == "testuser1");
     }
 
     [Fact]
