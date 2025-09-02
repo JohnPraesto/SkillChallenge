@@ -97,12 +97,35 @@ namespace SkillChallenge.Services
 
                     if (!hasSubCategory)
                     {
-                        categoryRating.SubCategoryRatingEntities.Add(new SubCategoryRatingEntity
+                        ////SubCategoryRatingEntity newSubCategotyRatingEntity = new SubCategoryRatingEntity
+                        ////{
+                        ////    SubCategoryId = subCategoryId,
+                        ////    Rating = 1000,
+                        ////};
+
+                        //categoryRating.SubCategoryRatingEntities.Add(new SubCategoryRatingEntity
+                        //{
+                        //    SubCategoryId = subCategoryId,
+                        //    Rating = 1000
+                        //});
+
+                        //await _ratingEntityRepository.SaveChangesAsync(ct);
+                        ////await _ratingEntityRepository.SaveNewSubCategoryRatingEntityAsync(newSubCategotyRatingEntity, ct);
+
+
+
+
+                        var newSubCategoryRating = new SubCategoryRatingEntity
                         {
                             SubCategoryId = subCategoryId,
                             Rating = 1000
-                        });
-                        await _ratingEntityRepository.AddAsync(categoryRating, ct);
+                        };
+
+                        // attach to the existing CategoryRatingEntity
+                        categoryRating.SubCategoryRatingEntities.Add(newSubCategoryRating);
+
+                        // persist it via repository
+                        await _ratingEntityRepository.UpdateAsync(categoryRating, ct);
                     }
                 }
             }
@@ -111,12 +134,25 @@ namespace SkillChallenge.Services
         public async Task UpdateEloRatingsAsync(IEnumerable<User> users, int categoryId, int subCategoryId, Challenge challenge, CancellationToken ct)
         {
             // Sort uploaded results by votes ascending
-            var uploadedResults = challenge.UploadedResults.OrderBy(ur => ur.Votes.Count).ToList();
+            //var uploadedResults = challenge.UploadedResults.OrderBy(ur => ur.Votes.Count).ToList();
+            var uploadedResults = challenge.UploadedResults.ToList();
 
-            int actualPartcipantCount = users.Count();
-            Console.WriteLine($"Actual participant count: {actualPartcipantCount}");
+            // A list of unique number of votes for all uploaded results
+            // For example if there are four UploadedResults. They hade vote count
+            // of 5, 3, 3, and 1. So the list of unique vote counts will be: 5, 3, 1.
+            var uniqueVoteCounts = challenge.UploadedResults.Select(ur => ur.Votes.Count).Distinct().ToList();
+            uniqueVoteCounts.Reverse();
 
-            float participantFactor = 1f / (actualPartcipantCount - 1);
+            //foreach (int item in uniqueVoteCounts)
+            //{
+            //    Console.WriteLine($"Unique Vote Count: {item}");
+            //}
+
+            //int actualPartcipantCount = users.Count();
+            //Console.WriteLine($"Actual participant count: {actualPartcipantCount}");
+
+            //float participantFactor = 1f / (actualPartcipantCount - 1);
+            float participantFactor = 1f / (uniqueVoteCounts.Count - 1);
             Console.WriteLine($"Participant factor: {participantFactor}");
 
             // Stores the new ratings before applying them in the foreach loop
@@ -133,29 +169,69 @@ namespace SkillChallenge.Services
                 sumOfAllParticipantsRating += userRating;
             }
 
+            // int lastUsersNumberOfVotes = 0;
+            // int usersWithEqualVotesWinFactorSum = 0;
+            // int usersWithEqualVotesCount = 1;
+            // List<User> listOfUsersWithEqualVotes = new List<User>();
+
             foreach (var user in users)
             {
-                // Find the index of the uploaded result that has this users user id
-                // Find the uploaded result for this user
-                var userResult = uploadedResults.FirstOrDefault(ur => ur.UserId == user.Id);
-                if (userResult == null) continue;
+                //// Find the uploaded result for this user
+                //var userResult = uploadedResults.FirstOrDefault(ur => ur.UserId == user.Id);
+                //if (userResult == null) continue;
+
+                // Find the number of votes this user had
+                var userResultVotes = uploadedResults.FirstOrDefault(ur => ur.UserId == user.Id).Votes.Count;
+                Console.WriteLine($"username: {user.NormalizedUserName}");
+                Console.WriteLine($"userResultVotes: {userResultVotes}");
+
+                if (userResultVotes == null) continue;
+
+                // Gets the index of that users vote count
+                int position = uniqueVoteCounts.IndexOf(userResultVotes);
+                Console.WriteLine($"Position: {position}");
 
                 // The index of the users uploaded result in the uploadedResults list
-                int position = uploadedResults.IndexOf(userResult);
+                //int position = uploadedResults.IndexOf(userResultVotes);
                 // OR
                 //// The index of the uploadedResult that has the same number of votes as the userResult
                 //int position = uploadedResults.FindIndex(ur => ur.Votes.Count == userResult.Votes.Count);
 
-                //float userWinFactor = (float)position / actualPartcipantCount;
                 float userWinFactor = (float)position * participantFactor;
+                // If userWinFactor is NaN it should mean that participantFactor had a divide by zero which should mean that all uploaded results had the same number of votes. Meaning its a complete draw.
+                if (float.IsNaN(userWinFactor))
+                {
+                    Console.WriteLine("userWinFactor is NaN");
+                    userWinFactor = 0.5f;
+                }
+                Console.WriteLine($"userWinFactor: {userWinFactor}");
+                // usersWithEqualVotesWinFactorSum += userWinFactor;
+                // listOfUsersWithEqualVotes.Add(user);
 
+                // IF userResult.Votes == lastUsersNumberOfVotes:
+                //     usersWithEqualVotesCount += 1;
+                //     Sen delar du den summan på antal users där som hade lika många votes.
+                // ELSE
+                //     nånting med att skicka första gubben, ta bort den, spara den nytillkomna gubben. men då blir ju den sista inte skickad?
+                //     float averageWinFactorOfUsersWithEqualVotes = usersWithEqualVotesWinFactorSum / listOfUsersWithEqualVotes.Count (nånting med float convert)
+                //     GiveNewRatings(listOfUsersWithEqualVotes, sumOfAllParticipantsRating, averageWinFactorOfUsersWithEqualVotes);
+                //     usersWithEqualVotesWinFactorSum = 0;
+                //     usersWithEqualVotesCount = 1;
+                //     töm listOfUsersWithEqualVotes
+
+                // PROBLEM: första usern skickas för att få sin rating innan vi ser att nästa user har samma vote count
+
+                // Gör följande till en metod som tar in en lista på users, sumOfAllParticipantsRating, samt userWinFactor
                 var categoryRatingEntity = user.CategoryRatingEntities.FirstOrDefault(c => c.CategoryId == categoryId);
                 var subCategoryRatingEntity = categoryRatingEntity.SubCategoryRatingEntities.FirstOrDefault(s => s.SubCategoryId == subCategoryId);
                 if (subCategoryRatingEntity == null) continue;
                 int old_user_rating = subCategoryRatingEntity.Rating;
 
                 sumOfAllParticipantsRating -= old_user_rating; // Remove self rating
-                int opponentRatingAverage = (int)Math.Round((double)sumOfAllParticipantsRating / (actualPartcipantCount - 1));
+                //int opponentRatingAverage = (int)Math.Round((double)sumOfAllParticipantsRating / (actualPartcipantCount - 1));
+                Console.WriteLine($"challenge.NumberOfParticipants: {challenge.NumberOfParticipants}");
+                Console.WriteLine($"users.Count(): {users.Count()}");
+                int opponentRatingAverage = (int)Math.Round((double)sumOfAllParticipantsRating / (users.Count() - 1));
                 sumOfAllParticipantsRating += old_user_rating; // Put it back in for the next iteration
 
                 float user_prevalue = get_prevalue(old_user_rating, c_value);
@@ -163,6 +239,7 @@ namespace SkillChallenge.Services
                 float user_win_chance = get_win_chance(user_prevalue, opponent_prevalue);
                 int new_rating = get_new_rating(old_user_rating, k_factor, userWinFactor, user_win_chance);
                 newRatings[subCategoryRatingEntity] = new_rating;
+                Console.WriteLine("---------");
             }
 
             //Apply all the stored new ratings
@@ -197,15 +274,46 @@ namespace SkillChallenge.Services
 
         public static float get_win_chance(float user_prevalue, float opponent_prevalue)
         {
+            Console.WriteLine($"user_prevalue: {user_prevalue}");
+            Console.WriteLine($"opponent_prevalue: {opponent_prevalue}");
             return user_prevalue / (user_prevalue + opponent_prevalue);
         }
-        // DRAWS NOT SET UP YET
         public static int get_new_rating(int old_rating, int k_factor, float winFactor, float user_win_chance)
         {
+            Console.WriteLine($"old_rating: {old_rating}");
+            Console.WriteLine($"k_factor: {k_factor}");
+            Console.WriteLine($"winFactor: {winFactor}");
+            Console.WriteLine($"user_win_chance: {user_win_chance}");
             float rating_to_be_transfered = k_factor * (winFactor - user_win_chance);
+            Console.WriteLine($"rating_to_be_transfered: {rating_to_be_transfered}");
             float new_rating = old_rating + rating_to_be_transfered;
+            Console.WriteLine($"new_rating: {new_rating}");
             int new_rating_as_int = (int)Math.Round(new_rating);
+            Console.WriteLine($"new_rating_as_int: {new_rating_as_int}");
             return new_rating_as_int;
         }
     }
 }
+
+
+
+
+
+
+
+// Nånting med att du räknar ihop summan av alla uploaded results till en challenge
+// och nånting med att en users win factor delas med den summan
+// tex det finns 10 uploaded results, du plussar ihop alla och summan blir 1000
+// du har fått 200 röster, 200 / 1000 = 0.2.
+// Hmm, ja så tänk om den som fick mest har 200 och den som fick minst har typ whatever 10 eller nåt.
+// Det går ju inte använda den win factorn. Snittet på allas win factor måste va 0.5.
+
+
+// OBS
+// Ett problem med att participants får ny rating utefter
+// var deras antal votes ligger i listan med unique number of votes
+// är att det kanske inte är ett nollsummespel då.
+// Tänk om en får 10 röster, de fyra andra deltagarna får 2 röster var.
+// Då kommer de alla typ gå -20 rating var?
+// Och vinnaren gå +20 rating?
+// = ej noll summe spel.

@@ -26,18 +26,16 @@ namespace SkillChallenge.Repositories
         public async Task<User?> GetUserByIdAsync(string id)
         {
             return await _context.Users
-                .Include(u => u.CategoryRatingEntities)
-                .ThenInclude(cre => cre.SubCategoryRatingEntities)
-                .ThenInclude(sre => sre.SubCategory)
+                .Include(u => u.CategoryRatingEntities).ThenInclude(cre => cre.Category)
+                .Include(u => u.CategoryRatingEntities).ThenInclude(cre => cre.SubCategoryRatingEntities).ThenInclude(sre => sre.SubCategory)
                 .FirstOrDefaultAsync(u => u.Id == id);
         }
 
         public async Task<User?> GetUserByUsernameAsync(string username)
         {
             return await _context.Users
-                .Include(u => u.CategoryRatingEntities)
-                .ThenInclude(cre => cre.SubCategoryRatingEntities)
-                .ThenInclude(sre => sre.SubCategory)
+                .Include(u => u.CategoryRatingEntities).ThenInclude(cre => cre.Category)
+                .Include(u => u.CategoryRatingEntities).ThenInclude(cre => cre.SubCategoryRatingEntities).ThenInclude(sre => sre.SubCategory)
                 .FirstOrDefaultAsync(u => u.UserName == username);
         }
 

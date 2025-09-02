@@ -485,6 +485,9 @@ namespace SkillChallenge.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("CategoryEntityRatingId")
+                        .HasColumnType("int");
+
                     b.Property<int?>("CategoryRatingEntityId")
                         .HasColumnType("int");
 

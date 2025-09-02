@@ -4,7 +4,10 @@ namespace SkillChallenge.Interfaces
 {
     public interface IRatingEntityRepository
     {
-        Task<bool> AddAsync(CategoryRatingEntity newRatingEntity, CancellationToken ct = default);
-        Task<bool> SetNewSubCategoryRatingAsync(SubCategoryRatingEntity subCategoryRating, int newRating, CancellationToken ct = default);
+        Task<bool> AddAsync(CategoryRatingEntity newCategoryRatingEntity, CancellationToken ct = default);
+        Task<bool> SaveNewSubCategoryRatingEntityAsync(SubCategoryRatingEntity subCategoryRatingEntity, CancellationToken ct = default);
+        Task<bool> SaveChangesAsync(CancellationToken ct = default);
+        Task<bool> SetNewSubCategoryRatingAsync(SubCategoryRatingEntity subCategoryRatingEntity, int newRating, CancellationToken ct = default);
+        Task UpdateAsync(CategoryRatingEntity categoryRatingEntity, CancellationToken ct);
     }
 }

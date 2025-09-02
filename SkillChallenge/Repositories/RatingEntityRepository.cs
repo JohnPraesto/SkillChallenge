@@ -20,6 +20,18 @@ namespace SkillChallenge.Repositories
             var result = await _context.SaveChangesAsync(ct);
             return result > 0;
         }
+        public async Task<bool> SaveNewSubCategoryRatingEntityAsync(SubCategoryRatingEntity newSubCategoryRatingEntity, CancellationToken ct = default)
+        {
+            await _context.SubCategoryRatingEntities.AddAsync(newSubCategoryRatingEntity, ct);
+            var result = await _context.SaveChangesAsync(ct);
+            return result > 0;
+        }
+
+        public async Task<bool> SaveChangesAsync(CancellationToken ct = default)
+        {
+            var result = await _context.SaveChangesAsync(ct);
+            return result > 0;
+        }
         public async Task<bool> SetNewSubCategoryRatingAsync(SubCategoryRatingEntity subCategoryRatingEntity, int newRating, CancellationToken ct = default)
         {
             // Attach if not tracked (optional, for robustness)
@@ -30,6 +42,12 @@ namespace SkillChallenge.Repositories
             subCategoryRatingEntity.Rating = newRating;
             var result = await _context.SaveChangesAsync(ct);
             return result > 0;
+        }
+
+        public async Task UpdateAsync(CategoryRatingEntity entity, CancellationToken ct)
+        {
+            _context.CategoryRatingEntities.Update(entity);
+            await _context.SaveChangesAsync(ct);
         }
     }
 }
