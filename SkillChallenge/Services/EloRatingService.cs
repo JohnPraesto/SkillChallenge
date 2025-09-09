@@ -56,7 +56,6 @@ namespace SkillChallenge.Services
     {
         private readonly IRatingEntityRepository _ratingEntityRepository;
 
-        int k_factor = 32;
         int c_value = 400;
 
         public EloRatingService(IRatingEntityRepository ratingEntityRepository)
@@ -111,6 +110,12 @@ namespace SkillChallenge.Services
 
         public async Task UpdateEloRatingsAsync(IEnumerable<User> users, int categoryId, int subCategoryId, Challenge challenge, CancellationToken ct)
         {
+
+            double k_factor = 18.1 + 260.0 * Math.Sqrt(users.Count() / 700.0);
+
+            Console.WriteLine($"users.Count(): {users.Count()}");
+            Console.WriteLine($"k_factor: {k_factor}");
+
             // Sort uploaded results by votes ascending
             var uploadedResults = challenge.UploadedResults.OrderBy(ur => ur.Votes.Count).ToList();
 
@@ -202,7 +207,6 @@ namespace SkillChallenge.Services
                 }
                 Console.WriteLine($"userWinFactor: {userWinFactor}");
 
-                // Gör följande till en metod som tar in en lista på users, sumOfAllParticipantsRating, samt userWinFactor
                 var categoryRatingEntity = user.CategoryRatingEntities.FirstOrDefault(c => c.CategoryId == categoryId);
                 var subCategoryRatingEntity = categoryRatingEntity.SubCategoryRatingEntities.FirstOrDefault(s => s.SubCategoryId == subCategoryId);
                 if (subCategoryRatingEntity == null) continue;
@@ -258,15 +262,15 @@ namespace SkillChallenge.Services
             Console.WriteLine($"opponent_prevalue: {opponent_prevalue}");
             return user_prevalue / (user_prevalue + opponent_prevalue);
         }
-        public static int get_new_rating(int old_rating, int k_factor, float winFactor, float user_win_chance)
+        public static int get_new_rating(int old_rating, double k_factor, float winFactor, float user_win_chance)
         {
             Console.WriteLine($"old_rating: {old_rating}");
             Console.WriteLine($"k_factor: {k_factor}");
             Console.WriteLine($"winFactor: {winFactor}");
             Console.WriteLine($"user_win_chance: {user_win_chance}");
-            float rating_to_be_transfered = k_factor * (winFactor - user_win_chance);
+            double rating_to_be_transfered = k_factor * (winFactor - user_win_chance);
             Console.WriteLine($"rating_to_be_transfered: {rating_to_be_transfered}");
-            float new_rating = old_rating + rating_to_be_transfered;
+            double new_rating = old_rating + rating_to_be_transfered;
             Console.WriteLine($"new_rating: {new_rating}");
             int new_rating_as_int = (int)Math.Round(new_rating);
             Console.WriteLine($"new_rating_as_int: {new_rating_as_int}");
@@ -295,3 +299,9 @@ namespace SkillChallenge.Services
 // Det är en större vinst att vinna över fler motståndare, right?
 // k-factor är 28 + (participants *2)
 // eller nån kurva.... Asymptoter!, eller potenser, exponenter, roten ur...
+// eller 32 + (4*participants) * (participants * 0.99)
+//double k_factor = 32 + users.Count() * 0.25;
+//int k_factor = 32 + users.Count();
+//double k_factor = 0.01 * Math.Pow(users.Count() - 18, 2);
+//double k_factor = Math.Pow(0.1 * (users.Count() - 18), 2);
+//double k_factor = 18 + Math.Pow(0.01 * (users.Count() - 18), 2);
