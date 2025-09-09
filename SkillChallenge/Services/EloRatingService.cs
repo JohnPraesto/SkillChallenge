@@ -15,7 +15,7 @@ using SkillChallenge.Models;
 // Du jämför den positionen med antalet deltagare i challengen.
 // Till exempel Zeuz har position 5 i en lista med 5 deltagare.
 // 5 delat på 5 = 1.
-// Så värdet 1 skickas med som actual outcome
+// Så värdet 1 skickas med som actual outcome (win factor)
 // float rating_to_be_transfered = k_factor * (ACTUAL OUTCOME - user_win_chance);
 // Oden fick 4 röster. 4/5 = 0.8
 // Så nu behöver inte get_new_rating()-metoden en win del och en lose del.
@@ -27,7 +27,7 @@ using SkillChallenge.Models;
 // 3/5 = 0.6
 // 2/5 = 0.4
 // 1/5 = 0.2
-// I need five evend out values between 0 and 1.
+// I need five evened out values between 0 and 1.
 // 1 divided by the number of participants minus 1!
 // participantFactor = 1 / (actualParticipantCount - 1)
 // Then take the index position of the users uploaded result in the uploadedResults list and multiply by the participantFactor
@@ -40,14 +40,11 @@ using SkillChallenge.Models;
 // Cecar = 0 * 0.25 = 0
 // There you go.
 
-// The k-factor could be adjusted mot antal deltagare.
-// Fler deltagare, högre k-factor.
 // ACTUAL OUTCOME kanske också can be adjusted based on the number of participants.
 // Kan den vara mer än 1 och mindre än 0?
+// Alltså att vinna stort ger större rating
 // Annars så kan alla deltagare lägga poäng i en pott (som ev baseras på k-factorn)
 // och sedan fördelas den potten ut till deltagarna baserat på deras relativa position.
-
-
 
 
 namespace SkillChallenge.Services
@@ -110,22 +107,27 @@ namespace SkillChallenge.Services
 
         public async Task UpdateEloRatingsAsync(IEnumerable<User> users, int categoryId, int subCategoryId, Challenge challenge, CancellationToken ct)
         {
-
+            // This equation sets the k-factor adjusted for number of users.
+            // k-factor rises faster with low number of users
+            // 2 users - k-factor is 32
+            // 5 users - k-factor is 40
+            // 10 users - k-factor is 49
+            // 100 users - k-factor is 116
+            // 1000 users - k-factor is 329
             double k_factor = 18.1 + 260.0 * Math.Sqrt(users.Count() / 700.0);
-
-            Console.WriteLine($"users.Count(): {users.Count()}");
-            Console.WriteLine($"k_factor: {k_factor}");
 
             // Sort uploaded results by votes ascending
             var uploadedResults = challenge.UploadedResults.OrderBy(ur => ur.Votes.Count).ToList();
 
             int actualPartcipantCount = users.Count();
-            //Console.WriteLine($"Actual participant count: {actualPartcipantCount}");
 
+            // participantFactor is a multiplier used to calculate the win_factor by a user
+            // participantFactor will later be multiplied with the index position of the user to get the users win_factor
             float participantFactor = 1f / (actualPartcipantCount - 1);
-            Console.WriteLine($"Participant factor: {participantFactor}");
 
-            // Skapar object som består av UploadedResult, indexet det har i uploadedResults-listan,
+            // Skapar nya object som består av
+            // UploadedResult,
+            // indexet det har i uploadedResults-listan,
             // samt winFactor som är indexet multiplicerat med participantFactor
             // Exempel: 
             // participantFactor = 1 / 2 = 0.5
@@ -136,12 +138,6 @@ namespace SkillChallenge.Services
                 .Select((ur, idx) =>
                 new { ur, idx, winFactor = idx * participantFactor }).ToList();
 
-            Console.WriteLine("winFactorByResult OBJECT LIST:");
-            foreach (var item in winFactorByResult)
-            {
-                Console.WriteLine(item);
-            }
-
             // Skapar en dictionary där antal röster är key
             // och value är genomsnittet på winFactors
             // i de winFactorByResult objekt som har lika många röster
@@ -150,7 +146,7 @@ namespace SkillChallenge.Services
             // Genomsnittet på winfactorn hos alla de som har 4 tas fram. Den är 1.
             // Så key blir 4 och value blir 1.
             // Maggys och Tammys bidrag har båda 3 röster var. De hamnar i samma grupp.
-            // Totalt är det 6 röster i den gruppen. Key för den gruppen är 3.
+            // Key för den gruppen är 3.
             // Ta nu fram snittet på winFactors från alla medlemmar i gruppen.
             // 0.5 + 0 / antal medlemmar (2) = 0.25
             // Key är 3 och value är 0.25
@@ -159,12 +155,6 @@ namespace SkillChallenge.Services
                 .ToDictionary(
                     g => g.Key,
                     g => g.Average(x => x.winFactor));
-
-            Console.WriteLine("winFactorByVotes DICTIONARY:");
-            foreach (var item in winFactorByVotes)
-            {
-                Console.WriteLine(item);
-            }
 
             // Stores the new ratings before applying them in the foreach loop
             var newRatings = new Dictionary<SubCategoryRatingEntity, int>();
@@ -180,6 +170,7 @@ namespace SkillChallenge.Services
                 sumOfAllParticipantsRating += userRating;
             }
 
+            // Här inne tas varje users nya rating fram
             foreach (var user in users)
             {
                 // Find the uploaded result for this user
@@ -191,30 +182,25 @@ namespace SkillChallenge.Services
                 // Och value är snittet på winFactorn på de bidrag som har det antalet röster
                 float userWinFactor = winFactorByVotes[userResult.Votes.Count];
 
-                Console.WriteLine($"Username: {user.UserName}");
-                Console.WriteLine($"Number of votes: {userResult.Votes.Count()}");
-
                 // Gets the index of that users vote count
                 int position = uploadedResults.IndexOf(userResult);
-                Console.WriteLine($"Position: {position}");
 
-                //float userWinFactor = (float)position * participantFactor;
-                // If userWinFactor is NaN it should mean that participantFactor had a divide by zero which should mean that all uploaded results had the same number of votes. Meaning its a complete draw.
+                // If userWinFactor is NaN it should mean that participantFactor had a divide by zero
+                // which should mean that all uploaded results had the same number of votes.
+                // Meaning its a complete draw.
                 if (float.IsNaN(userWinFactor))
                 {
-                    Console.WriteLine("userWinFactor is NaN");
                     userWinFactor = 0.5f;
                 }
-                Console.WriteLine($"userWinFactor: {userWinFactor}");
 
+                // Ta fram rating för aktuell user, vi kallar den old rating för den ska ju uppdateras
                 var categoryRatingEntity = user.CategoryRatingEntities.FirstOrDefault(c => c.CategoryId == categoryId);
                 var subCategoryRatingEntity = categoryRatingEntity.SubCategoryRatingEntities.FirstOrDefault(s => s.SubCategoryId == subCategoryId);
                 if (subCategoryRatingEntity == null) continue;
                 int old_user_rating = subCategoryRatingEntity.Rating;
 
+                // Ta fram genomsnittlig rating för alla andra participants förutom aktuell user
                 sumOfAllParticipantsRating -= old_user_rating; // Remove self rating
-                Console.WriteLine($"challenge.NumberOfParticipants: {challenge.NumberOfParticipants}");
-                Console.WriteLine($"actualPartcipantCount: {actualPartcipantCount}");
                 int opponentRatingAverage = (int)Math.Round((double)sumOfAllParticipantsRating / (actualPartcipantCount - 1));
                 sumOfAllParticipantsRating += old_user_rating; // Put it back in for the next iteration
 
@@ -223,7 +209,6 @@ namespace SkillChallenge.Services
                 float user_win_chance = get_win_chance(user_prevalue, opponent_prevalue);
                 int new_rating = get_new_rating(old_user_rating, k_factor, userWinFactor, user_win_chance);
                 newRatings[subCategoryRatingEntity] = new_rating;
-                Console.WriteLine("---------");
             }
 
             //Apply all the stored new ratings
@@ -258,50 +243,14 @@ namespace SkillChallenge.Services
 
         public static float get_win_chance(float user_prevalue, float opponent_prevalue)
         {
-            Console.WriteLine($"user_prevalue: {user_prevalue}");
-            Console.WriteLine($"opponent_prevalue: {opponent_prevalue}");
             return user_prevalue / (user_prevalue + opponent_prevalue);
         }
         public static int get_new_rating(int old_rating, double k_factor, float winFactor, float user_win_chance)
         {
-            Console.WriteLine($"old_rating: {old_rating}");
-            Console.WriteLine($"k_factor: {k_factor}");
-            Console.WriteLine($"winFactor: {winFactor}");
-            Console.WriteLine($"user_win_chance: {user_win_chance}");
             double rating_to_be_transfered = k_factor * (winFactor - user_win_chance);
-            Console.WriteLine($"rating_to_be_transfered: {rating_to_be_transfered}");
             double new_rating = old_rating + rating_to_be_transfered;
-            Console.WriteLine($"new_rating: {new_rating}");
             int new_rating_as_int = (int)Math.Round(new_rating);
-            Console.WriteLine($"new_rating_as_int: {new_rating_as_int}");
             return new_rating_as_int;
         }
     }
 }
-
-
-
-
-
-
-
-// OBS
-// Ett problem med att participants får ny rating utefter
-// var deras antal votes ligger i listan med unique number of votes
-// är att det kanske inte är ett nollsummespel då.
-// Tänk om en får 10 röster, de fyra andra deltagarna får 2 röster var.
-// Då kommer de alla typ gå -20 rating var?
-// Och vinnaren gå +20 rating?
-// = ej noll summe spel.
-
-
-// FÖRSLAG
-// Det är en större vinst att vinna över fler motståndare, right?
-// k-factor är 28 + (participants *2)
-// eller nån kurva.... Asymptoter!, eller potenser, exponenter, roten ur...
-// eller 32 + (4*participants) * (participants * 0.99)
-//double k_factor = 32 + users.Count() * 0.25;
-//int k_factor = 32 + users.Count();
-//double k_factor = 0.01 * Math.Pow(users.Count() - 18, 2);
-//double k_factor = Math.Pow(0.1 * (users.Count() - 18), 2);
-//double k_factor = 18 + Math.Pow(0.01 * (users.Count() - 18), 2);
