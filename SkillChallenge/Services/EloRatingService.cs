@@ -15,7 +15,7 @@ using SkillChallenge.Models;
 // Du jämför den positionen med antalet deltagare i challengen.
 // Till exempel Zeuz har position 5 i en lista med 5 deltagare.
 // 5 delat på 5 = 1.
-// Så värdet 1 skickas med som actual outcome
+// Så värdet 1 skickas med som actual outcome (win factor)
 // float rating_to_be_transfered = k_factor * (ACTUAL OUTCOME - user_win_chance);
 // Oden fick 4 röster. 4/5 = 0.8
 // Så nu behöver inte get_new_rating()-metoden en win del och en lose del.
@@ -27,7 +27,7 @@ using SkillChallenge.Models;
 // 3/5 = 0.6
 // 2/5 = 0.4
 // 1/5 = 0.2
-// I need five evend out values between 0 and 1.
+// I need five evened out values between 0 and 1.
 // 1 divided by the number of participants minus 1!
 // participantFactor = 1 / (actualParticipantCount - 1)
 // Then take the index position of the users uploaded result in the uploadedResults list and multiply by the participantFactor
@@ -40,14 +40,11 @@ using SkillChallenge.Models;
 // Cecar = 0 * 0.25 = 0
 // There you go.
 
-// The k-factor could be adjusted mot antal deltagare.
-// Fler deltagare, högre k-factor.
 // ACTUAL OUTCOME kanske också can be adjusted based on the number of participants.
 // Kan den vara mer än 1 och mindre än 0?
+// Alltså att vinna stort ger större rating
 // Annars så kan alla deltagare lägga poäng i en pott (som ev baseras på k-factorn)
 // och sedan fördelas den potten ut till deltagarna baserat på deras relativa position.
-
-
 
 
 namespace SkillChallenge.Services
@@ -56,7 +53,6 @@ namespace SkillChallenge.Services
     {
         private readonly IRatingEntityRepository _ratingEntityRepository;
 
-        int k_factor = 32;
         int c_value = 400;
 
         public EloRatingService(IRatingEntityRepository ratingEntityRepository)
@@ -97,12 +93,13 @@ namespace SkillChallenge.Services
 
                     if (!hasSubCategory)
                     {
-                        categoryRating.SubCategoryRatingEntities.Add(new SubCategoryRatingEntity
+                        var newSubCategoryRating = new SubCategoryRatingEntity
                         {
                             SubCategoryId = subCategoryId,
                             Rating = 1000
-                        });
-                        await _ratingEntityRepository.AddAsync(categoryRating, ct);
+                        };
+                        categoryRating.SubCategoryRatingEntities.Add(newSubCategoryRating);
+                        await _ratingEntityRepository.UpdateAsync(categoryRating, ct);
                     }
                 }
             }
@@ -110,14 +107,54 @@ namespace SkillChallenge.Services
 
         public async Task UpdateEloRatingsAsync(IEnumerable<User> users, int categoryId, int subCategoryId, Challenge challenge, CancellationToken ct)
         {
+            // This equation sets the k-factor adjusted for number of users.
+            // k-factor rises faster with low number of users
+            // 2 users - k-factor is 32
+            // 5 users - k-factor is 40
+            // 10 users - k-factor is 49
+            // 100 users - k-factor is 116
+            // 1000 users - k-factor is 329
+            double k_factor = 18.1 + 260.0 * Math.Sqrt(users.Count() / 700.0);
+
             // Sort uploaded results by votes ascending
             var uploadedResults = challenge.UploadedResults.OrderBy(ur => ur.Votes.Count).ToList();
 
             int actualPartcipantCount = users.Count();
-            Console.WriteLine($"Actual participant count: {actualPartcipantCount}");
 
+            // participantFactor is a multiplier used to calculate the win_factor by a user
+            // participantFactor will later be multiplied with the index position of the user to get the users win_factor
             float participantFactor = 1f / (actualPartcipantCount - 1);
-            Console.WriteLine($"Participant factor: {participantFactor}");
+
+            // Skapar nya object som består av
+            // UploadedResult,
+            // indexet det har i uploadedResults-listan,
+            // samt winFactor som är indexet multiplicerat med participantFactor
+            // Exempel: 
+            // participantFactor = 1 / 2 = 0.5
+            // Astor 7 röster (index 2) (winfactor = 2 * 0.5 = 1)
+            // Maggy 3 röster (index 1) (winfactor = 1 * 0.5 = 0.5)
+            // Tammy 3 röster (index 0) (winfactor = 0 * 0.5 = 0)
+            var winFactorByResult = uploadedResults
+                .Select((ur, idx) =>
+                new { ur, idx, winFactor = idx * participantFactor }).ToList();
+
+            // Skapar en dictionary där antal röster är key
+            // och value är genomsnittet på winFactors
+            // i de winFactorByResult objekt som har lika många röster
+            // Exempel:
+            // Astors bidrag är det enda med 7 röster men gruperas ändå i en grupp med endast en medlem.
+            // Genomsnittet på winfactorn hos alla de som har 4 tas fram. Den är 1.
+            // Så key blir 4 och value blir 1.
+            // Maggys och Tammys bidrag har båda 3 röster var. De hamnar i samma grupp.
+            // Key för den gruppen är 3.
+            // Ta nu fram snittet på winFactors från alla medlemmar i gruppen.
+            // 0.5 + 0 / antal medlemmar (2) = 0.25
+            // Key är 3 och value är 0.25
+            var winFactorByVotes = winFactorByResult
+                .GroupBy(x => x.ur.Votes.Count)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Average(x => x.winFactor));
 
             // Stores the new ratings before applying them in the foreach loop
             var newRatings = new Dictionary<SubCategoryRatingEntity, int>();
@@ -133,27 +170,36 @@ namespace SkillChallenge.Services
                 sumOfAllParticipantsRating += userRating;
             }
 
+            // Här inne tas varje users nya rating fram
             foreach (var user in users)
             {
-                // Find the index of the uploaded result that has this users user id
                 // Find the uploaded result for this user
                 var userResult = uploadedResults.FirstOrDefault(ur => ur.UserId == user.Id);
                 if (userResult == null) continue;
 
-                // The index of the users uploaded result in the uploadedResults list
+                // Här används den dictionaryn vi pratade om tidigare.
+                // Där key är antal röster
+                // Och value är snittet på winFactorn på de bidrag som har det antalet röster
+                float userWinFactor = winFactorByVotes[userResult.Votes.Count];
+
+                // Gets the index of that users vote count
                 int position = uploadedResults.IndexOf(userResult);
-                // OR
-                //// The index of the uploadedResult that has the same number of votes as the userResult
-                //int position = uploadedResults.FindIndex(ur => ur.Votes.Count == userResult.Votes.Count);
 
-                //float userWinFactor = (float)position / actualPartcipantCount;
-                float userWinFactor = (float)position * participantFactor;
+                // If userWinFactor is NaN it should mean that participantFactor had a divide by zero
+                // which should mean that all uploaded results had the same number of votes.
+                // Meaning its a complete draw.
+                if (float.IsNaN(userWinFactor))
+                {
+                    userWinFactor = 0.5f;
+                }
 
+                // Ta fram rating för aktuell user, vi kallar den old rating för den ska ju uppdateras
                 var categoryRatingEntity = user.CategoryRatingEntities.FirstOrDefault(c => c.CategoryId == categoryId);
                 var subCategoryRatingEntity = categoryRatingEntity.SubCategoryRatingEntities.FirstOrDefault(s => s.SubCategoryId == subCategoryId);
                 if (subCategoryRatingEntity == null) continue;
                 int old_user_rating = subCategoryRatingEntity.Rating;
 
+                // Ta fram genomsnittlig rating för alla andra participants förutom aktuell user
                 sumOfAllParticipantsRating -= old_user_rating; // Remove self rating
                 int opponentRatingAverage = (int)Math.Round((double)sumOfAllParticipantsRating / (actualPartcipantCount - 1));
                 sumOfAllParticipantsRating += old_user_rating; // Put it back in for the next iteration
@@ -199,11 +245,10 @@ namespace SkillChallenge.Services
         {
             return user_prevalue / (user_prevalue + opponent_prevalue);
         }
-        // DRAWS NOT SET UP YET
-        public static int get_new_rating(int old_rating, int k_factor, float winFactor, float user_win_chance)
+        public static int get_new_rating(int old_rating, double k_factor, float winFactor, float user_win_chance)
         {
-            float rating_to_be_transfered = k_factor * (winFactor - user_win_chance);
-            float new_rating = old_rating + rating_to_be_transfered;
+            double rating_to_be_transfered = k_factor * (winFactor - user_win_chance);
+            double new_rating = old_rating + rating_to_be_transfered;
             int new_rating_as_int = (int)Math.Round(new_rating);
             return new_rating_as_int;
         }

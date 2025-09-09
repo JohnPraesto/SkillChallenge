@@ -5,7 +5,7 @@ function CreateChallenge() {
   const [challengeName, setChallengeName] = useState("");
   const [description, setDescription] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [numberOfParticipants, setNumberOfParticipants] = useState("");
+  const [numberOfParticipants, setNumberOfParticipants] = useState("2");
   const [categoryId, setCategoryId] = useState("");
   const [categories, setCategories] = useState([]);
   const [subCategoryId, setSubCategoryId] = useState("");

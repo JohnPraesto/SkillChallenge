@@ -6,6 +6,6 @@
         public int CategoryId { get; set; }
         public Category Category { get; set; }
         public string UserId { get; set; }
-        public List<SubCategoryRatingEntity> SubCategoryRatingEntities { get; set; }
+        public List<SubCategoryRatingEntity> SubCategoryRatingEntities { get; set; } = new List<SubCategoryRatingEntity>();
     }
 }

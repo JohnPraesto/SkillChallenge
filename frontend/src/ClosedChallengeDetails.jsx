@@ -97,6 +97,44 @@ function ClosedChallengeDetails({
         ) : (
           <span> No results uploaded.</span>
         )}
+
+        {/* For local dev purposes */}
+      <button
+        className="btn btn-primary"
+        style={{ marginTop: 24 }}
+        onClick={async () => {
+          try {
+            const res = await fetch(
+              `${apiUrl}/api/challenges/${challenge.challengeId}/submit-result`,
+              {
+                method: "POST",
+                headers: {
+                  "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                },
+              }
+            );
+            if (res.ok) {
+              alert("Results submitted successfully!");
+              if (typeof fetchChallenge === "function") fetchChallenge();
+            } else {
+              const text = await res.text();
+              alert("Failed to submit results: " + text);
+            }
+          } catch (err) {
+            alert("Error submitting results: " + err.message);
+          }
+        }}
+      >
+        Submit Results
+      </button>
+      {/* Local dev purposes END */}
+
+
+
+
+
+
+
       </div>
     </>
   );
