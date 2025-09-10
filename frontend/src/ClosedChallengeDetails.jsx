@@ -99,7 +99,7 @@ function ClosedChallengeDetails({
         )}
 
         {/* For local dev purposes */}
-      <button
+      {/* <button
         className="btn btn-primary"
         style={{ marginTop: 24 }}
         onClick={async () => {
@@ -126,7 +126,7 @@ function ClosedChallengeDetails({
         }}
       >
         Submit Results
-      </button>
+      </button> */}
       {/* Local dev purposes END */}
 
 

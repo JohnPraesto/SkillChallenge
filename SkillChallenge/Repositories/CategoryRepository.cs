@@ -17,10 +17,7 @@ namespace SkillChallenge.Repositories
         public async Task<bool> CategoryExistsAsync(int id, CancellationToken ct = default) =>
             await _context.Categories.AnyAsync(c => c.CategoryId == id, ct);
 
-        public async Task<Category> CreateCategoryAsync(
-            Category category,
-            CancellationToken ct = default
-        )
+        public async Task<Category> CreateCategoryAsync(Category category, CancellationToken ct = default)
         {
             _context.Categories.Add(category);
             await _context.SaveChangesAsync(ct);
