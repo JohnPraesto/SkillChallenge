@@ -153,6 +153,7 @@ function OpenChallengeDetails({
           ? "Leave Challenge"
           : "Join Challenge"}
       </button> */}
+
       <button
         className="btn btn-primary"
         style={{
@@ -177,7 +178,7 @@ function OpenChallengeDetails({
         <button
           className="btn btn-secondary"
           style={{ marginLeft: 12, marginTop: 16 }}
-          onClick={handleUploadResult}
+          onClick={() => navigate("/upload-result", {state:{apiUrl, challengeId: challenge.challengeId}})}
         >
           Upload Result
         </button>

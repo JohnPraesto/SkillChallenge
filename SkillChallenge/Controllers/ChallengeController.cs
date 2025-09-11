@@ -15,11 +15,16 @@ namespace SkillChallenge.Controllers
     {
         private readonly IChallengeRepository _challengeRepo;
         private readonly EloRatingService _eloRatingService;
+        private readonly IMediaService _imageService;
+        private static readonly string[] AllowedExtensions = { ".mp4", ".webm", ".pdf", ".jpg", ".jpeg", ".png" };
+        // OCH FLERA EXTENTIONS?
 
-        public ChallengeController(IChallengeRepository challengeRepo, EloRatingService eloRatingService)
+
+        public ChallengeController(IChallengeRepository challengeRepo, EloRatingService eloRatingService, IMediaService imageService)
         {
             _challengeRepo = challengeRepo;
             _eloRatingService = eloRatingService;
+            _imageService = imageService;
         }
 
         [HttpGet]
@@ -270,6 +275,14 @@ namespace SkillChallenge.Controllers
                 return Forbid("You can only delete your own challenges");
             }
 
+            foreach (var uploadedResult in challenge.UploadedResults)
+            {
+                if (IsUploadedFileUrl(uploadedResult.Url))
+                {
+                    await _imageService.DeleteMediaAsync(uploadedResult.Url);
+                }
+            }
+
             await _challengeRepo.DeleteChallengeAsync(id, ct);
             return NoContent();
         }
@@ -301,6 +314,18 @@ namespace SkillChallenge.Controllers
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
 
+            var challenge = await _challengeRepo.GetChallengeByIdAsync(challengeId, ct);
+            var uploadedResult = challenge?.UploadedResults.FirstOrDefault(ur => ur.UserId == userId);
+
+            if (uploadedResult != null)
+            {
+                if (IsUploadedFileUrl(uploadedResult.Url))
+                {
+                    await _imageService.DeleteMediaAsync(uploadedResult.Url);
+                }
+                await _challengeRepo.DeleteUploadedResultAsync(challengeId, userId, ct);
+            }
+
             var success = await _challengeRepo.RemoveUserFromChallengeAsync(challengeId, userId, ct);
             if (!success)
                 return NotFound($"Challenge or user not found.");
@@ -310,7 +335,7 @@ namespace SkillChallenge.Controllers
 
         [HttpPost("{challengeId:int}/upload-result")]
         [Authorize(Roles = "Admin,User")]
-        public async Task<IActionResult> UploadResult([FromRoute] int challengeId, [FromBody] string uploadedResultURL, CancellationToken ct)
+        public async Task<IActionResult> UploadResult([FromRoute] int challengeId, [FromForm] UploadedResultRequest uploadedResultRequest, CancellationToken ct)
         {
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(currentUserId))
@@ -318,9 +343,34 @@ namespace SkillChallenge.Controllers
                 return Unauthorized();
             }
 
+            // Validate input: Only one of YoutubeUrl or File should be provided
+            bool hasYoutubeUrl = !string.IsNullOrWhiteSpace(uploadedResultRequest.YoutubeUrl);
+            bool hasFile = uploadedResultRequest.File != null;
+
+            if (hasYoutubeUrl == hasFile)
+                return BadRequest("You must provide either a YouTube link or a file, but not both.");
+
+            string? resultUrl = null;
+
+            if (hasYoutubeUrl)
+            {
+                // Optionally: Validate YouTube URL format here
+                resultUrl = uploadedResultRequest.YoutubeUrl;
+            }
+            else if (hasFile)
+            {
+                var allowedExtensions = new[] { ".mp4", ".webm", ".pdf", ".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp" };
+                var ext = Path.GetExtension(uploadedResultRequest.File.FileName).ToLowerInvariant();
+                if (!allowedExtensions.Contains(ext))
+                    return BadRequest("Invalid file type. Allowed: mp4, webm, pdf, jpg, jpeg, png.");
+
+                // Save to Azure Blob Storage
+                resultUrl = await _imageService.SaveMediaAsync(uploadedResultRequest.File, "challenge-media");
+            }
+
             var newUploadedResult = new UploadedResult
             {
-                Url = uploadedResultURL,
+                Url = resultUrl,
                 ChallengeId = challengeId,
                 UserId = currentUserId,
                 SubmissionDate = DateTime.UtcNow,
@@ -346,6 +396,17 @@ namespace SkillChallenge.Controllers
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(currentUserId))
                 return Unauthorized();
+
+            var challenge = await _challengeRepo.GetChallengeByIdAsync(challengeId, ct);
+            var uploadedResult = challenge?.UploadedResults.FirstOrDefault(ur => ur.UserId == currentUserId);
+
+            if (uploadedResult == null)
+                return NotFound("Uploaded result not found or you do not have permission to delete it.");
+
+            if (IsUploadedFileUrl(uploadedResult.Url))
+            {
+                await _imageService.DeleteMediaAsync(uploadedResult.Url);
+            }
 
             var success = await _challengeRepo.DeleteUploadedResultAsync(challengeId, currentUserId, ct);
             if (!success)
@@ -386,6 +447,24 @@ namespace SkillChallenge.Controllers
             await _eloRatingService.EnsureRatingsExistForParticipantsAsync(challenge.Participants, categoryId, challenge.SubCategoryId.Value, ct);
             await _eloRatingService.UpdateEloRatingsAsync(challenge.Participants, categoryId, challenge.SubCategoryId.Value, challenge, ct);
             return Ok("Ratings ensured for all participants.");
+        }
+
+        private bool IsUploadedFileUrl(string? url)
+        {
+            if (string.IsNullOrWhiteSpace(url))
+                return false;
+
+            // Check for GUID in the URL
+            var guidMatch = System.Text.RegularExpressions.Regex.Match(url, @"[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}");
+            if (!guidMatch.Success)
+                return false;
+
+            // Check for allowed extension
+            var hasAllowedExtension = AllowedExtensions.Any(ext => url.EndsWith(ext, StringComparison.OrdinalIgnoreCase));
+            return hasAllowedExtension;
+
+            // if false is returned then url is probably a youtube link
+            // and not link to a file in a storage
         }
     }
 }

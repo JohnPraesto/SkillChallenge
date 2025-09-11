@@ -123,18 +123,18 @@ public class Program
         builder.Services.AddScoped<IChallengeRepository, ChallengeRepository>();
         builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
         builder.Services.AddScoped<ISubCategoryRepository, SubCategoryRepository>();
-        builder.Services.AddScoped<IImageService, ImageService>();
+        builder.Services.AddScoped<IMediaService, MediaService>();
         builder.Services.AddScoped<IRatingEntityRepository, RatingEntityRepository>();
         builder.Services.AddScoped<EloRatingService>();
 
         var storageType = builder.Configuration["Storage:Type"];
         if (storageType == "AzureBlob")
         {
-            builder.Services.AddScoped<IImageService, AzureBlobImageService>();
+            builder.Services.AddScoped<IMediaService, AzureBlobMediaService>();
         }
         else
         {
-            builder.Services.AddScoped<IImageService, ImageService>();
+            builder.Services.AddScoped<IMediaService, MediaService>();
         }
 
         var app = builder.Build();

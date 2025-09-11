@@ -254,6 +254,20 @@ namespace SkillChallenge.Data
                 .HasForeignKey(c => c.CreatedBy)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            // Challenge -> UploadedResult (Cascade)
+            builder.Entity<Challenge>()
+                .HasMany(c => c.UploadedResults)
+                .WithOne(ur => ur.Challenge)
+                .HasForeignKey(ur => ur.ChallengeId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // UploadedResult -> VoteEntity (Cascade)
+            builder.Entity<UploadedResult>()
+                .HasMany(ur => ur.Votes)
+                .WithOne()
+                .HasForeignKey(v => v.UploadedResultId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             // Challenge -> SubCategory
             builder
                 .Entity<Challenge>()
