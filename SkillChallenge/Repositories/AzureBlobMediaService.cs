@@ -3,24 +3,25 @@ using Azure.Storage.Blobs.Models;
 
 namespace SkillChallenge.Services
 {
-    public class AzureBlobImageService : IImageService
+    public class AzureBlobMediaService : IMediaService
     {
         private readonly string _connectionString;
         private readonly IConfiguration _config;
 
-        public AzureBlobImageService(IConfiguration config)
+        public AzureBlobMediaService(IConfiguration config)
         {
             _config = config;
             _connectionString = config["AzureBlob:ConnectionString"] ?? throw new InvalidOperationException("Missing AzureBlob:ConnectionString in configuration.");
         }
 
-        public async Task<string> SaveImageAsync(IFormFile image, string folder)
+        public async Task<string> SaveMediaAsync(IFormFile image, string folder)
         {
             string containerName = folder switch
             {
                 "category-images" => _config["AzureBlob:CategoryImageContainer"],
                 "subcategory-images" => _config["AzureBlob:SubCategoryImageContainer"],
                 "profile-pictures" => _config["AzureBlob:ProfilePictureContainer"],
+                "challenge-media" => _config["AzureBlob:ChallengeMediaContainer"],
                 _ => throw new ArgumentException("Invalid folder/container type.")
             };
 
@@ -38,14 +39,14 @@ namespace SkillChallenge.Services
             return blobClient.Uri.ToString();
         }
 
-        public string GetImageUrl(string? imagePath)
+        public string GetMediaUrl(string? imagePath)
         {
             if (string.IsNullOrEmpty(imagePath))
                 return "";
             return imagePath.StartsWith("/") ? imagePath : "/" + imagePath;
         }
 
-        public async Task DeleteImageAsync(string pictureUrl)
+        public async Task DeleteMediaAsync(string pictureUrl)
         {
             if (string.IsNullOrWhiteSpace(pictureUrl))
                 return;

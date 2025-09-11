@@ -13,12 +13,12 @@ namespace SkillChallenge.Controllers
     {
         private readonly ISubCategoryRepository _subCategoryRepo;
         private readonly ICategoryRepository _categoryRepo;
-        private readonly IImageService _imageService;
+        private readonly IMediaService _imageService;
 
         public SubCategoryController(
             ISubCategoryRepository subCategoryRepo,
             ICategoryRepository categoryRepo,
-            IImageService imageService
+            IMediaService imageService
         )
         {
             _subCategoryRepo = subCategoryRepo;
@@ -102,7 +102,7 @@ namespace SkillChallenge.Controllers
             string imagePath = null;
             if (dto.Image != null)
             {
-                imagePath = await _imageService.SaveImageAsync(dto.Image, "subcategory-images");
+                imagePath = await _imageService.SaveMediaAsync(dto.Image, "subcategory-images");
             }
             else
             {
@@ -125,7 +125,7 @@ namespace SkillChallenge.Controllers
                 SubCategoryName = created.SubCategoryName,
                 CategoryId = created.CategoryId,
                 CategoryName = category.CategoryName,
-                ImagePath = _imageService.GetImageUrl(created.ImagePath),
+                ImagePath = _imageService.GetMediaUrl(created.ImagePath),
             };
 
             return CreatedAtAction(
@@ -157,9 +157,9 @@ namespace SkillChallenge.Controllers
                 // Delete old image if not null or default
                 if (!string.IsNullOrEmpty(existing.ImagePath) && !existing.ImagePath.Contains("default"))
                 {
-                    await _imageService.DeleteImageAsync(existing.ImagePath);
+                    await _imageService.DeleteMediaAsync(existing.ImagePath);
                 }
-                existing.ImagePath = await _imageService.SaveImageAsync(updateSubCategoryDTO.Image, "subcategory-images");
+                existing.ImagePath = await _imageService.SaveMediaAsync(updateSubCategoryDTO.Image, "subcategory-images");
             }
 
             existing.SubCategoryName = updateSubCategoryDTO.SubCategoryName;
@@ -175,7 +175,7 @@ namespace SkillChallenge.Controllers
                 SubCategoryName = existing.SubCategoryName,
                 CategoryId = existing.CategoryId,
                 CategoryName = category?.CategoryName ?? string.Empty,
-                ImagePath = _imageService.GetImageUrl(existing.ImagePath),
+                ImagePath = _imageService.GetMediaUrl(existing.ImagePath),
             };
 
             return Ok(subCategoryDTO);
@@ -191,7 +191,7 @@ namespace SkillChallenge.Controllers
 
             if (!string.IsNullOrEmpty(subCategory.ImagePath) && !subCategory.ImagePath.Contains("default"))
             {
-                await _imageService.DeleteImageAsync(subCategory.ImagePath);
+                await _imageService.DeleteMediaAsync(subCategory.ImagePath);
             }
 
             await _categoryRepo.DeleteCategoryAsync(id, ct);

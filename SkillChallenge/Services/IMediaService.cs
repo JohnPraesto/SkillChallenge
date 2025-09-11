@@ -1,22 +1,22 @@
 ﻿namespace SkillChallenge.Services
 {
-    public interface IImageService
+    public interface IMediaService
     {
-        Task<string> SaveImageAsync(IFormFile image, string folder);
-        string GetImageUrl(string? imagePath);
-        Task DeleteImageAsync(string pictureUrl);
+        Task<string> SaveMediaAsync(IFormFile image, string folder);
+        string GetMediaUrl(string? imagePath);
+        Task DeleteMediaAsync(string pictureUrl);
     }
 
-    public class ImageService : IImageService
+    public class MediaService : IMediaService
     {
         private readonly IWebHostEnvironment _env;
 
-        public ImageService(IWebHostEnvironment env)
+        public MediaService(IWebHostEnvironment env)
         {
             _env = env;
         }
 
-        public async Task<string> SaveImageAsync(IFormFile image, string folder)
+        public async Task<string> SaveMediaAsync(IFormFile image, string folder)
         {
             var uploads = Path.Combine(_env.WebRootPath, folder);
             Directory.CreateDirectory(uploads);
@@ -29,14 +29,14 @@
             return Path.Combine(folder, fileName).Replace("\\", "/");
         }
 
-        public string GetImageUrl(string? imagePath)
+        public string GetMediaUrl(string? imagePath)
         {
             if (string.IsNullOrEmpty(imagePath))
                 return "";
             return imagePath.StartsWith("/") ? imagePath : "/" + imagePath;
         }
 
-        public Task DeleteImageAsync(string pictureUrl)
+        public Task DeleteMediaAsync(string pictureUrl)
         {
             if (string.IsNullOrWhiteSpace(pictureUrl))
                 return Task.CompletedTask;

@@ -156,7 +156,7 @@ namespace SkillChallenge.Controllers
         }
 
         [HttpPost("{id}/upload-profile-picture")]
-        public async Task<IActionResult> UploadProfilePicture(string id, IFormFile file, [FromServices] IImageService imageService)
+        public async Task<IActionResult> UploadProfilePicture(string id, IFormFile file, [FromServices] IMediaService imageService)
         {
             try
             {
@@ -172,9 +172,9 @@ namespace SkillChallenge.Controllers
                 }
 
                 if (!string.IsNullOrEmpty(user.ProfilePicture))
-                    await imageService.DeleteImageAsync(user.ProfilePicture);
+                    await imageService.DeleteMediaAsync(user.ProfilePicture);
 
-                var pictureUrl = await imageService.SaveImageAsync(file, "profile-pictures");
+                var pictureUrl = await imageService.SaveMediaAsync(file, "profile-pictures");
 
                 user.ProfilePicture = pictureUrl;
                 await _userRepo.UpdateUserAsync(id, new UpdateUserDTO { ProfilePicture = user.ProfilePicture });
@@ -215,7 +215,7 @@ namespace SkillChallenge.Controllers
 
         [HttpDelete("{id}")]
         [Authorize]
-        public async Task<IActionResult> DeleteUser([FromRoute] string id, [FromServices] IImageService imageService)
+        public async Task<IActionResult> DeleteUser([FromRoute] string id, [FromServices] IMediaService imageService)
         {
             if (id == "admin-123")
             {
@@ -239,7 +239,7 @@ namespace SkillChallenge.Controllers
             }
 
             if (!string.IsNullOrEmpty(user.ProfilePicture))
-                await imageService.DeleteImageAsync(user.ProfilePicture);
+                await imageService.DeleteMediaAsync(user.ProfilePicture);
 
             return NoContent();
         }

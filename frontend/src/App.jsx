@@ -10,10 +10,12 @@ import Challenges from "./Challenges"
 import ChallengeDetails from "./ChallengeDetails";
 import ErrorBoundary from "./ErrorBoundary";
 import CreateChallenge from "./CreateChallenge";
+import UploadResult from "./UploadResult";
 import Admin from "./Admin";
 import RequireAdmin from "./RequireAdmin";
 import About from "./About";
 import './App.css';
+
 
 function Home() {
   return (
@@ -48,7 +50,9 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/challenges/:id" element={<ChallengeDetails />} />
           <Route path="/create-challenge" element={<CreateChallenge />} />
+          <Route path="/create-challenge" element={<CreateChallenge />} />
           <Route path="/about" element={<About />} />
+          <Route path="/upload-result" element={<UploadResult />} />
           <Route path="/admin" element={
             <RequireAdmin>
               <Admin />
