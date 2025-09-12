@@ -83,7 +83,7 @@ function FinishedChallengeDetails({
                               />
                             );
                           }
-                          if (["mp4", "webm", "ogg", "mov"].includes(ext)) {
+                          if (["mp4", "webm", "mov"].includes(ext)) {
                             // Video
                             return (
                               <video

@@ -16,7 +16,7 @@ namespace SkillChallenge.Controllers
         private readonly IChallengeRepository _challengeRepo;
         private readonly EloRatingService _eloRatingService;
         private readonly IMediaService _imageService;
-        private static readonly string[] AllowedExtensions = { ".mp4", ".webm", ".pdf", ".jpg", ".jpeg", ".png" };
+        private static readonly string[] AllowedExtensions = { ".mp4", ".webm", ".mov", ".pdf", ".jpg", ".jpeg", ".png" };
         // OCH FLERA EXTENTIONS?
 
 
@@ -359,10 +359,10 @@ namespace SkillChallenge.Controllers
             }
             else if (hasFile)
             {
-                var allowedExtensions = new[] { ".mp4", ".webm", ".pdf", ".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp" };
+                var allowedExtensions = new[] { ".mp4", ".webm", ".mov", ".pdf", ".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp" };
                 var ext = Path.GetExtension(uploadedResultRequest.File.FileName).ToLowerInvariant();
                 if (!allowedExtensions.Contains(ext))
-                    return BadRequest("Invalid file type. Allowed: mp4, webm, pdf, jpg, jpeg, png.");
+                    return BadRequest("Invalid file type. Allowed: mp4, webm, mov, pdf, jpg, jpeg, png.");
 
                 // Save to Azure Blob Storage
                 resultUrl = await _imageService.SaveMediaAsync(uploadedResultRequest.File, "challenge-media");
