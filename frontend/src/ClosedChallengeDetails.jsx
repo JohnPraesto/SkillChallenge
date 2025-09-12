@@ -17,10 +17,19 @@ function ClosedChallengeDetails({
   const votedResultId = userVote?.uploadedResultId;
 
   function extractYouTubeId(url) {
-    const match = url.match(
-      /(?:youtube\.com\/.*v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/
-    );
-    return match ? match[1] : null;
+    // Handles regular, short, and shorts URLs
+    const patterns = [
+      /(?:youtube\.com\/.*v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/, // regular and youtu.be
+      /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/,             // shorts
+      /youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,              // embed
+      /youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/,            // watch?v=
+      /youtu\.be\/([a-zA-Z0-9_-]{11})/                         // youtu.be
+    ];
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match) return match[1];
+    }
+    return null;
   }
 
   return (
