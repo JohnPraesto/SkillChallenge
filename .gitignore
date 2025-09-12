@@ -375,6 +375,9 @@ SkillChallenge/wwwroot/category-images/*
 SkillChallenge/wwwroot/subcategory-images/*
 !SkillChallenge/wwwroot/subcategory-images/.gitkeep
 
+SkillChallenge/wwwroot/challenge-media/*
+!SkillChallenge/wwwroot/challenge-media/.gitkeep
+
 # Ignore Visual Studio publish profiles and service dependencies
 **/Properties/ServiceDependencies/
 **/Properties/serviceDependencies.*.json

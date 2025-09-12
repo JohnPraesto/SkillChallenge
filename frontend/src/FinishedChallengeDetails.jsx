@@ -46,14 +46,67 @@ function FinishedChallengeDetails({
                     </span>
                     {result.url && (
                       <div style={{ marginTop: 8 }}>
-                        <iframe
-                          width="320"
-                          height="180"
-                          src={`https://www.youtube.com/embed/${extractYouTubeId(result.url)}`}
-                          title="YouTube video"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                        ></iframe>
+                        {(() => {
+                          // YouTube
+                          const ytId = extractYouTubeId(result.url);
+                          if (ytId) {
+                            return (
+                              <iframe
+                                width="320"
+                                height="180"
+                                src={`https://www.youtube.com/embed/${ytId}`}
+                                title="YouTube video"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                              ></iframe>
+                            );
+                          }
+                          // File extension logic
+                          const url = result.url;
+                          const ext = url.split('.').pop().toLowerCase();
+                          if (["jpg", "jpeg", "png", "gif", "bmp", "webp"].includes(ext)) {
+                            // Image
+                            return (
+                              <img
+                                src={url.startsWith("http") ? url : `${apiUrl}/${url}`}
+                                alt="Uploaded result"
+                                style={{ maxWidth: 500, maxHeight: 500 }}
+                              />
+                            );
+                          }
+                          if (["mp4", "webm", "ogg", "mov"].includes(ext)) {
+                            // Video
+                            return (
+                              <video
+                                controls
+                                width="320"
+                                height="180"
+                                src={url.startsWith("http") ? url : `${apiUrl}/${url}`}
+                              >
+                                Your browser does not support the video tag.
+                              </video>
+                            );
+                          }
+                          if (ext === "pdf") {
+                            // PDF
+                            return (
+                              <a
+                                href={url.startsWith("http") ? url : `${apiUrl}/${url}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ display: "inline-block", marginTop: 8 }}
+                              >
+                                📄 View PDF
+                              </a>
+                            );
+                          }
+                          // Fallback
+                          return (
+                            <div style={{ marginTop: 8 }}>
+                              Unable to display this result: "{url}"
+                            </div>
+                          );
+                        })()}
                       </div>
                     )}
                   </li>
