@@ -214,5 +214,12 @@ namespace SkillChallenge.Repositories
                 return true;
             }
         }
+
+        public async Task<long> GetTotalUploadedFileSizeAsync(CancellationToken ct = default)
+        {
+            return await _context.UploadedResults
+                .Where(ur => ur.FileSize.HasValue)
+                .SumAsync(ur => ur.FileSize.Value, ct);
+        }
     }
 }

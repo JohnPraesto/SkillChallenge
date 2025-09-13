@@ -15,16 +15,16 @@ namespace SkillChallenge.Controllers
     {
         private readonly IChallengeRepository _challengeRepo;
         private readonly EloRatingService _eloRatingService;
-        private readonly IMediaService _imageService;
+        private readonly IMediaService _mediaService;
         private static readonly string[] AllowedExtensions = { ".mp4", ".webm", ".mov", ".pdf", ".jpg", ".jpeg", ".png" };
         // OCH FLERA EXTENTIONS?
 
 
-        public ChallengeController(IChallengeRepository challengeRepo, EloRatingService eloRatingService, IMediaService imageService)
+        public ChallengeController(IChallengeRepository challengeRepo, EloRatingService eloRatingService, IMediaService mediaService)
         {
             _challengeRepo = challengeRepo;
             _eloRatingService = eloRatingService;
-            _imageService = imageService;
+            _mediaService = mediaService;
         }
 
         [HttpGet]
@@ -279,7 +279,7 @@ namespace SkillChallenge.Controllers
             {
                 if (IsUploadedFileUrl(uploadedResult.Url))
                 {
-                    await _imageService.DeleteMediaAsync(uploadedResult.Url);
+                    await _mediaService.DeleteMediaAsync(uploadedResult.Url);
                 }
             }
 
@@ -321,7 +321,7 @@ namespace SkillChallenge.Controllers
             {
                 if (IsUploadedFileUrl(uploadedResult.Url))
                 {
-                    await _imageService.DeleteMediaAsync(uploadedResult.Url);
+                    await _mediaService.DeleteMediaAsync(uploadedResult.Url);
                 }
                 await _challengeRepo.DeleteUploadedResultAsync(challengeId, userId, ct);
             }
@@ -333,6 +333,7 @@ namespace SkillChallenge.Controllers
             return Ok("Left challenge successfully.");
         }
 
+        [RequestSizeLimit(200_000_000)]
         [HttpPost("{challengeId:int}/upload-result")]
         [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> UploadResult([FromRoute] int challengeId, [FromForm] UploadedResultRequest uploadedResultRequest, CancellationToken ct)
@@ -364,8 +365,25 @@ namespace SkillChallenge.Controllers
                 if (!allowedExtensions.Contains(ext))
                     return BadRequest("Invalid file type. Allowed: mp4, webm, mov, pdf, jpg, jpeg, png.");
 
+                long fileSize = uploadedResultRequest.File.Length;
+                long MaxFileSizeBytes = 200 * 1024 * 1024; // 200 MB per file
+
+                if (uploadedResultRequest.File.Length > MaxFileSizeBytes)
+                {
+                    return BadRequest("File is too large. Maximum allowed size is 200 MB.");
+                }
+
+                var totalBytes = await _challengeRepo.GetTotalUploadedFileSizeAsync(ct);
+
+                const long GlobalStorageLimitBytes = 200L * 1024 * 1024 * 1024; // 200 GB storage threshold
+
+                if (hasFile && (totalBytes + uploadedResultRequest.File.Length > GlobalStorageLimitBytes))
+                {
+                    return BadRequest("Storage limit reached. No more uploads are allowed at this time.");
+                }
+
                 // Save to Azure Blob Storage
-                resultUrl = await _imageService.SaveMediaAsync(uploadedResultRequest.File, "challenge-media");
+                resultUrl = await _mediaService.SaveMediaAsync(uploadedResultRequest.File, "challenge-media");
             }
 
             var newUploadedResult = new UploadedResult
@@ -374,6 +392,7 @@ namespace SkillChallenge.Controllers
                 ChallengeId = challengeId,
                 UserId = currentUserId,
                 SubmissionDate = DateTime.UtcNow,
+                FileSize = hasFile ? uploadedResultRequest.File.Length : null,
             };
 
             var result = await _challengeRepo.AddUploadedResultToChallengeAsync(challengeId, newUploadedResult, ct);
@@ -405,7 +424,7 @@ namespace SkillChallenge.Controllers
 
             if (IsUploadedFileUrl(uploadedResult.Url))
             {
-                await _imageService.DeleteMediaAsync(uploadedResult.Url);
+                await _mediaService.DeleteMediaAsync(uploadedResult.Url);
             }
 
             var success = await _challengeRepo.DeleteUploadedResultAsync(challengeId, currentUserId, ct);
