@@ -63,7 +63,7 @@ namespace SkillChallenge.Services
         // Ser till att alla users i challengen har en rating i den
         // subCategory som challengen har. Om usern inte har någon rating i den
         // subCategory så får den en ny rating med värdet 1000.
-        public async Task EnsureRatingsExistForParticipantsAsync(IEnumerable<User> users, int categoryId, int subCategoryId, CancellationToken ct) // Can Challenge challenge be removed?
+        public async Task EnsureRatingsExistForParticipantsAsync(IEnumerable<User> users, int categoryId, int subCategoryId, CancellationToken ct)
         {
             foreach (var user in users)
             {
@@ -119,6 +119,11 @@ namespace SkillChallenge.Services
             // Sort uploaded results by votes ascending
             var uploadedResults = challenge.UploadedResults.OrderBy(ur => ur.Votes.Count).ToList();
 
+            if (users.Count() < 2 || uploadedResults.Count < 2)
+            {
+                return;
+            }
+
             int actualPartcipantCount = users.Count();
 
             // participantFactor is a multiplier used to calculate the win_factor by a user
@@ -128,7 +133,7 @@ namespace SkillChallenge.Services
             // Skapar nya object som består av
             // UploadedResult,
             // indexet det har i uploadedResults-listan,
-            // samt winFactor som är indexet multiplicerat med participantFactor
+            // och winFactor som är indexet multiplicerat med participantFactor
             // Exempel: 
             // participantFactor = 1 / 2 = 0.5
             // Astor 7 röster (index 2) (winfactor = 2 * 0.5 = 1)
