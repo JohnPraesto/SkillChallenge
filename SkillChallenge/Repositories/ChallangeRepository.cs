@@ -57,6 +57,7 @@ namespace SkillChallenge.Repositories
                 .Include(c => c.UploadedResults).ThenInclude(ur => ur.User)
                 .Include(c => c.UploadedResults).ThenInclude(ur => ur.Votes)
                 .Include(c => c.SubCategory)
+                .Include(c => c.SubCategory).ThenInclude(c => c.Category)
                 .Include(c => c.Creator)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.ChallengeId == id, ct);

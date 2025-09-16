@@ -35,7 +35,9 @@ function ClosedChallengeDetails({
   return (
     <>
       {/* Display uploaded results */}
-      <div style={{ marginTop: 16 }}>
+      <div>
+        <strong>Voting closes:</strong> {new Date(challenge.votePeriodEnd).toLocaleString('en-US', {year: 'numeric', month: 'long', day: 'numeric'})}
+        <br />
         <strong>Uploaded Results:</strong>
         {challenge.uploadedResults && challenge.uploadedResults.length > 0 ? (
           <ul>

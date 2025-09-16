@@ -63,34 +63,6 @@ function OpenChallengeDetails({
     setJoining(false);
   };
 
-  const handleUploadResult = async () => {
-    const uploadedResultURL = window.prompt("Enter the URL for your result:");
-    if (!uploadedResultURL) return;
-
-    try {
-      const res = await fetch(
-        `${apiUrl}/api/challenges/${challenge.challengeId}/upload-result`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify(uploadedResultURL),
-        }
-      );
-      if (res.ok) {
-        alert("Result uploaded!");
-        if (fetchChallenge) fetchChallenge();
-      } else {
-        const text = await res.text();
-        alert("Failed to upload result: " + text);
-      }
-    } catch (err) {
-      alert("Failed to upload result: " + err.message);
-    }
-  };
-
   const hasUploadedResult = alreadyJoined && challenge.uploadedResults?.some(r => r.userId === user.id);
 
   const handleRemoveResult = async () => {
@@ -119,6 +91,8 @@ function OpenChallengeDetails({
   return (
     <>
       <div>
+        <strong>Admission closes:</strong> {new Date(challenge.endDate).toLocaleString('en-US', {year: 'numeric', month: 'long', day: 'numeric'})}
+        <br />
         <strong>Joined users:</strong>
         {challenge.joinedUsers && challenge.joinedUsers.length > 0 ? (
           <ul>

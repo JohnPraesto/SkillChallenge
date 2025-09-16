@@ -37,7 +37,9 @@ function FinishedChallengeDetails({
   return (
     <>
       {/* Display uploaded results */}
-      <div style={{ marginTop: 16 }}>
+      <div>
+        <strong>Challenge is archived:</strong> {new Date(challenge.isTakenDown).toLocaleString('en-US', {year: 'numeric', month: 'long', day: 'numeric'})}
+        <br />
         <strong>
           Winner{winners.length > 1 ? "s" : ""}:{" "}
           {winners.length > 0 ? winners.join(", ") : "No winner"}

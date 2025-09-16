@@ -125,6 +125,8 @@ namespace SkillChallenge.Controllers
                         {
                             SubCategoryId = challenge.SubCategory.SubCategoryId,
                             SubCategoryName = challenge.SubCategory.SubCategoryName,
+                            CategoryId = challenge.SubCategory.CategoryId,
+                            CategoryName = challenge.SubCategory.Category?.CategoryName ?? string.Empty,
                             ImagePath = challenge.SubCategory.ImagePath,
                         },
                 JoinedUsers = challenge.Participants.Select(u => u.UserName ?? "Unknown").ToList(),
