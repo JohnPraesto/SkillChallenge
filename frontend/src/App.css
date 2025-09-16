@@ -243,6 +243,8 @@ body {
   cursor: pointer;
   min-height: 280px;
   max-width: 250px;
+  /* min-height: 300px;
+  max-width: 300px; */
   width: 100%;
 }
 

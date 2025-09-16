@@ -34,7 +34,7 @@ function Challenges() {
   const closedChallenges = filteredChallenges.filter(ch => new Date(ch.endDate) <= now && ch.resultsSubmitted === false);
   const finishedChallenges = filteredChallenges.filter(ch => new Date(ch.votePeriodEnd) <= now && ch.resultsSubmitted === true);
 
-  const ChallengeCard = ({ challenge, index }) => (
+  const ChallengeCard = ({ challenge, index, status }) => (
     <div 
       className="card challenge-card stagger-item" 
       onClick={() => navigate(`/challenges/${challenge.challengeId}`)}
@@ -53,7 +53,15 @@ function Challenges() {
       )}
       <div className="challenge-title">{challenge.challengeName}</div>
       <div className="challenge-meta">
-        Ends: {new Date(challenge.endDate).toLocaleDateString()}
+        {status === "open" && (
+          <>Join Before: {new Date(challenge.endDate).toLocaleDateString('en-US', {month: 'long', day: 'numeric'})}</>
+        )}
+        {status === "closed" && (
+          <>Voting Closes: {new Date(challenge.votePeriodEnd).toLocaleDateString('en-US', {month: 'long', day: 'numeric'})}</>
+        )}
+        {status === "finished" && (
+          <>Is Archived: {new Date(challenge.isTakenDown).toLocaleDateString('en-US', {month: 'long', day: 'numeric'})}</>
+        )}
       </div>
       <div className="challenge-meta">
         By: {challenge.creatorUserName}
@@ -81,7 +89,7 @@ function Challenges() {
             </div>
           ) : (
             openChallenges.map((ch, index) => (
-              <ChallengeCard key={ch.challengeId} challenge={ch} index={index} />
+              <ChallengeCard key={ch.challengeId} challenge={ch} index={index} status="open"/>
             ))
           )}
         </div>
@@ -97,7 +105,7 @@ function Challenges() {
             </div>
           ) : (
             closedChallenges.map((ch, index) => (
-              <ChallengeCard key={ch.challengeId} challenge={ch} index={index} />
+              <ChallengeCard key={ch.challengeId} challenge={ch} index={index} status="closed"/>
             ))
           )}
         </div>
@@ -113,7 +121,7 @@ function Challenges() {
             </div>
           ) : (
             finishedChallenges.map((ch, index) => (
-              <ChallengeCard key={ch.challengeId} challenge={ch} index={index} />
+              <ChallengeCard key={ch.challengeId} challenge={ch} index={index} status="finished"/>
             ))
           )}
         </div>
