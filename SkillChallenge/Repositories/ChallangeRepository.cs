@@ -42,6 +42,7 @@ namespace SkillChallenge.Repositories
             await _context
                 .Challenges.Include(c => c.Participants)
                 .Include(c => c.SubCategory)
+                .Include(c => c.SubCategory).ThenInclude(c => c.Category)
                 .Include(c => c.Creator)
                 .AsNoTracking()
                 .ToListAsync(ct);

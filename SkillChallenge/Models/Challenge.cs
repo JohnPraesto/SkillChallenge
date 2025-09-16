@@ -4,6 +4,7 @@
     {
         public int ChallengeId { get; set; }
         public string ChallengeName { get; set; } = string.Empty;
+        public DateTime CreatedDate { get; set; }
         public DateTime EndDate { get; set; }
         public DateTime VotePeriodEnd { get; set; }
         public DateTime IsTakenDown { get; set; }

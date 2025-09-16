@@ -17,7 +17,6 @@ namespace SkillChallenge.Controllers
         private readonly EloRatingService _eloRatingService;
         private readonly IMediaService _mediaService;
         private static readonly string[] AllowedExtensions = { ".mp4", ".webm", ".mov", ".pdf", ".jpg", ".jpeg", ".png" };
-        // OCH FLERA EXTENTIONS?
 
 
         public ChallengeController(IChallengeRepository challengeRepo, EloRatingService eloRatingService, IMediaService mediaService)
@@ -36,6 +35,7 @@ namespace SkillChallenge.Controllers
                 {
                     ChallengeId = c.ChallengeId,
                     ChallengeName = c.ChallengeName,
+                    CreatedDate = c.CreatedDate,
                     EndDate = c.EndDate,
                     VotePeriodEnd = c.VotePeriodEnd,
                     IsTakenDown = c.IsTakenDown,
@@ -48,6 +48,8 @@ namespace SkillChallenge.Controllers
                             {
                                 SubCategoryId = c.SubCategory.SubCategoryId,
                                 SubCategoryName = c.SubCategory.SubCategoryName,
+                                CategoryId = c.SubCategory.CategoryId,
+                                CategoryName = c.SubCategory.Category?.CategoryName ?? string.Empty,
                                 ImagePath = c.SubCategory.ImagePath,
                             },
                     JoinedUsers = c.Participants.Select(u => u.UserName ?? "Unknown").ToList(),
@@ -88,6 +90,8 @@ namespace SkillChallenge.Controllers
                             {
                                 SubCategoryId = c.SubCategory.SubCategoryId,
                                 SubCategoryName = c.SubCategory.SubCategoryName,
+                                CategoryId = c.SubCategory.CategoryId,
+                                CategoryName = c.SubCategory.Category?.CategoryName ?? string.Empty,
                                 ImagePath = c.SubCategory.ImagePath,
                             },
                     JoinedUsers = c.Participants.Select(u => u.UserName ?? "Unknown").ToList(),
@@ -181,6 +185,8 @@ namespace SkillChallenge.Controllers
                             {
                                 SubCategoryId = c.SubCategory.SubCategoryId,
                                 SubCategoryName = c.SubCategory.SubCategoryName,
+                                CategoryId = c.SubCategory.CategoryId,
+                                CategoryName = c.SubCategory.Category?.CategoryName ?? string.Empty,
                                 ImagePath = c.SubCategory.ImagePath,
                             },
                     JoinedUsers = c.Participants.Select(u => u.UserName ?? "Unknown").ToList(),
@@ -210,6 +216,7 @@ namespace SkillChallenge.Controllers
             var challenge = new Challenge
             {
                 ChallengeName = createChallengeDTO.ChallengeName,
+                CreatedDate = DateTime.UtcNow,
                 EndDate = endDate,
                 VotePeriodEnd = votePeriodEnd,
                 IsTakenDown = isTakenDown,

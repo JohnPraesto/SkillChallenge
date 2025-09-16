@@ -28,7 +28,7 @@ export function SearchAndFilter({
     // Filtrera efter kategori
     if (selectedCategory) {
       filtered = filtered.filter(challenge =>
-        challenge.subCategory?.category?.categoryName === selectedCategory
+        challenge.subCategory?.categoryName === selectedCategory
       );
     }
 
@@ -39,7 +39,7 @@ export function SearchAndFilter({
           return new Date(b.createdDate || 0) - new Date(a.createdDate || 0);
         case "oldest":
           return new Date(a.createdDate || 0) - new Date(b.createdDate || 0);
-        case "ending-soon":
+        case "closing-soon":
           return new Date(a.endDate) - new Date(b.endDate);
         case "alphabetical":
           return a.challengeName.localeCompare(b.challengeName);
@@ -93,7 +93,7 @@ export function SearchAndFilter({
         >
           <option value="newest">Newest First</option>
           <option value="oldest">Oldest First</option>
-          <option value="ending-soon">Ending Soon</option>
+          <option value="closing-soon">Closing Soon</option>
           <option value="alphabetical">A-Z</option>
         </select>
 
