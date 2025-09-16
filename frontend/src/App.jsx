@@ -16,25 +16,26 @@ import RequireAdmin from "./RequireAdmin";
 import About from "./About";
 import './App.css';
 
+// Following is commented out on 25-09-16
+// function Home() {
+//   return (
+//     <div>
+//       <div style={{ textAlign: "center", marginTop: "30vh", fontSize: "2em" }}>
+//         One list of Open Challenges. One list of Closed Challenges.
+//       </div>
+//     </div>
+//   );
+// }
 
-function Home() {
-  return (
-    <div>
-      <div style={{ textAlign: "center", marginTop: "30vh", fontSize: "2em" }}>
-        One list of Open Challenges. One list of Closed Challenges.
-      </div>
-    </div>
-  );
-}
-
-function Auth() {
-  const [showRegister, setShowRegister] = useState(false);
-  return showRegister ? (
-    <Register />
-  ) : (
-    <Login onShowRegister={() => setShowRegister(true)} />
-  );
-}
+// function Auth() {
+//   const [showRegister, setShowRegister] = useState(false);
+//   return showRegister ? (
+//     <Register />
+//   ) : (
+//     <Login onShowRegister={() => setShowRegister(true)} />
+//   );
+// }
+// End
 
 function App() {
   return (
