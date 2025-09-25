@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-route
 import Login from "./Login";
 import Register from "./Register";
 import Users from "./Users";
+import ArchivedChallenges from "./ArchivedChallenges";
 import UserDetail from "./UserDetail";
 import Navbar from "./Navbar";
 import Profile from "./Profile"
@@ -47,6 +48,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/users" element={<Users />} />
+          <Route path="/archived-challenges" element={<ArchivedChallenges />} />
           <Route path="/users/username/:userName" element={<UserDetail />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/challenges/:id" element={<ChallengeDetails />} />

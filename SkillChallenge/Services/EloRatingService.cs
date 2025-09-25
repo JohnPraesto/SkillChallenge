@@ -52,12 +52,14 @@ namespace SkillChallenge.Services
     public class EloRatingService
     {
         private readonly IRatingEntityRepository _ratingEntityRepository;
+        private readonly IArchivedChallengeRepository _archivedChallengeRepository;
 
         int c_value = 400;
 
-        public EloRatingService(IRatingEntityRepository ratingEntityRepository)
+        public EloRatingService(IRatingEntityRepository ratingEntityRepository, IArchivedChallengeRepository archivedChallengeRepository)
         {
             _ratingEntityRepository = ratingEntityRepository;
+            _archivedChallengeRepository = archivedChallengeRepository;
         }
 
         // Ser till att alla users i challengen har en rating i den
@@ -161,11 +163,28 @@ namespace SkillChallenge.Services
                     g => g.Key,
                     g => g.Average(x => x.winFactor));
 
+            // Creates a dictionary of placements where
+            // userId is key and placement is value
+            var sortedResults = challenge.UploadedResults.OrderByDescending(ur => ur.Votes.Count).ToList();
+            var userPlacements = new Dictionary<string, int>();
+            int currentPlacement = 1;
+            int previousVotes = -1;
+            for (int i = 0, place = 1; i < sortedResults.Count; i++, place++)
+            {
+                var ur = sortedResults[i];
+                if (ur.Votes.Count != previousVotes)
+                {
+                    currentPlacement = place;
+                    previousVotes = ur.Votes.Count;
+                }
+                userPlacements[ur.UserId] = currentPlacement;
+            }
+
             // Stores the new ratings before applying them in the foreach loop
             var newRatings = new Dictionary<SubCategoryRatingEntity, int>();
 
-            int sumOfAllParticipantsRating = 0;
             // Get rating sum of all participants
+            int sumOfAllParticipantsRating = 0;
             foreach (var user in users)
             {
                 var userCategoryRatingEntity = user.CategoryRatingEntities.FirstOrDefault(c => c.CategoryId == categoryId);
@@ -174,6 +193,8 @@ namespace SkillChallenge.Services
                 int userRating = userSubCategoryRatingEntity.Rating;
                 sumOfAllParticipantsRating += userRating;
             }
+
+            var archivedUsers = new List<ArchivedChallengeUser>();
 
             // Här inne tas varje users nya rating fram
             foreach (var user in users)
@@ -188,7 +209,7 @@ namespace SkillChallenge.Services
                 float userWinFactor = winFactorByVotes[userResult.Votes.Count];
 
                 // Gets the index of that users vote count
-                int position = uploadedResults.IndexOf(userResult);
+                //int position = uploadedResults.IndexOf(userResult); // Commented out 25-09-21
 
                 // If userWinFactor is NaN it should mean that participantFactor had a divide by zero
                 // which should mean that all uploaded results had the same number of votes.
@@ -214,7 +235,28 @@ namespace SkillChallenge.Services
                 float user_win_chance = get_win_chance(user_prevalue, opponent_prevalue);
                 int new_rating = get_new_rating(old_user_rating, k_factor, userWinFactor, user_win_chance);
                 newRatings[subCategoryRatingEntity] = new_rating;
+
+                int ratingChange = new_rating - old_user_rating;
+                archivedUsers.Add(new ArchivedChallengeUser
+                {
+                    UserId = user.Id,
+                    UserName = user.UserName ?? "",
+                    RatingChange = ratingChange,
+                    Placement = userPlacements[user.Id]
+                });
             }
+
+            var archivedChallenge = new ArchivedChallenge
+            {
+                ChallengeId = challenge.ChallengeId,
+                ChallengeName = challenge.ChallengeName,
+                Description = challenge.Description,
+                SubCategoryName = challenge.SubCategory?.SubCategoryName ?? "",
+                EndDate = challenge.EndDate,
+                Users = archivedUsers
+            };
+
+            await _archivedChallengeRepository.CreateArchivedChallengeAsync(archivedChallenge, ct);
 
             //Apply all the stored new ratings
             foreach (var kvp in newRatings)

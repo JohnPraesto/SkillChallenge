@@ -11,6 +11,8 @@ namespace SkillChallenge.Data
             : base(dbContextOptions) { }
 
         public DbSet<Challenge> Challenges { get; set; }
+        public DbSet<ArchivedChallenge> ArchivedChallenges { get; set; }
+        public DbSet<ArchivedChallengeUser> ArchivedChallengeUsers { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<SubCategory> SubCategories { get; set; }
         public DbSet<UploadedResult> UploadedResults { get; set; }
@@ -290,6 +292,11 @@ namespace SkillChallenge.Data
                 .HasMany(c => c.Participants)
                 .WithMany(u => u.Challenges)
                 .UsingEntity(j => j.ToTable("ChallengeUsers"));
+
+            builder.Entity<ArchivedChallenge>()
+              .HasMany(ac => ac.Users)
+              .WithOne()
+              .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

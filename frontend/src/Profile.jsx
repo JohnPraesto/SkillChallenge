@@ -5,6 +5,7 @@ import { LoadingSkeleton } from "./LoadingSkeleton";
 
 function Profile() {
   const { user, login, logout } = useAuth();
+  const [archivedChallenges, setArchivedChallenges] = useState([]);
   const { showSuccess, showError } = useToast();
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -33,6 +34,12 @@ function Profile() {
         showError("Failed to load profile");
         setLoading(false);
       });
+
+      // Fetch archived challenges for this user
+    fetch(`${apiUrl}/api/archived-challenges/${user.id}`)
+      .then(res => res.ok ? res.json() : Promise.reject("Failed to fetch archived challenges"))
+      .then(data => setArchivedChallenges(data))
+      .catch(() => setArchivedChallenges([]));
   }, [user?.id, showError]);
 
   const handleUpdate = async (field, value) => {
@@ -173,9 +180,9 @@ function Profile() {
   );
 
   return (
-    <div className="container fade-in">
-      <div className="card" style={{ maxWidth: "600px", margin: "2rem auto" }}>
-        <div className="profile-header" style={{ textAlign: "center", marginBottom: "2rem" }}>
+    <div className="profile-card-container">
+      <div className="profile-card">
+        <div className="profile-header">
           <img
             src={userData.profilePicture ? userData.profilePicture.startsWith("http")
                   ? userData.profilePicture
@@ -183,23 +190,15 @@ function Profile() {
                   : `${apiUrl}/profile-pictures/default.png`
             }
             alt="Profile"
-            style={{
-              width: "120px",
-              height: "120px",
-              borderRadius: "50%",
-              objectFit: "cover",
-              border: "4px solid var(--primary-color)",
-              marginBottom: "1rem"
-            }}
+            style={{width: "120px", height: "120px", borderRadius: "50%", objectFit: "cover", order: "4px solid var(--primary-color)", marginBottom: "1rem"}}
           />
           <h2 style={{ color: "var(--primary-color)", marginBottom: "0.5rem" }}>
             {userData?.userName}
           </h2>
-          <p style={{ color: "var(--text-secondary)" }}>Member since {new Date().getFullYear()}</p>
         </div>
 
         <div className="profile-actions">
-          <div className="action-buttons" style={{ display: "flex", gap: "1rem", marginBottom: "2rem", flexWrap: "wrap" }}>
+          <div className="profile-buttons">
             <button 
               className="btn btn-secondary"
               onClick={() => setActiveForm(activeForm === "username" ? null : "username")}
@@ -223,6 +222,14 @@ function Profile() {
             <button className="btn btn-warning" onClick={() => window.location.href = "/admin"}>
               Admin Dashboard
             </button>)}
+
+            <button 
+              className="btn"
+              style={{ backgroundColor: "#ff4444", color: "white" }}
+              onClick={handleDeleteAccount}
+            >
+            Delete Account
+            </button>
 
           </div>
 
@@ -333,25 +340,61 @@ function Profile() {
             </div>
           )}
         </div>
-
-        <div className="danger-zone" style={{ 
-          marginTop: "3rem", 
-          padding: "1.5rem", 
-          border: "2px solid #ff4444", 
-          borderRadius: "var(--border-radius)",
-          backgroundColor: "rgba(255, 68, 68, 0.05)"
-        }}>
-          <h3 style={{ color: "#ff4444", marginBottom: "1rem" }}>Danger Zone</h3>
-          <p style={{ marginBottom: "1rem", color: "var(--text-secondary)" }}>
-            Once you delete your account, there is no going back.
-          </p>
-          <button 
-            className="btn"
-            style={{ backgroundColor: "#ff4444", color: "white" }}
-            onClick={handleDeleteAccount}
-          >
-            Delete Account
-          </button>
+        <div className="challenge-history">
+          <h3 style={{ textAlign: "center" }}>Your Challenge History</h3>
+          {archivedChallenges.length === 0 ? (
+            <div>No archived challenges found.</div>
+          ) : (
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", border: "1px solid #ccc" }}>
+                <thead>
+                  <tr>
+                    <th style={{ textAlign: "left", padding: "8px", border: "1px solid #ccc"}}>Challenge Name</th>
+                    <th style={{ textAlign: "left", padding: "8px", border: "1px solid #ccc"}}>Subcategory Name</th>
+                    <th style={{ textAlign: "left", padding: "8px", border: "1px solid #ccc"}}>End Date</th>
+                    <th style={{ textAlign: "left", padding: "8px", border: "1px solid #ccc"}}>Placement</th>
+                    <th style={{ textAlign: "left", padding: "8px", border: "1px solid #ccc"}}>Rating Change</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {archivedChallenges.map((challenge, idx) => {
+                    // Find the user's entry in the Users array
+                    const userEntry = Array.isArray(challenge.users || challenge.Users)
+                      ? (challenge.users || challenge.Users).find(
+                          u => u.userId === user.id || u.UserId === user.id
+                        )
+                      : null;
+                    return (
+                      <tr key={challenge.archivedChallengeId || challenge.id || idx}>
+                        <td style={{ padding: "8px", border: "1px solid #ccc" }}>
+                          {challenge.challengeName || challenge.ChallengeName}
+                        </td>
+                        <td style={{ padding: "8px", border: "1px solid #ccc" }}>
+                          {challenge.subCategoryName || challenge.SubCategoryName}
+                        </td>
+                        <td style={{ padding: "8px", border: "1px solid #ccc" }}>
+                          {new Date(challenge.endDate || challenge.EndDate).toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'})}
+                        </td>
+                        <td style={{ padding: "8px", border: "1px solid #ccc" }}>
+                          {userEntry
+                            ? `${userEntry.placement ?? userEntry.Placement} / ${(challenge.users || challenge.Users)?.length ?? 1}`
+                            : "-"}
+                        </td>
+                        <td style={{ padding: "8px", border: "1px solid #ccc" }}>
+                          {userEntry ? (
+                            <span style={{ color: (userEntry.ratingChange ?? userEntry.RatingChange) >= 0 ? "green" : "red" }}>
+                              {(userEntry.ratingChange ?? userEntry.RatingChange) >= 0 ? "+" : ""}
+                              {userEntry.ratingChange ?? userEntry.RatingChange}
+                            </span>
+                          ) : "-"}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>
