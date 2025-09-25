@@ -126,6 +126,21 @@ function Challenges() {
           )}
         </div>
       </div>
+      <div style={{ textAlign: "center", margin: "3rem 0 1.5rem 0" }}>
+        <button
+          className="footer-archived-btn"
+          onClick={() => navigate("/archived-challenges")}
+          style={{
+            background: "none",
+            color: "var(--primary-color, #222)",
+            border: "none",
+            fontSize: "1.2rem",
+            cursor: "pointer"
+          }}
+        >
+          📦 Archived Challenges
+        </button>
+      </div>
     </div>
   );
 }

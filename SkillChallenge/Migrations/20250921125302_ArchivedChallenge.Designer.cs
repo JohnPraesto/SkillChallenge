@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SkillChallenge.Data;
 
@@ -11,9 +12,11 @@ using SkillChallenge.Data;
 namespace SkillChallenge.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250921125302_ArchivedChallenge")]
+    partial class ArchivedChallengeMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -807,8 +810,7 @@ namespace SkillChallenge.Migrations
                 {
                     b.HasOne("SkillChallenge.Models.ArchivedChallenge", null)
                         .WithMany("Users")
-                        .HasForeignKey("ArchivedChallengeId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("ArchivedChallengeId");
                 });
 
             modelBuilder.Entity("SkillChallenge.Models.CategoryRatingEntity", b =>

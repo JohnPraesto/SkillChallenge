@@ -29,6 +29,7 @@ function Navbar() {
           <span className="nav-icon">🏆</span>
           Challenges
         </Link>
+
         <Link to="/users" className="nav-link">
           <span className="nav-icon">👥</span>
           Users

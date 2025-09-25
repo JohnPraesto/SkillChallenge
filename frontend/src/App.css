@@ -220,6 +220,48 @@ body {
   transform: translateY(0);
 }
 
+/* Profile page style */
+.profile-card-container{
+  display: flex;
+  justify-content: center;
+}
+
+.profile-card {
+  width: 98%;
+  max-width: none;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  padding: 1.5rem 0;
+  background: white;
+  border: 1px solid var(--border);
+}
+
+.profile-header{
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 480px) {
+  .profile-card {
+    padding: 1rem 0;
+    border-radius: 0;
+  }
+}
+
+.profile-actions {
+  display: flex;
+}
+
+.profile-buttons{
+  width: 100%;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.challenge-history{
+  
+}
+
 /* Card Styles */
 .card {
   background: white;
@@ -720,6 +762,12 @@ body {
 
 .dark-mode .card {
   background: var(--surface);
+  border-color: var(--border);
+}
+
+.dark-mode .profile-card {
+  background: var(--surface);
+  color: var(--text);
   border-color: var(--border);
 }
 

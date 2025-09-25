@@ -121,6 +121,7 @@ public class Program
         builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<ITokenService, TokenService>();
         builder.Services.AddScoped<IChallengeRepository, ChallengeRepository>();
+        builder.Services.AddScoped<IArchivedChallengeRepository, ArchivedChallengeRepository>();
         builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
         builder.Services.AddScoped<ISubCategoryRepository, SubCategoryRepository>();
         builder.Services.AddScoped<IMediaService, MediaService>();
