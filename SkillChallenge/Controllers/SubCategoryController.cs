@@ -190,7 +190,7 @@ namespace SkillChallenge.Controllers
                 await _imageService.DeleteMediaAsync(subCategory.ImagePath);
             }
 
-            await _categoryRepo.DeleteCategoryAsync(id, ct);
+            await _subCategoryRepo.DeleteSubCategoryAsync(id, ct);
             return NoContent();
         }
     }

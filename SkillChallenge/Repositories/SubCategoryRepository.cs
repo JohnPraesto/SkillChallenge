@@ -24,10 +24,7 @@ namespace SkillChallenge.Repositories
             return subCategory;
         }
 
-        public async Task<SubCategory?> DeleteSubCategoryAsync(
-            int id,
-            CancellationToken ct = default
-        )
+        public async Task<SubCategory?> DeleteSubCategoryAsync(int id, CancellationToken ct = default)
         {
             var subCategory = await _context.SubCategories.FindAsync([id, ct]);
             if (subCategory is null)
