@@ -15,11 +15,7 @@ namespace SkillChallenge.Controllers
         private readonly ICategoryRepository _categoryRepo;
         private readonly IMediaService _imageService;
 
-        public SubCategoryController(
-            ISubCategoryRepository subCategoryRepo,
-            ICategoryRepository categoryRepo,
-            IMediaService imageService
-        )
+        public SubCategoryController(ISubCategoryRepository subCategoryRepo, ICategoryRepository categoryRepo, IMediaService imageService)
         {
             _subCategoryRepo = subCategoryRepo;
             _categoryRepo = categoryRepo;

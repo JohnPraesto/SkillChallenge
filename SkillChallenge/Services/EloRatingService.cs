@@ -69,9 +69,9 @@ namespace SkillChallenge.Services
         {
             foreach (var user in users)
             {
-                var categoryRating = user.CategoryRatingEntities.FirstOrDefault(c => c.CategoryId == categoryId);
+                var categoryRatingEntity = user.CategoryRatingEntities.FirstOrDefault(c => c.CategoryId == categoryId);
 
-                if (categoryRating == null)
+                if (categoryRatingEntity == null)
                 {
                     var newCategoryRating = new CategoryRatingEntity
                     {
@@ -82,7 +82,8 @@ namespace SkillChallenge.Services
                             new SubCategoryRatingEntity
                             {
                                 SubCategoryId = subCategoryId,
-                                Rating = 1000
+                                Rating = 1000,
+                                UserId = user.Id
                             }
                         }
                     };
@@ -91,17 +92,18 @@ namespace SkillChallenge.Services
                 }
                 else
                 {
-                    var hasSubCategory = categoryRating.SubCategoryRatingEntities.Any(s => s.SubCategoryId == subCategoryId);
+                    var hasSubCategory = categoryRatingEntity.SubCategoryRatingEntities.Any(s => s.SubCategoryId == subCategoryId);
 
                     if (!hasSubCategory)
                     {
                         var newSubCategoryRating = new SubCategoryRatingEntity
                         {
                             SubCategoryId = subCategoryId,
-                            Rating = 1000
+                            Rating = 1000,
+                            UserId = user.Id
                         };
-                        categoryRating.SubCategoryRatingEntities.Add(newSubCategoryRating);
-                        await _ratingEntityRepository.UpdateAsync(categoryRating, ct);
+                        categoryRatingEntity.SubCategoryRatingEntities.Add(newSubCategoryRating);
+                        await _ratingEntityRepository.UpdateAsync(categoryRatingEntity, ct);
                     }
                 }
             }

@@ -12,8 +12,8 @@ using SkillChallenge.Data;
 namespace SkillChallenge.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250911204754_CascadeDeletionChallengeUploadedResultVoteEntity")]
-    partial class CascadeDeletionChallengeUploadedResultVoteEntity
+    [Migration("20250925160817_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -199,6 +199,69 @@ namespace SkillChallenge.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("SkillChallenge.Models.ArchivedChallenge", b =>
+                {
+                    b.Property<int>("ArchivedChallengeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ArchivedChallengeId"));
+
+                    b.Property<int>("ChallengeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ChallengeName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("SubCategoryName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ArchivedChallengeId");
+
+                    b.ToTable("ArchivedChallenges");
+                });
+
+            modelBuilder.Entity("SkillChallenge.Models.ArchivedChallengeUser", b =>
+                {
+                    b.Property<int>("ArchivedChallengeUserId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ArchivedChallengeUserId"));
+
+                    b.Property<int?>("ArchivedChallengeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Placement")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RatingChange")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ArchivedChallengeUserId");
+
+                    b.HasIndex("ArchivedChallengeId");
+
+                    b.ToTable("ArchivedChallengeUsers");
+                });
+
             modelBuilder.Entity("SkillChallenge.Models.Category", b =>
                 {
                     b.Property<int>("CategoryId")
@@ -291,6 +354,9 @@ namespace SkillChallenge.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -327,6 +393,7 @@ namespace SkillChallenge.Migrations
                             ChallengeId = 1,
                             ChallengeName = "Nacksving",
                             CreatedBy = "admin-123",
+                            CreatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Lär dig göra ett nacksving",
                             EndDate = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsTakenDown = new DateTime(2024, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -340,6 +407,7 @@ namespace SkillChallenge.Migrations
                             ChallengeId = 2,
                             ChallengeName = "Guitar solo",
                             CreatedBy = "admin-123",
+                            CreatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Learn this solo",
                             EndDate = new DateTime(2027, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsTakenDown = new DateTime(2027, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -353,6 +421,7 @@ namespace SkillChallenge.Migrations
                             ChallengeId = 3,
                             ChallengeName = "Ace",
                             CreatedBy = "user-456",
+                            CreatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Best aceg",
                             EndDate = new DateTime(2027, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsTakenDown = new DateTime(2027, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -366,6 +435,7 @@ namespace SkillChallenge.Migrations
                             ChallengeId = 4,
                             ChallengeName = "Recepie",
                             CreatedBy = "user-456",
+                            CreatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Best original recepie",
                             EndDate = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsTakenDown = new DateTime(2024, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -497,11 +567,16 @@ namespace SkillChallenge.Migrations
                     b.Property<int>("SubCategoryId")
                         .HasColumnType("int");
 
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryRatingEntityId");
 
                     b.HasIndex("SubCategoryId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("SubCategoryRatingEntities");
                 });
@@ -516,6 +591,9 @@ namespace SkillChallenge.Migrations
 
                     b.Property<int>("ChallengeId")
                         .HasColumnType("int");
+
+                    b.Property<long?>("FileSize")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime>("SubmissionDate")
                         .HasColumnType("datetime2");
@@ -733,6 +811,14 @@ namespace SkillChallenge.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("SkillChallenge.Models.ArchivedChallengeUser", b =>
+                {
+                    b.HasOne("SkillChallenge.Models.ArchivedChallenge", null)
+                        .WithMany("Users")
+                        .HasForeignKey("ArchivedChallengeId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("SkillChallenge.Models.CategoryRatingEntity", b =>
                 {
                     b.HasOne("SkillChallenge.Models.Category", "Category")
@@ -790,7 +876,13 @@ namespace SkillChallenge.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("SkillChallenge.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
                     b.Navigation("SubCategory");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("SkillChallenge.Models.UploadedResult", b =>
@@ -819,6 +911,11 @@ namespace SkillChallenge.Migrations
                         .HasForeignKey("UploadedResultId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("SkillChallenge.Models.ArchivedChallenge", b =>
+                {
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("SkillChallenge.Models.Category", b =>

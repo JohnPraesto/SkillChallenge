@@ -564,11 +564,16 @@ namespace SkillChallenge.Migrations
                     b.Property<int>("SubCategoryId")
                         .HasColumnType("int");
 
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryRatingEntityId");
 
                     b.HasIndex("SubCategoryId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("SubCategoryRatingEntities");
                 });
@@ -868,7 +873,13 @@ namespace SkillChallenge.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("SkillChallenge.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
                     b.Navigation("SubCategory");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("SkillChallenge.Models.UploadedResult", b =>
