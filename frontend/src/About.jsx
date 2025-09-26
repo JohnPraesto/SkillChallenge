@@ -4,7 +4,7 @@ function About() {
   return (
     <div className="about-container">
       <div className="about-card">
-        <h1 className="about-title">Welcome to Skill Challenge!</h1>
+        <h1 className="about-title">Welcome to Skill Challenge! HALLÅ?</h1>
         <ul className="about-list">
           <li>Challenge friends and strangers in anything!</li>
           <li>You can create your own challenges or browse to join challenges already created by community members</li>

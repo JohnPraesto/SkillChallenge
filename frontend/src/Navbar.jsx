@@ -27,7 +27,7 @@ function Navbar() {
         
         <Link to="/" className="nav-link">
           <span className="nav-icon">🏆</span>
-          Challenges
+          Challenges hallå?
         </Link>
 
         <Link to="/users" className="nav-link">
