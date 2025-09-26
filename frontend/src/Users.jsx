@@ -180,7 +180,8 @@ function Users() {
 
 
       <div className="page-header" style={{ textAlign: "center", marginBottom: "2rem" }}>
-        <h1 style={{ color: "var(--primary-color)" }}>Community Members</h1>
+        {/* <h1 style={{ color: "var(--primary-color)" }}>Community Members</h1> */}
+        <h1 style={{ color: "var(--primary-color)" }}>Hallå?</h1>
         <p style={{ color: "var(--text-secondary)" }}>
           Connect with {users.length} skilled challengers
         </p>
