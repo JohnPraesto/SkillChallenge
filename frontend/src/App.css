@@ -258,10 +258,6 @@ body {
   justify-content: space-evenly;
 }
 
-.challenge-history{
-  
-}
-
 /* Card Styles */
 .card {
   background: white;
@@ -285,8 +281,6 @@ body {
   cursor: pointer;
   min-height: 280px;
   max-width: 250px;
-  /* min-height: 300px;
-  max-width: 300px; */
   width: 100%;
 }
 

@@ -5,6 +5,7 @@ import { useToast } from "./ToastContext";
 
 function Users() {
   const [users, setUsers] = useState([]);
+  const [leaderboard, setLeaderboard] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const { showError } = useToast();
@@ -24,6 +25,20 @@ function Users() {
         showError("Failed to load users");
         setLoading(false);
       });
+
+    fetch(apiUrl + "/api/leaderboard")
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to fetch leaderboard");
+        return res.json();
+      })
+      .then(data => {
+        setLeaderboard(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        showError("Failed to load leaderboard");
+        setLoading(false);
+      });
   }, [showError]);
 
   const filteredUsers = users.filter(user =>
@@ -38,6 +53,132 @@ function Users() {
 
   return (
     <div className="container fade-in">
+
+      <div className="page-header" style={{ textAlign: "center", marginBottom: "2rem" }}>
+        <h1 style={{ color: "var(--primary-color)" }}>Leaderboard</h1>
+      </div>
+
+      {leaderboard.map(category => (
+      <div key={category.categoryId} style={{ marginBottom: "3rem" }}>
+        <h2 style={{
+          color: "var(--primary-color)",
+          textAlign: "center",
+          marginBottom: "2rem"
+        }}>
+          {category.categoryName}
+        </h2>
+        <div
+          className="subcategory-grid"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: "2rem",
+            marginBottom: "2rem"
+          }}
+        >
+          {category.subCategories.map(sub => (
+            <div
+              key={sub.subCategoryId}
+              className="subcategory-card"
+              style={{
+                background: "var(--surface)",
+                borderRadius: "12px",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                padding: "1.5rem",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center"
+              }}
+            >
+              {/* Subcategory Image */}
+              <img
+                src={sub.imagePath
+                  ? sub.imagePath.startsWith("http")
+                    ? sub.imagePath
+                    : `${apiUrl}/${sub.imagePath}`
+                  : `${apiUrl}/category-images/default.png`
+                }
+                alt={sub.subCategoryName}
+                style={{
+                  width: "130px",
+                  height: "130px",
+                  objectFit: "cover",
+                  borderRadius: "10px",
+                  border: "2px solid var(--secondary-color)"
+                }}
+              />
+              {/* Subcategory Name */}
+              <h3 style={{
+                color: "var(--secondary-color)",
+                marginBottom: "1rem",
+                textAlign: "center"
+              }}>
+                {sub.subCategoryName}
+              </h3>
+              {/* Top Users */}
+              {sub.topUsers.length > 0 ? (
+                <ol style={{ width: "100%", paddingLeft: "1.2em" }}>
+                  {sub.topUsers.map((user, idx) => (
+                    <li
+                      key={user.userId}
+                      style={{
+                        marginBottom: "0.5rem",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.7rem"
+                      }}
+                    >
+                      <img
+                        src={user.profilePicture
+                          ? user.profilePicture.startsWith("http")
+                            ? user.profilePicture
+                            : `${apiUrl}/${user.profilePicture}`
+                          : `${apiUrl}/profile-pictures/default.png`
+                        }
+                        alt={user.userName}
+                        style={{
+                          width: "28px",
+                          height: "28px",
+                          borderRadius: "50%",
+                          objectFit: "cover",
+                          border: "1.5px solid var(--primary-color)"
+                        }}
+                      />
+                      <span style={{ fontWeight: 500 }}>{user.userName}</span>
+                      <span style={{
+                        color: "var(--text-secondary)",
+                        marginLeft: "auto",
+                        fontSize: "0.95em"
+                      }}>
+                        {user.rating}
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <p style={{ color: "var(--text-secondary)", textAlign: "center" }}>
+                  No users yet
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    ))}
+
+      {leaderboard.length === 0 && (
+        <div className="card bounce-in" style={{ textAlign: "center", padding: "3rem" }}>
+          <h3>No leaderboard data found</h3>
+        </div>
+      )}
+
+
+
+
+
+
+
+
       <div className="page-header" style={{ textAlign: "center", marginBottom: "2rem" }}>
         <h1 style={{ color: "var(--primary-color)" }}>Community Members</h1>
         <p style={{ color: "var(--text-secondary)" }}>

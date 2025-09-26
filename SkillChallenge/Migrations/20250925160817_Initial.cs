@@ -8,11 +8,28 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SkillChallenge.Migrations
 {
     /// <inheritdoc />
-    public partial class initial : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "ArchivedChallenges",
+                columns: table => new
+                {
+                    ArchivedChallengeId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ChallengeId = table.Column<int>(type: "int", nullable: false),
+                    ChallengeName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SubCategoryName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ArchivedChallenges", x => x.ArchivedChallengeId);
+                });
+
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
@@ -65,6 +82,29 @@ namespace SkillChallenge.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Categories", x => x.CategoryId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ArchivedChallengeUsers",
+                columns: table => new
+                {
+                    ArchivedChallengeUserId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    RatingChange = table.Column<int>(type: "int", nullable: false),
+                    Placement = table.Column<int>(type: "int", nullable: false),
+                    ArchivedChallengeId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ArchivedChallengeUsers", x => x.ArchivedChallengeUserId);
+                    table.ForeignKey(
+                        name: "FK_ArchivedChallengeUsers_ArchivedChallenges_ArchivedChallengeId",
+                        column: x => x.ArchivedChallengeId,
+                        principalTable: "ArchivedChallenges",
+                        principalColumn: "ArchivedChallengeId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -227,14 +267,15 @@ namespace SkillChallenge.Migrations
                     ChallengeId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ChallengeName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     VotePeriodEnd = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsTakenDown = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     NumberOfParticipants = table.Column<int>(type: "int", nullable: false),
-                    IsPublic = table.Column<bool>(type: "bit", nullable: false),
                     SubCategoryId = table.Column<int>(type: "int", nullable: true),
-                    CreatedBy = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    CreatedBy = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ResultsSubmitted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -244,7 +285,7 @@ namespace SkillChallenge.Migrations
                         column: x => x.CreatedBy,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
                         name: "FK_Challenges_SubCategories_SubCategoryId",
                         column: x => x.SubCategoryId,
@@ -261,11 +302,17 @@ namespace SkillChallenge.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     SubCategoryId = table.Column<int>(type: "int", nullable: false),
                     Rating = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     CategoryRatingEntityId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SubCategoryRatingEntities", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SubCategoryRatingEntities_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_SubCategoryRatingEntities_CategoryRatingEntities_CategoryRatingEntityId",
                         column: x => x.CategoryRatingEntityId,
@@ -312,7 +359,8 @@ namespace SkillChallenge.Migrations
                     Url = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ChallengeId = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    SubmissionDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    SubmissionDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FileSize = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -366,7 +414,7 @@ namespace SkillChallenge.Migrations
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "ProfilePicture", "SecurityStamp", "TwoFactorEnabled", "UserName" },
                 values: new object[,]
                 {
-                    { "admin-123", 0, "STATIC-ADMIN-CONCURRENCY-STAMP", "admin@skillchallenge.com", true, false, null, "ADMIN@SKILLCHALLENGE.COM", "ADMIN", "AQAAAAIAAYagAAAAEIzZ1ipYa+9PoN6PNCJektB+44UdZJWEv/RnJtum84hmALg1Z4Gl5h9C0nDM2CIXOw==", null, false, null, "STATIC-ADMIN-SECURITY-STAMP", false, "admin" },
+                    { "admin-123", 0, "STATIC-ADMIN-CONCURRENCY-STAMP", "john_praesto@hotmail.com", true, false, null, "JOHN_PRAESTO@HOTMAIL.COM", "JOHN", "AQAAAAIAAYagAAAAEKQDRjO0QissdKacQsQZ2Y1zSJc3ZLNbEbCSfwKwBAX0WOoLI0gqJo/T76Yu6SvbDg==", null, false, null, "STATIC-ADMIN-SECURITY-STAMP", false, "john" },
                     { "user-456", 0, "STATIC-USER-CONCURRENCY-STAMP", "test@skillchallenge.com", true, false, null, "TEST@SKILLCHALLENGE.COM", "TESTUSER", "AQAAAAIAAYagAAAAECPJaSFhPkxbqX8QWGU013AN7zVInxVWKQ92xSKUPYH5LK7TTPhZQLFCAmjFOEKumg==", null, false, null, "STATIC-USER-SECURITY-STAMP", false, "testuser" }
                 });
 
@@ -411,14 +459,19 @@ namespace SkillChallenge.Migrations
 
             migrationBuilder.InsertData(
                 table: "Challenges",
-                columns: new[] { "ChallengeId", "ChallengeName", "CreatedBy", "Description", "EndDate", "IsPublic", "IsTakenDown", "NumberOfParticipants", "SubCategoryId", "VotePeriodEnd" },
+                columns: new[] { "ChallengeId", "ChallengeName", "CreatedBy", "CreatedDate", "Description", "EndDate", "IsTakenDown", "NumberOfParticipants", "ResultsSubmitted", "SubCategoryId", "VotePeriodEnd" },
                 values: new object[,]
                 {
-                    { 1, "Nacksving", "admin-123", "Lär dig göra ett nacksving", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), true, new DateTime(2024, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), 0, 3, new DateTime(2024, 1, 8, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 2, "Guitar solo", "admin-123", "Learn this solo", new DateTime(2027, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), true, new DateTime(2027, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), 0, 1, new DateTime(2027, 1, 8, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 3, "Ace", "user-456", "Best aceg", new DateTime(2027, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), true, new DateTime(2027, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), 0, 7, new DateTime(2027, 1, 8, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 4, "Recepie", "user-456", "Best original recepie", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), true, new DateTime(2024, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), 0, 5, new DateTime(2024, 1, 8, 0, 0, 0, 0, DateTimeKind.Unspecified) }
+                    { 1, "Nacksving", "admin-123", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Lär dig göra ett nacksving", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2024, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), 0, false, 3, new DateTime(2024, 1, 8, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 2, "Guitar solo", "admin-123", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Learn this solo", new DateTime(2027, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2027, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), 0, false, 1, new DateTime(2027, 1, 8, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 3, "Ace", "user-456", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Best aceg", new DateTime(2027, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2027, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), 0, false, 7, new DateTime(2027, 1, 8, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 4, "Recepie", "user-456", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Best original recepie", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2024, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), 0, false, 5, new DateTime(2024, 1, 8, 0, 0, 0, 0, DateTimeKind.Unspecified) }
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ArchivedChallengeUsers_ArchivedChallengeId",
+                table: "ArchivedChallengeUsers",
+                column: "ArchivedChallengeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -451,6 +504,13 @@ namespace SkillChallenge.Migrations
                 name: "EmailIndex",
                 table: "AspNetUsers",
                 column: "NormalizedEmail");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AspNetUsers_Email",
+                table: "AspNetUsers",
+                column: "Email",
+                unique: true,
+                filter: "[Email] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
@@ -500,6 +560,11 @@ namespace SkillChallenge.Migrations
                 column: "SubCategoryId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_SubCategoryRatingEntities_UserId",
+                table: "SubCategoryRatingEntities",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UploadedResults_ChallengeId",
                 table: "UploadedResults",
                 column: "ChallengeId");
@@ -518,6 +583,9 @@ namespace SkillChallenge.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "ArchivedChallengeUsers");
+
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
@@ -541,6 +609,9 @@ namespace SkillChallenge.Migrations
 
             migrationBuilder.DropTable(
                 name: "VoteEntities");
+
+            migrationBuilder.DropTable(
+                name: "ArchivedChallenges");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

@@ -6,5 +6,7 @@
         public int SubCategoryId { get; set; }
         public SubCategory SubCategory { get; set; }
         public int Rating { get; set; }
+        public string? UserId { get; set; }
+        public User? User { get; set; }
     }
 }
