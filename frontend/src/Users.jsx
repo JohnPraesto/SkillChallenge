@@ -71,7 +71,7 @@ function Users() {
           className="subcategory-grid"
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
+            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
             gap: "2rem",
             marginBottom: "2rem"
           }}
