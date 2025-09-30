@@ -18,11 +18,13 @@ namespace SkillChallenge.Controllers
     {
         private readonly IUserRepository _userRepo;
         private readonly UserManager<User> _userManager;
+        private readonly IRatingEntityRepository _ratingRepo;
 
-        public UserController(IUserRepository userRepo, UserManager<User> userManager)
+        public UserController(IUserRepository userRepo, UserManager<User> userManager, IRatingEntityRepository ratingRepo)
         {
             _userRepo = userRepo;
             _userManager = userManager;
+            _ratingRepo = ratingRepo;
         }
 
 
@@ -33,6 +35,7 @@ namespace SkillChallenge.Controllers
             var displayUsers = users
                 .Select(u => new DisplayUserDTO
                 {
+                    Id = u.Id,
                     UserName = u.UserName ?? string.Empty,
                     ProfilePicture = u.ProfilePicture,
                 })
@@ -231,6 +234,7 @@ namespace SkillChallenge.Controllers
                 return Forbid();
             }
 
+            await _ratingRepo.DeleteRatingsForUserAsync(id);
             var response = await _userRepo.DeleteUserAsync(id);
 
             if (!response)

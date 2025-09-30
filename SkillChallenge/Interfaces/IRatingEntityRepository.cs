@@ -9,5 +9,6 @@ namespace SkillChallenge.Interfaces
         Task<bool> SaveChangesAsync(CancellationToken ct = default);
         Task<bool> SetNewSubCategoryRatingAsync(SubCategoryRatingEntity subCategoryRatingEntity, int newRating, CancellationToken ct = default);
         Task UpdateAsync(CategoryRatingEntity categoryRatingEntity, CancellationToken ct);
+        Task DeleteRatingsForUserAsync(string userId, CancellationToken ct = default);
     }
 }

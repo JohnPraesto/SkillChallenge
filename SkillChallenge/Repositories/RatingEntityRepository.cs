@@ -49,5 +49,20 @@ namespace SkillChallenge.Repositories
             _context.CategoryRatingEntities.Update(entity);
             await _context.SaveChangesAsync(ct);
         }
+        public async Task DeleteRatingsForUserAsync(string userId, CancellationToken ct = default)
+        {
+            var categoryRatings = await _context.CategoryRatingEntities
+                .Where(cre => cre.UserId == userId)
+                .Include(cre => cre.SubCategoryRatingEntities)
+                .ToListAsync(ct);
+
+            foreach (var cre in categoryRatings)
+            {
+                _context.SubCategoryRatingEntities.RemoveRange(cre.SubCategoryRatingEntities);
+                _context.CategoryRatingEntities.Remove(cre);
+            }
+
+            await _context.SaveChangesAsync(ct);
+        }
     }
 }
