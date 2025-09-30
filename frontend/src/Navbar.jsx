@@ -11,7 +11,8 @@ function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-flex">
-        <Link to="/" className="navbar-brand">
+        {/* <Link to="/" className="navbar-brand"> */}
+        <Link to="/" className="nav-link">
           <span className="brand-icon">⚡</span>
           <span className="brand-text">
             <span className="brand-skill">Skill</span>
@@ -19,7 +20,8 @@ function Navbar() {
           </span>
         </Link>
 
-        <Link to="/about" className="navbar-brand">
+        {/* <Link to="/about" className="navbar-brand"> */}
+        <Link to="/about" className="nav-link">
           <span className="brand-text">
             <span className="brand-skill">About</span>
           </span>
@@ -35,7 +37,9 @@ function Navbar() {
           Users
         </Link>
         
-        <ThemeToggle />
+        <div className="nav-link">
+          <ThemeToggle />
+        </div>
         
         {user?.userName ? (
           <>

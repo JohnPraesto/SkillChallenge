@@ -78,6 +78,7 @@ function Challenges() {
       />
 
       <div className="three-column-challenges">
+      {/* <div className="challenges-grid"> */}
         {/* Open Challenges */}
         <div className="challenge-column">
           <h2 className="challenge-header" style={{ color: "var(--primary-color)" }}>
