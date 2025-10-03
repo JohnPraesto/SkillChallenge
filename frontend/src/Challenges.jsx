@@ -82,7 +82,7 @@ function Challenges() {
         {/* Open Challenges */}
         <div className="challenge-column">
           <h2 className="challenge-header" style={{ color: "var(--primary-color)" }}>
-            🔥 Open ({openChallenges.length})
+            🔥 Join these challenges
           </h2>
           {openChallenges.length === 0 ? (
             <div className="card bounce-in" style={{ textAlign: "center", padding: "2rem" }}>
@@ -98,7 +98,7 @@ function Challenges() {
         {/* Closed Challenges */}
         <div className="challenge-column">
           <h2 className="challenge-header" style={{ color: "#666" }}>
-            ✅ Closed ({closedChallenges.length})
+            ✅ Vote on these results
           </h2>
           {closedChallenges.length === 0 ? (
             <div className="card bounce-in" style={{ textAlign: "center", padding: "2rem" }}>
@@ -114,7 +114,7 @@ function Challenges() {
         {/* Finished Challenges */}
         <div className="challenge-column">
           <h2 className="challenge-header" style={{ color: "#999" }}>
-            🏁 Finished ({finishedChallenges.length})
+            🏁 View the winners
           </h2>
           {finishedChallenges.length === 0 ? (
             <div className="card bounce-in" style={{ textAlign: "center", padding: "2rem" }}>
