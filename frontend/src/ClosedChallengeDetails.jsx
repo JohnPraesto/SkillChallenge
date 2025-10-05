@@ -41,121 +41,129 @@ function ClosedChallengeDetails({
         <strong>Uploaded Results:</strong>
         {challenge.uploadedResults && challenge.uploadedResults.length > 0 ? (
           <ul>
-            {challenge.uploadedResults.map((result, idx) => {
-              // Is this result voted by the current user?
-              const isVotedByUser = result.votes?.some(vote => vote.userId === user?.id) ?? false;
+            {challenge.joinedUsers.map((joinedUser, idx) => {
+              // Find the uploaded result for this user
+              const result = challenge.uploadedResults?.find(r => r.userName === joinedUser);
 
-              // Has the user voted for any result?
-              const userHasVoted = !!votedResultId;
+              if (result) {
+                // Existing logic for displaying uploaded result
+                const isVotedByUser = result.votes?.some(vote => vote.userId === user?.id) ?? false;
+                const userHasVoted = !!votedResultId;
+                let btnStyle = { marginLeft: 8, cursor: "pointer" };
+                if (userHasVoted) {
+                  btnStyle = isVotedByUser
+                    ? { marginLeft: 8, background: "#1aeb7b", fontWeight: "bold", cursor: "pointer" }
+                    : { marginLeft: 8, background: "#404040", cursor: "not-allowed" };
+                }
+                const voteCount = result.votes ? result.votes.length : 0;
 
-              // Button style logic
-              let btnStyle = { marginLeft: 8, cursor: "pointer" };
-              if (userHasVoted) {
-                btnStyle = isVotedByUser
-                  ? { marginLeft: 8, background: "#1aeb7b", fontWeight: "bold", cursor: "pointer" } // Highlight
-                  : { marginLeft: 8, background: "#404040", cursor: "not-allowed" }; // Greyed out
-              }
-
-              const voteCount = result.votes ? result.votes.length : 0;
-
-              return (
-                <React.Fragment key={idx}>
-                  <li>
-                    <span>{result.userName}</span>
-                    <button
-                      style={btnStyle}
-                      disabled={userHasVoted && !isVotedByUser}
-                      onClick={async () => {
-                        if (!user) {
-                          alert("Log in to place your vote!");
-                          return;
-                        }
-                        await fetch(
-                          `${apiUrl}/api/challenges/${challenge.challengeId}/uploaded-result/vote/${result.uploadedResultId}`,
-                          {
-                            method: "POST",
-                            headers: {
-                              "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                            },
+                return (
+                  <React.Fragment key={idx}>
+                    <li>
+                      <span>{result.userName}</span>
+                      <button
+                        style={btnStyle}
+                        disabled={userHasVoted && !isVotedByUser}
+                        onClick={async () => {
+                          if (!user) {
+                            alert("Log in to place your vote!");
+                            return;
                           }
-                        );
-                        if (typeof fetchChallenge === "function") fetchChallenge();
-                      }}
-                    >
-                      👍
-                    </button>
-                    <span style={{ marginLeft: 8, fontWeight: "bold" }}>
-                      Vote count: {voteCount}
-                    </span>
-                    {result.url && (
-                      <div style={{ marginTop: 8 }}>
-                        {(() => {
-                          // YouTube
-                          const ytId = extractYouTubeId(result.url);
-                          if (ytId) {
-                            return (
-                              <iframe
-                                width="320"
-                                height="180"
-                                src={`https://www.youtube.com/embed/${ytId}`}
-                                title="YouTube video"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowFullScreen
-                              ></iframe>
-                            );
-                          }
-                          // File extension logic
-                          const url = result.url;
-                          const ext = url.split('.').pop().toLowerCase();
-                          if (["jpg", "jpeg", "png", "gif", "bmp", "webp"].includes(ext)) {
-                            // Image
-                            return (
-                              <img
-                                src={url.startsWith("http") ? url : `${apiUrl}/${url}`}
-                                alt="Uploaded result"
-                                style={{ maxWidth: 500, maxHeight: 500 }}
-                              />
-                            );
-                          }
-                          if (["mp4", "webm", "mov"].includes(ext)) {
-                            // Video
-                            return (
-                              <video
-                                controls
-                                width="320"
-                                height="180"
-                                src={url.startsWith("http") ? url : `${apiUrl}/${url}`}
-                              >
-                                Your browser does not support the video tag.
-                              </video>
-                            );
-                          }
-                          if (ext === "pdf") {
-                            // PDF
-                            return (
-                              <a
-                                href={url.startsWith("http") ? url : `${apiUrl}/${url}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style={{ display: "inline-block", marginTop: 8 }}
-                              >
-                                📄 View PDF
-                              </a>
-                            );
-                          }
-                          // Fallback
-                          return (
-                            <div style={{ marginTop: 8 }}>
-                              Unable to display this result: "{url}"
-                            </div>
+                          await fetch(
+                            `${apiUrl}/api/challenges/${challenge.challengeId}/uploaded-result/vote/${result.uploadedResultId}`,
+                            {
+                              method: "POST",
+                              headers: {
+                                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                              },
+                            }
                           );
-                        })()}
-                      </div>
-                    )}
-                  </li>
-                  <hr style={{ margin: "16px 0", border: "none", borderTop: "1px solid #ccc" }} />
-                </React.Fragment>
-              );
+                          if (typeof fetchChallenge === "function") fetchChallenge();
+                        }}
+                      >
+                        👍
+                      </button>
+                      <span style={{ marginLeft: 8, fontWeight: "bold" }}>
+                        Vote count: {voteCount}
+                      </span>
+                      {result.url && (
+                        <div style={{ marginTop: 8 }}>
+                          {/* ...existing display logic for result.url... */}
+                          {(() => {
+                            const ytId = extractYouTubeId(result.url);
+                            if (ytId) {
+                              return (
+                                <iframe
+                                  width="320"
+                                  height="180"
+                                  src={`https://www.youtube.com/embed/${ytId}`}
+                                  title="YouTube video"
+                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                  allowFullScreen
+                                ></iframe>
+                              );
+                            }
+                            const url = result.url;
+                            const ext = url.split('.').pop().toLowerCase();
+                            if (["jpg", "jpeg", "png", "gif", "bmp", "webp"].includes(ext)) {
+                              return (
+                                <img
+                                  src={url.startsWith("http") ? url : `${apiUrl}/${url}`}
+                                  alt="Uploaded result"
+                                  style={{ maxWidth: 500, maxHeight: 500 }}
+                                />
+                              );
+                            }
+                            if (["mp4", "webm", "mov"].includes(ext)) {
+                              return (
+                                <video
+                                  controls
+                                  width="320"
+                                  height="180"
+                                  src={url.startsWith("http") ? url : `${apiUrl}/${url}`}
+                                >
+                                  Your browser does not support the video tag.
+                                </video>
+                              );
+                            }
+                            if (ext === "pdf") {
+                              return (
+                                <a
+                                  href={url.startsWith("http") ? url : `${apiUrl}/${url}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  style={{ display: "inline-block", marginTop: 8 }}
+                                >
+                                  📄 View PDF
+                                </a>
+                              );
+                            }
+                            return (
+                              <div style={{ marginTop: 8 }}>
+                                Unable to display this result: "{url}"
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      )}
+                    </li>
+                    <hr style={{ margin: "16px 0", border: "none", borderTop: "1px solid #ccc" }} />
+                  </React.Fragment>
+                );
+              } else {
+                // User did not upload any results
+                return (
+                  <React.Fragment key={idx}>
+                    <li>
+                      <span>{joinedUser}</span>
+                      <span style={{ marginLeft: 8, color: "#888" }}>
+                        did not upload any results
+                      </span>
+                    </li>
+                    <hr style={{ margin: "16px 0", border: "none", borderTop: "1px solid #ccc" }} />
+                  </React.Fragment>
+                );
+              }
             })}
           </ul>
         ) : (
@@ -166,7 +174,7 @@ function ClosedChallengeDetails({
 
 
         {/* For local dev purposes */}
-      {/* <button
+      <button
         className="btn btn-primary"
         style={{ marginTop: 24 }}
         onClick={async () => {
@@ -193,7 +201,7 @@ function ClosedChallengeDetails({
         }}
       >
         Submit Results
-      </button> */}
+      </button>
       {/* Local dev purposes END */}
 
 
