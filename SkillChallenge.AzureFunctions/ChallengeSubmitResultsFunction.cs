@@ -33,7 +33,7 @@ namespace SkillChallenge.AzureFunctions
             foreach (var challenge in challengesToSubmit)
             {
                 var categoryId = challenge.SubCategory.CategoryId;
-                await _eloRatingService.EnsureRatingsExistForParticipantsAsync(challenge.Participants, categoryId, challenge.SubCategoryId.Value, CancellationToken.None);
+                await _eloRatingService.EnsureRatingsExistForParticipantsAsync(challenge, challenge.Participants, categoryId, challenge.SubCategoryId.Value, CancellationToken.None);
                 await _eloRatingService.UpdateEloRatingsAsync(challenge.Participants, categoryId, challenge.SubCategoryId.Value, challenge, CancellationToken.None);
 
                 challenge.ResultsSubmitted = true;

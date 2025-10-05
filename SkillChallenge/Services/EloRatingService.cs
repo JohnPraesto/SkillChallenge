@@ -65,9 +65,17 @@ namespace SkillChallenge.Services
         // Ser till att alla users i challengen har en rating i den
         // subCategory som challengen har. Om usern inte har någon rating i den
         // subCategory så får den en ny rating med värdet 1000.
-        public async Task EnsureRatingsExistForParticipantsAsync(IEnumerable<User> users, int categoryId, int subCategoryId, CancellationToken ct)
+        public async Task EnsureRatingsExistForParticipantsAsync(Challenge challenge, ICollection<User> users, int categoryId, int subCategoryId, CancellationToken ct)
         {
-            foreach (var user in users)
+            var userList = users.ToList();
+
+            // Build a set of UserNames who have uploaded results
+            var uploadedUserNames = new HashSet<string>(challenge.UploadedResults.Select(ur => ur.User.UserName));
+
+            // Remove users who have not uploaded results
+            userList.RemoveAll(u => !uploadedUserNames.Contains(u.UserName));
+
+            foreach (var user in userList)
             {
                 var categoryRatingEntity = user.CategoryRatingEntities.FirstOrDefault(c => c.CategoryId == categoryId);
 
@@ -109,8 +117,16 @@ namespace SkillChallenge.Services
             }
         }
 
-        public async Task UpdateEloRatingsAsync(IEnumerable<User> users, int categoryId, int subCategoryId, Challenge challenge, CancellationToken ct)
+        public async Task UpdateEloRatingsAsync(IEnumerable<User> usersEnumerable, int categoryId, int subCategoryId, Challenge challenge, CancellationToken ct)
         {
+            var users = usersEnumerable.ToList();
+
+            // Build a set of UserNames who have uploaded results
+            var uploadedUserNames = new HashSet<string>(challenge.UploadedResults.Select(ur => ur.User.UserName));
+
+            // Remove users who have not uploaded results
+            users.RemoveAll(u => !uploadedUserNames.Contains(u.UserName));
+
             // This equation sets the k-factor adjusted for number of users.
             // k-factor rises faster with low number of users
             // 2 users - k-factor is 32

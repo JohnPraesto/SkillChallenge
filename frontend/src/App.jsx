@@ -32,7 +32,6 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/challenges/:id" element={<ChallengeDetails />} />
           <Route path="/create-challenge" element={<CreateChallenge />} />
-          <Route path="/create-challenge" element={<CreateChallenge />} />
           <Route path="/about" element={<About />} />
           <Route path="/upload-result" element={<UploadResult />} />
           <Route path="/admin" element={
