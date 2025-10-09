@@ -14,16 +14,19 @@ namespace ASPNET_VisualStudio_Tutorial.Controllers
         private readonly UserManager<User> _userManager;
         private readonly ITokenService _tokenService;
         private readonly SignInManager<User> _signinManager;
+        private readonly IEmailService _emailService;
 
         public AccountController(
             UserManager<User> userManager,
             ITokenService tokenService,
-            SignInManager<User> signInManager
+            SignInManager<User> signInManager,
+            IEmailService emailService
         )
         {
             _userManager = userManager;
             _tokenService = tokenService;
             _signinManager = signInManager;
+            _emailService = emailService;
         }
 
         [HttpPost("login")]
@@ -101,6 +104,47 @@ namespace ASPNET_VisualStudio_Tutorial.Controllers
             {
                 return StatusCode(500, e);
             }
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var user = await _userManager.FindByEmailAsync(dto.Email);
+            if (user == null)
+                return Ok();
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var encodedToken = System.Web.HttpUtility.UrlEncode(token);
+            var resetLink = $"{dto.ResetLinkBaseUrl.TrimEnd('/')}/reset-password?email={System.Web.HttpUtility.UrlEncode(user.Email)}&token={encodedToken}";
+
+            await _emailService.SendEmailAsync(
+                user.Email,
+                "Password Reset",
+                $"Click <a href='{resetLink}'>here</a> to reset your password."
+            );
+
+            return Ok(new { Message = "A reset link has been sent." });
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var user = await _userManager.FindByEmailAsync(dto.Email);
+            if (user == null)
+                return Ok(new { Message = "If the email exists, the password has been reset." });
+
+            var result = await _userManager.ResetPasswordAsync(user, dto.Token, dto.NewPassword);
+
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
+
+            return Ok(new { Message = "Password has been reset successfully." });
         }
     }
 }

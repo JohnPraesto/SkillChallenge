@@ -86,7 +86,8 @@ public class Program
                 options.Password.RequireNonAlphanumeric = true;
                 options.Password.RequiredLength = 8;
             })
-            .AddEntityFrameworkStores<AppDbContext>();
+            .AddEntityFrameworkStores<AppDbContext>()
+            .AddDefaultTokenProviders();
 
         var signingKey = builder.Configuration["JWT:SigningKey"];
         if (string.IsNullOrWhiteSpace(signingKey))
@@ -127,6 +128,7 @@ public class Program
         builder.Services.AddScoped<IMediaService, MediaService>();
         builder.Services.AddScoped<IRatingEntityRepository, RatingEntityRepository>();
         builder.Services.AddScoped<EloRatingService>();
+        builder.Services.AddScoped<IEmailService, EmailService>();
 
         var storageType = builder.Configuration["Storage:Type"];
         if (storageType == "AzureBlob")

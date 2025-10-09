@@ -16,6 +16,7 @@ var host = new HostBuilder()
         services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(
                 Environment.GetEnvironmentVariable("SqlConnectionString")));
+        services.AddScoped<IArchivedChallengeRepository, ArchivedChallengeRepository>();
         services.AddScoped<IRatingEntityRepository, RatingEntityRepository>();
         services.AddScoped<EloRatingService>();
     })

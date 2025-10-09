@@ -14,6 +14,7 @@ import CreateChallenge from "./CreateChallenge";
 import UploadResult from "./UploadResult";
 import Admin from "./Admin";
 import RequireAdmin from "./RequireAdmin";
+import ResetPassword from "./ResetPassword";
 import About from "./About";
 import './App.css';
 
@@ -34,6 +35,7 @@ function App() {
           <Route path="/create-challenge" element={<CreateChallenge />} />
           <Route path="/about" element={<About />} />
           <Route path="/upload-result" element={<UploadResult />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/admin" element={
             <RequireAdmin>
               <Admin />
