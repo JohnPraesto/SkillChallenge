@@ -9,6 +9,9 @@ function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
   const { showError, showSuccess } = useToast();
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
   const apiUrl = import.meta.env.VITE_API_URL;
 
   const handleChange = (e) => {
@@ -51,6 +54,32 @@ function Login() {
       showError("Connection error. Please try again.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    setForgotLoading(true);
+    try {
+      const response = await fetch(apiUrl + "/api/account/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: forgotEmail,
+          resetLinkBaseUrl: window.location.origin, // base URL for reset link
+        }),
+      });
+      if (response.ok) {
+        showSuccess("If the email exists, a reset link has been sent.");
+        setShowForgotModal(false);
+        setForgotEmail("");
+      } else {
+        showError("Failed to send reset link.");
+      }
+    } catch {
+      showError("Connection error.");
+    } finally {
+      setForgotLoading(false);
     }
   };
 
@@ -112,6 +141,55 @@ function Login() {
             )}
           </button>
         </form>
+
+        <div className="forgot-password">
+          <button
+            type="button"
+            className="link-button"
+            onClick={() => setShowForgotModal(true)}
+            tabIndex={-1}
+          >
+            Forgot password?
+          </button>
+        </div>
+
+        {showForgotModal && (
+          <div className="modal-backdrop">
+            <div className="modal">
+              <h2>Reset Password</h2>
+              <form onSubmit={handleForgotPassword}>
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={forgotEmail}
+                  onChange={(e) => setForgotEmail(e.target.value)}
+                  required
+                  className="form-control"
+                  autoFocus
+                  style={{marginBottom: "0.5rem", marginTop: "-1rem"}}
+                />
+                <div className="modal-actions">
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => setShowForgotModal(false)}
+                    disabled={forgotLoading}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    disabled={forgotLoading}
+                    style={{marginLeft: "1rem", marginBottom: "1rem"}}
+                  >
+                    {forgotLoading ? "Sending..." : "Send Reset Link"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
 
         <div className="auth-footer">
           <p>Don't have an account? 
