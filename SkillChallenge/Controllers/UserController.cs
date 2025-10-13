@@ -69,7 +69,10 @@ namespace SkillChallenge.Controllers
                             SubCategoryName = sre.SubCategory?.SubCategoryName ?? string.Empty,
                             Rating = sre.Rating
                         }).ToList()
-                    }).ToList()
+                    }).ToList(),
+                    NotifyTwoDaysBeforeEndDate = user.NotifyTwoDaysBeforeEndDate,
+                    NotifyOnEndDate = user.NotifyOnEndDate,
+                    NotifyOnVotingEnd = user.NotifyOnVotingEnd
                 }
             );
         }
@@ -287,6 +290,23 @@ namespace SkillChallenge.Controllers
                 return StatusCode(500, addResult.Errors);
 
             return Ok($"User role updated to '{role}'.");
+        }
+
+        [HttpPut("{id}/notification-settings")]
+        [Authorize]
+        public async Task<IActionResult> UpdateNotificationSettings(string id, [FromBody] NotificationSettingsDTO dto)
+        {
+            var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            if (userRole != "Admin" && currentUserId != id)
+                return Forbid();
+
+            var success = await _userRepo.UpdateUserNotificationsAsync(id, dto);
+            if (!success)
+                return NotFound($"User with id {id} was not found in the database");
+
+            return Ok();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using SkillChallenge.DTOs;
 using SkillChallenge.DTOs.User;
 using SkillChallenge.Models;
 
@@ -13,5 +14,6 @@ namespace SkillChallenge.Interfaces
         Task<IdentityResult> ChangePasswordAsync(string userId, string currentPassword, string newPassword);
         Task<bool> DeleteUserAsync(string id);
         Task<bool> UserExists(string id);
+        Task<bool> UpdateUserNotificationsAsync(string id, NotificationSettingsDTO dto);
     }
 }

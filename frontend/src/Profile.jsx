@@ -16,7 +16,41 @@ function Profile() {
     newPassword: "",
     pictureFile: ""
   });
+  const [notifSettings, setNotifSettings] = useState({
+    notifyTwoDaysBeforeEndDate: true,
+    notifyOnEndDate: true,
+    notifyOnVotingEnd: true,
+  });
+  const [notifLoading, setNotifLoading] = useState(false);
   const apiUrl = import.meta.env.VITE_API_URL;
+
+  const handleNotifChange = (e) => {
+    const { name, checked } = e.target;
+    setNotifSettings((prev) => ({ ...prev, [name]: checked }));
+  };
+
+  const saveNotifSettings = async () => {
+    setNotifLoading(true);
+    try {
+      const res = await fetch(`${apiUrl}/api/users/${user.id}/notification-settings`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({
+          notifyTwoDaysBeforeEndDate: notifSettings.notifyTwoDaysBeforeEndDate,
+          notifyOnEndDate: notifSettings.notifyOnEndDate,
+          notifyOnVotingEnd: notifSettings.notifyOnVotingEnd,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to update notification settings");
+      showSuccess("Notification settings updated!");
+    } catch (err) {
+      showError("Failed to update notification settings");
+    }
+    setNotifLoading(false);
+  };
 
   useEffect(() => {
   }, [user]);
@@ -29,6 +63,12 @@ function Profile() {
       .then(data => {
         setUserData(data);
         setLoading(false);
+        console.log(data)
+        setNotifSettings({
+          notifyTwoDaysBeforeEndDate: data.notifyTwoDaysBeforeEndDate ?? true,
+          notifyOnEndDate: data.notifyOnEndDate ?? true,
+          notifyOnVotingEnd: data.notifyOnVotingEnd ?? true,
+        });
       })
       .catch(err => {
         showError("Failed to load profile");
@@ -225,7 +265,7 @@ function Profile() {
 
             <button 
               className="btn"
-              style={{ backgroundColor: "#ff4444", color: "white" }}
+              style={{ backgroundColor: "#ff4444", color: "white"}}
               onClick={handleDeleteAccount}
             >
             Delete Account
@@ -340,6 +380,52 @@ function Profile() {
             </div>
           )}
         </div>
+
+                {/* Notification Settings */}
+        <div className="notification-settings">
+          <h3 style={{ textAlign: "center", marginBottom: "1.5rem" }}>Email Notification Settings</h3>
+          <div className="notification-checkbox-row">
+            <label className="notification-label">
+              <input
+                type="checkbox"
+                name="notifyTwoDaysBeforeEndDate"
+                checked={notifSettings.notifyTwoDaysBeforeEndDate}
+                onChange={handleNotifChange}
+                style={{ transform: "scale(1.2)" }}
+              />
+              Notify 2 days before challenges ends
+            </label>
+            <label className="notification-label">
+              <input
+                type="checkbox"
+                name="notifyOnEndDate"
+                checked={notifSettings.notifyOnEndDate}
+                onChange={handleNotifChange}
+                style={{ transform: "scale(1.2)" }}
+              />
+              Notify when voting begins
+            </label>
+            <label className="notification-label">
+              <input
+                type="checkbox"
+                name="notifyOnVotingEnd"
+                checked={notifSettings.notifyOnVotingEnd}
+                onChange={handleNotifChange}
+                style={{ transform: "scale(1.2)" }}
+              />
+              Notify when voting has finished
+            </label>
+          </div>  
+          <button
+            className="btn btn-primary"
+            style={{width: "200px", marginBottom: "0.5rem"}}
+            onClick={saveNotifSettings}
+            disabled={notifLoading}
+          >
+            {notifLoading ? "Saving..." : "Save Notification Settings"}
+          </button>
+        </div>
+
         <div className="challenge-history">
           <h3 style={{ textAlign: "center" }}>Your Challenge History</h3>
           {archivedChallenges.length === 0 ? (
