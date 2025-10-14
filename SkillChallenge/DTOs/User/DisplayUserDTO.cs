@@ -5,6 +5,9 @@
         public string Id { get; set; }
         public string UserName { get; set; }
         public string ProfilePicture { get; set; }
+        public bool NotifyTwoDaysBeforeEndDate { get; set; }
+        public bool NotifyOnEndDate { get; set; }
+        public bool NotifyOnVotingEnd { get; set; }
         public List<CategoryRatingDTO> CategoryRatingEntities { get; set; } = new();
     }
 

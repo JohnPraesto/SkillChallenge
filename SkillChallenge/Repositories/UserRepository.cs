@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SkillChallenge.Data;
+using SkillChallenge.DTOs;
 using SkillChallenge.DTOs.User;
 using SkillChallenge.Interfaces;
 using SkillChallenge.Models;
@@ -46,10 +47,7 @@ namespace SkillChallenge.Repositories
             return user;
         }
 
-        public async Task<(IdentityResult, User?)> UpdateUserAsync(
-            string id,
-            UpdateUserDTO updateUser
-        )
+        public async Task<(IdentityResult, User?)> UpdateUserAsync(string id, UpdateUserDTO updateUser)
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
@@ -95,6 +93,21 @@ namespace SkillChallenge.Repositories
         public async Task<bool> UserExists(string id)
         {
             return await _context.Users.AnyAsync(u => u.Id == id);
+        }
+
+        public async Task<bool> UpdateUserNotificationsAsync(string userId, NotificationSettingsDTO dto)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return false;
+
+            user.NotifyTwoDaysBeforeEndDate = dto.NotifyTwoDaysBeforeEndDate;
+            user.NotifyOnEndDate = dto.NotifyOnEndDate;
+            user.NotifyOnVotingEnd = dto.NotifyOnVotingEnd;
+
+            await _userManager.UpdateAsync(user);
+
+            return true;
         }
     }
 }

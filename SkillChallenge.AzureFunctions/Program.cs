@@ -18,6 +18,7 @@ var host = new HostBuilder()
                 Environment.GetEnvironmentVariable("SqlConnectionString")));
         services.AddScoped<IArchivedChallengeRepository, ArchivedChallengeRepository>();
         services.AddScoped<IRatingEntityRepository, RatingEntityRepository>();
+        services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<EloRatingService>();
     })
     .Build();
