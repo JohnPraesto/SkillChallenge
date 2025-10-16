@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { LoadingSkeleton } from "./LoadingSkeleton";
 import { SearchAndFilter } from "./SearchAndFilter";
 import { useToast } from "./ToastContext";
@@ -78,7 +78,6 @@ function Challenges() {
       />
 
       <div className="three-column-challenges">
-      {/* <div className="challenges-grid"> */}
         {/* Open Challenges */}
         <div className="challenge-column">
           <h2 className="challenge-header" style={{ color: "var(--primary-color)" }}>
@@ -127,7 +126,14 @@ function Challenges() {
           )}
         </div>
       </div>
-      <div style={{ textAlign: "center", margin: "3rem 0 1.5rem 0" }}>
+      {/* <div style={{ textAlign: "center", margin: "3rem 0 1.5rem 0" }}>
+        
+        <Link to="/about" className="nav-link">
+            <span className="brand-text">
+              <span className="brand-skill">About</span>
+            </span>
+        </Link>
+        
         <button
           className="footer-archived-btn"
           onClick={() => navigate("/archived-challenges")}
@@ -141,7 +147,22 @@ function Challenges() {
         >
           📦 Archived Challenges
         </button>
+      </div> */}
+
+      <div className="challenge-footer-buttons">
+        <Link to="/about" className="footer-btn">
+          <span className="footer-btn-icon">ℹ️</span>
+          About
+        </Link>
+        <button
+          className="footer-btn"
+          onClick={() => navigate("/archived-challenges")}
+        >
+          <span className="footer-btn-icon">📦</span>
+          Archived Challenges
+        </button>
       </div>
+
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
 import { useToast } from "./ToastContext";
+import { ThemeToggle } from "./ThemeToggle";
 import { LoadingSkeleton } from "./LoadingSkeleton";
 
 function Profile() {
@@ -63,7 +64,6 @@ function Profile() {
       .then(data => {
         setUserData(data);
         setLoading(false);
-        console.log(data)
         setNotifSettings({
           notifyTwoDaysBeforeEndDate: data.notifyTwoDaysBeforeEndDate ?? true,
           notifyOnEndDate: data.notifyOnEndDate ?? true,
@@ -239,6 +239,9 @@ function Profile() {
 
         <div className="profile-actions">
           <div className="profile-buttons">
+            <div className="nav-link">
+              <ThemeToggle />
+            </div>
             <button 
               className="btn btn-secondary"
               onClick={() => setActiveForm(activeForm === "username" ? null : "username")}
