@@ -101,15 +101,6 @@ body {
   gap: 1.5rem;
 }
 
-/* .navbar-brand {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  text-decoration: none;
-  transition: transform var(--transition-normal);
-  flex-direction: row;
-} */
-
 .navbar-brand:hover {
   transform: scale(1.05);
 }
@@ -134,6 +125,129 @@ body {
   background: var(--surface);
   transform: translateY(-2px);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Mobile footer (hidden by default, shown on <=1024px) */
+.mobile-footer {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  z-index: 1200;
+  align-items: center;
+  justify-content: space-around;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+}
+
+/* Buttons inside mobile footer */
+.mobile-button {
+  background: none;
+  border: none;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.1rem 0.5rem;
+  min-width: 56px;
+  cursor: pointer;
+}
+
+.mobile-button:active {
+  transform: translateY(-1px);
+}
+
+.mobile-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.mobile-label {
+  font-size: 0.65rem;
+}
+
+.mobile-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--primary-color);
+}
+
+/* Show footer and hide navbar on smaller screens */
+@media (max-width: 1024px) {
+  .navbar {
+    display: none;
+  }
+  .mobile-footer {
+    display: flex;
+  }
+  body {
+    padding-bottom: 74px; /* reserve space for the footer */
+  }
+}
+
+/* Dark mode tweaks */
+.dark-mode .mobile-footer {
+  background: var(--surface);
+  color: var(--text);
+  border-top-color: var(--border);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 .brand-icon {
   font-size: 2rem;
@@ -253,11 +367,18 @@ body {
   justify-content: space-evenly;
 }
 
+@media (max-width: 1024px) {
+  .profile-buttons {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+  }
+}
+
 .notification-settings{
   margin: 2rem 0;
   border: 1px solid #bbb;
   border-radius: 10px;
-  /* padding: 1rem; */
   width: 98%;
   margin-left: auto;
   margin-right: auto;
@@ -1316,4 +1437,37 @@ img {
 
 .dark-mode .about-list {
   color: var(--text-secondary);
+}
+
+.challenge-footer-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin: 3rem 0 1.5rem 0;
+}
+
+.footer-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--primary-color);
+  color: #fff;
+  border: none;
+  border-radius: var(--border-radius);
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+  box-shadow: var(--shadow);
+}
+
+.footer-btn:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+}
+
+.footer-btn-icon {
+  font-size: 1.2rem;
 }
