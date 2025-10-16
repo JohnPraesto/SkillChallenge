@@ -6,6 +6,7 @@ function UploadResult(){
     const navigate = useNavigate();
     const { apiUrl, challengeId } = location.state || {};
     const [uploadType, setUploadType] = useState("");
+    const [freeText, setFreeText] = useState("");
     const [file, setFile] = useState(null);
     const [youtubeLink, setYoutubeLink] = useState("");
     const [uploading, setUploading] = useState(false);
@@ -25,6 +26,8 @@ function UploadResult(){
                 formData.append("youtubeUrl", youtubeLink);
             } else if (uploadType === "file" && file) {
                 formData.append("file", file);
+            } else if (uploadType === "text") {
+                formData.append("freeText", freeText);
             }
             res = await fetch(
                 `${apiUrl}/api/challenges/${challengeId}/upload-result`,
@@ -36,7 +39,7 @@ function UploadResult(){
                     body: formData,
                 }
             );
-             if (res && res.ok) {
+            if (res && res.ok) {
                 setMessage("Result uploaded!");
                 setTimeout(() => navigate && navigate(-1), 1000);
             } else {
@@ -62,9 +65,16 @@ function UploadResult(){
                 </button>
                 <button
                     className={uploadType === "file" ? "btn btn-primary" : "btn"}
+                    style={{ marginRight: 10 }}
                     onClick={() => setUploadType("file")}
                 >
                     Upload File
+                </button>
+                <button
+                    className={uploadType === "text" ? "btn btn-primary" : "btn"}
+                    onClick={() => setUploadType("text")}
+                >
+                    Free text
                 </button>
             </div>
 
@@ -79,6 +89,7 @@ function UploadResult(){
                     />
                 </div>
             )}
+
             {uploadType === "file" && (
                 <div>
                     <input
@@ -89,12 +100,28 @@ function UploadResult(){
                 </div>
             )}
 
+            {uploadType === "text" && (
+                <div>
+                    <textarea
+                        placeholder="Enter a short description or text result"
+                        style={{ width: 400, height: 120 }}
+                        value={freeText}
+                        onChange={e => setFreeText(e.target.value)}
+                    />
+                </div>
+            )}
+
             {uploadType && (
                 <button
                     className="btn btn-success"
                     style={{ marginTop: 20 }}
                     onClick={handleUpload}
-                    disabled={uploading || (uploadType === "file" && !file) || (uploadType === "youtube" && !youtubeLink)}
+                    disabled={
+                        uploading ||
+                        (uploadType === "file" && !file) ||
+                        (uploadType === "youtube" && !youtubeLink) ||
+                        (uploadType === "text" && !freeText)
+                    }
                 >
                     {uploading ? "Uploading..." : "Submit"}
                 </button>
