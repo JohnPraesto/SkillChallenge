@@ -16,6 +16,40 @@ function ClosedChallengeDetails({
 
   const votedResultId = userVote?.uploadedResultId;
 
+  function FreeText({ text }) {
+    const [expanded, setExpanded] = useState(false);
+    const PREVIEW_LEN = 400;
+    if (!text) return null;
+    const needsTruncate = text.length > PREVIEW_LEN;
+    const display = !expanded && needsTruncate ? text.slice(0, PREVIEW_LEN) + "…" : text;
+    return (
+      <div style={{ marginTop: 8 }}>
+        <div
+          style={{
+            border: "1px solid #e6e6e6",
+            padding: 12,
+            borderRadius: 7,
+            color: "#bebebeff",
+            whiteSpace: "pre-wrap",
+            lineHeight: 1.5,
+            fontSize: 14
+          }}
+        >
+          {display}
+        </div>
+        {needsTruncate && (
+          <button
+            onClick={() => setExpanded(s => !s)}
+            style={{ marginTop: 6, padding: "6px 8px", cursor: "pointer" }}
+            aria-expanded={expanded}
+          >
+            {expanded ? "Show less" : "Show more"}
+          </button>
+        )}
+      </div>
+    );
+  }
+
   function extractYouTubeId(url) {
     // Handles regular, short, and shorts URLs
     const patterns = [
@@ -146,6 +180,13 @@ function ClosedChallengeDetails({
                           })()}
                         </div>
                       )}
+
+                      {result.freeText && (
+                        <div style={{ marginTop: 8 }}>
+                          <FreeText text={result.freeText} />
+                        </div>
+                      )}
+
                     </li>
                     <hr style={{ margin: "16px 0", border: "none", borderTop: "1px solid #ccc" }} />
                   </React.Fragment>

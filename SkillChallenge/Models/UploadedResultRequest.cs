@@ -4,5 +4,6 @@
     {
         public string? YoutubeUrl { get; set; }
         public IFormFile? File { get; set; }
+        public string? FreeText { get; set; }
     }
 }

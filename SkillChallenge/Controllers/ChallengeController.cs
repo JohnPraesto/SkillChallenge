@@ -142,6 +142,7 @@ namespace SkillChallenge.Controllers
                     UserId = ur.UserId,
                     SubmissionDate = ur.SubmissionDate,
                     UserName = ur.User?.UserName ?? "Unknown",
+                    FreeText = ur.FreeText,
                     Votes = ur.Votes.Select(vote => new VoteEntity
                     {
                         Id = vote.Id,
@@ -356,9 +357,12 @@ namespace SkillChallenge.Controllers
             // Validate input: Only one of YoutubeUrl or File should be provided
             bool hasYoutubeUrl = !string.IsNullOrWhiteSpace(uploadedResultRequest.YoutubeUrl);
             bool hasFile = uploadedResultRequest.File != null;
+            bool hasFreeText = uploadedResultRequest.FreeText != null;
 
-            if (hasYoutubeUrl == hasFile)
-                return BadRequest("You must provide either a YouTube link or a file, but not both.");
+            int providedCount = (hasYoutubeUrl ? 1 : 0) + (hasFile ? 1 : 0) + (hasFreeText ? 1 : 0);
+
+            if (providedCount != 1)
+                return BadRequest("You must provide either a YouTube link or a file or free text.");
 
             string? resultUrl = null;
 
@@ -394,15 +398,27 @@ namespace SkillChallenge.Controllers
                 // Save to Azure Blob Storage
                 resultUrl = await _mediaService.SaveMediaAsync(uploadedResultRequest.File, "challenge-media");
             }
+            else if (hasFreeText)
+            {
+                resultUrl = uploadedResultRequest.FreeText;
+            }
 
             var newUploadedResult = new UploadedResult
             {
-                Url = resultUrl,
                 ChallengeId = challengeId,
                 UserId = currentUserId,
                 SubmissionDate = DateTime.UtcNow,
                 FileSize = hasFile ? uploadedResultRequest.File.Length : null,
             };
+
+            if (hasFreeText)
+            {
+                newUploadedResult.FreeText = uploadedResultRequest.FreeText;
+            }
+            else
+            {
+                newUploadedResult.Url = resultUrl;
+            }
 
             var result = await _challengeRepo.AddUploadedResultToChallengeAsync(challengeId, newUploadedResult, ct);
 

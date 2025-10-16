@@ -10,6 +10,7 @@
         public string UserId { get; set; }
         public User User { get; set; }
         public DateTime SubmissionDate { get; set; }
+        public string? FreeText { get; set; }
         public long? FileSize { get; set; }
         // The FileSize property is used in the UploadResult endpoint
         // in the ChallengeController. Before a user can upload a result
