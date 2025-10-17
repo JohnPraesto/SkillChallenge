@@ -28,28 +28,73 @@ function ChallengeDetails() {
   if (error) return <div style={{ color: "red" }}>{error}</div>;
   if (!challenge) return <div>Loading...</div>;
 
-  const now = new Date();
+const now = new Date();
   const isOpen = new Date(challenge.endDate) > now;
   const isClosed = new Date(challenge.endDate) <= now && new Date(challenge.votePeriodEnd) > now;
   const isFinished = new Date(challenge.votePeriodEnd) <= now;
   const numberOfParticipants = challenge.joinedUsers ? challenge.joinedUsers.length : 0;
-  
+
+  const endDateStr = new Date(challenge.endDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  const voteEndStr = new Date(challenge.votePeriodEnd).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  const statusLabel = isOpen ? "Open for submissions" : isClosed ? "Voting in progress" : "Finished";
+  const statusClass = isOpen ? "status-open" : isClosed ? "status-closed" : "status-finished";
+  const participantsMax = challenge.numberOfParticipants || 0;
+  const participantsPct = participantsMax > 0 ? Math.min(100, Math.round((numberOfParticipants / participantsMax) * 100)) : 0;
+
   return (
-    <div style={{ maxWidth: 500, margin: "2em auto", padding: 24, border: "1px solid #ccc", borderRadius: 8 }}>
-      <h2>{challenge.challengeName}</h2>
+    <div className="challenge-details-base">
+      <h1 style={{textAlign: "center", color: "var(--primary-color)"}}>{challenge.challengeName}</h1>
       <img
         src={
-            challenge.subCategory?.imagePath?.startsWith("http")
-              ? challenge.subCategory.imagePath
-              : `${apiUrl}/${challenge.subCategory.imagePath}`
-          }
+          challenge.subCategory?.imagePath?.startsWith("http")
+            ? challenge.subCategory.imagePath
+            : `${apiUrl}/${challenge.subCategory.imagePath}`
+        }
         alt={challenge.subCategory.subCategoryName || "Category"}
-        style={{ width: 300, height: 300, objectFit: "cover", borderRadius: 8, marginBottom: 12 }}
+        style={{ width: "auto", height: 300, objectFit: "cover", borderRadius: 8, marginBottom: 12 }}
       />
-      <div><strong>Description:</strong> {challenge.description}</div>
-      <div><strong>Number of Participants:</strong> {numberOfParticipants}/{challenge.numberOfParticipants}</div>
-      <div><strong>Category:</strong> {challenge.subCategory.categoryName}</div>
-      <div><strong>Subcategory:</strong> {challenge.subCategory.subCategoryName}</div>
+
+      {/* Meta card */}
+      <div className="challenge-meta-card">
+        <div className={`status-badge ${statusClass}`}>{statusLabel}</div>
+
+        <div className="description-box">
+          <div className="meta-label">📝 Description</div>
+          <div className="meta-description">{challenge.description}</div>
+        </div>
+
+        <div className="meta-grid">
+          <div className="meta-item">
+            <div className="meta-label">👥 Participants</div>
+            <div className="meta-value">
+              <span className="participants-count">
+                {numberOfParticipants}{participantsMax ? `/${participantsMax}` : ""}
+              </span>
+              <div className="participants-bar" aria-label="Participants progress">
+                <div className="participants-fill" style={{ width: `${participantsPct}%` }} />
+              </div>
+            </div>
+          </div>
+
+          <div className="meta-item">
+            <div className="meta-label">🏷️ Category</div>
+            <div className="meta-value">{challenge.subCategory?.categoryName}</div>
+          </div>
+
+          <div className="meta-item">
+            <div className="meta-label">🎯 Subcategory</div>
+            <div className="meta-value">{challenge.subCategory?.subCategoryName}</div>
+          </div>
+
+          <div className="meta-item">
+            <div className="meta-label">{isClosed ? "🗓️ Voting closes" : isFinished ? "🗓️ Voting closed" : "🗓️ Submission closes"}</div>
+            <div className="meta-value">{isClosed || isFinished ? voteEndStr : endDateStr}</div>
+          </div>
+          
+        </div>
+      </div>
+
       {isOpen && (
         <OpenChallengeDetails
           challenge={challenge}
@@ -77,6 +122,7 @@ function ChallengeDetails() {
           fetchChallenge={fetchChallenge}
         />
       )}
+
       <div><strong>Challenge Created by:</strong> {challenge.creatorUserName}</div>
     </div>
   );
