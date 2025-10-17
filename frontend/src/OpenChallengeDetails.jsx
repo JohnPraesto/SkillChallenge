@@ -91,9 +91,7 @@ function OpenChallengeDetails({
   return (
     <>
       <div>
-        <strong>Admission closes:</strong> {new Date(challenge.endDate).toLocaleString('en-US', {year: 'numeric', month: 'long', day: 'numeric'})}
-        <br />
-        <strong>Joined users:</strong>
+        <h2 className="section-title">Participants:</h2>
         {challenge.joinedUsers && challenge.joinedUsers.length > 0 ? (
           <ul>
             {challenge.joinedUsers.map((joinedUser, index) => {
@@ -113,20 +111,6 @@ function OpenChallengeDetails({
           <span> None</span>
         )}
       </div>
-      {/* <button
-        className="btn btn-primary"
-        style={{ marginTop: 16 }}
-        onClick={alreadyJoined ? handleLeave : handleJoin}
-        disabled={joining}
-      >
-        {joining
-          ? alreadyJoined
-            ? "Leaving..."
-            : "Joining..."
-          : alreadyJoined
-          ? "Leave Challenge"
-          : "Join Challenge"}
-      </button> */}
 
       <button
         className="btn btn-primary"

@@ -70,142 +70,146 @@ function ClosedChallengeDetails({
     <>
       {/* Display uploaded results */}
       <div>
-        <strong>Voting closes:</strong> {new Date(challenge.votePeriodEnd).toLocaleString('en-US', {year: 'numeric', month: 'long', day: 'numeric'})}
-        <br />
-        <strong>Uploaded Results:</strong>
+        <h2 className="section-title">Uploaded Results</h2>
         {challenge.uploadedResults && challenge.uploadedResults.length > 0 ? (
-          <ul>
+          <ul className="results-list">
             {challenge.joinedUsers.map((joinedUser, idx) => {
               // Find the uploaded result for this user
               const result = challenge.uploadedResults?.find(r => r.userName === joinedUser);
 
               if (result) {
-                // Existing logic for displaying uploaded result
                 const isVotedByUser = result.votes?.some(vote => vote.userId === user?.id) ?? false;
                 const userHasVoted = !!votedResultId;
-                let btnStyle = { marginLeft: 8, cursor: "pointer" };
-                if (userHasVoted) {
-                  btnStyle = isVotedByUser
-                    ? { marginLeft: 8, background: "#1aeb7b", fontWeight: "bold", cursor: "pointer" }
-                    : { marginLeft: 8, background: "#404040", cursor: "not-allowed" };
-                }
                 const voteCount = result.votes ? result.votes.length : 0;
 
                 return (
                   <React.Fragment key={idx}>
-                    <li>
-                      <span>{result.userName}</span>
-                      <button
-                        style={btnStyle}
-                        disabled={userHasVoted && !isVotedByUser}
-                        onClick={async () => {
-                          if (!user) {
-                            alert("Log in to place your vote!");
-                            return;
-                          }
-                          await fetch(
-                            `${apiUrl}/api/challenges/${challenge.challengeId}/uploaded-result/vote/${result.uploadedResultId}`,
-                            {
-                              method: "POST",
-                              headers: {
-                                "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                              },
-                            }
-                          );
-                          if (typeof fetchChallenge === "function") fetchChallenge();
-                        }}
-                      >
-                        👍
-                      </button>
-                      <span style={{ marginLeft: 8, fontWeight: "bold" }}>
-                        Vote count: {voteCount}
-                      </span>
-                      {result.url && (
-                        <div style={{ marginTop: 8 }}>
-                          {/* ...existing display logic for result.url... */}
-                          {(() => {
-                            const ytId = extractYouTubeId(result.url);
-                            if (ytId) {
-                              return (
-                                <iframe
-                                  width="320"
-                                  height="180"
-                                  src={`https://www.youtube.com/embed/${ytId}`}
-                                  title="YouTube video"
-                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                  allowFullScreen
-                                ></iframe>
+                    <li className="result-item">
+                      <div className="result-card">
+                        <div className="result-header">
+                          <div className="result-user">
+                            <div className="avatar-circle">{result.userName}</div>
+                          </div>
+                          <span className="vote-badge">
+                            {voteCount} vote{voteCount === 1 ? "" : "s"}
+                          </span>
+                          <button
+                            className={`btn vote-btn ${isVotedByUser ? "voted" : ""}`}
+                            aria-pressed={isVotedByUser}
+                            disabled={userHasVoted && !isVotedByUser}
+                            onClick={async () => {
+                              if (!user) {
+                                alert("Log in to place your vote!");
+                                return;
+                              }
+                              await fetch(
+                                `${apiUrl}/api/challenges/${challenge.challengeId}/uploaded-result/vote/${result.uploadedResultId}`,
+                                {
+                                  method: "POST",
+                                  headers: {
+                                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                                  },
+                                }
                               );
-                            }
-                            const url = result.url;
-                            const ext = url.split('.').pop().toLowerCase();
-                            if (["jpg", "jpeg", "png", "gif", "bmp", "webp"].includes(ext)) {
-                              return (
-                                <img
-                                  src={url.startsWith("http") ? url : `${apiUrl}/${url}`}
-                                  alt="Uploaded result"
-                                  style={{ maxWidth: 500, maxHeight: 500 }}
-                                />
-                              );
-                            }
-                            if (["mp4", "webm", "mov"].includes(ext)) {
-                              return (
-                                <video
-                                  controls
-                                  width="320"
-                                  height="180"
-                                  src={url.startsWith("http") ? url : `${apiUrl}/${url}`}
-                                >
-                                  Your browser does not support the video tag.
-                                </video>
-                              );
-                            }
-                            if (ext === "pdf") {
-                              return (
-                                <a
-                                  href={url.startsWith("http") ? url : `${apiUrl}/${url}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  style={{ display: "inline-block", marginTop: 8 }}
-                                >
-                                  📄 View PDF
-                                </a>
-                              );
-                            }
-                            return (
-                              <div style={{ marginTop: 8 }}>
-                                Unable to display this result: "{url}"
-                              </div>
-                            );
-                          })()}
+                              if (typeof fetchChallenge === "function") fetchChallenge();
+                            }}
+                          >
+                            {isVotedByUser ? <strong>Voted</strong> : "Vote"}
+                          </button>
+                          {/* </div> */}
                         </div>
-                      )}
 
-                      {result.freeText && (
-                        <div style={{ marginTop: 8 }}>
-                          <FreeText text={result.freeText} />
-                        </div>
-                      )}
+                        {result.url && (
+                          <div className="result-media">
+                            {(() => {
+                              const ytId = extractYouTubeId(result.url);
+                              if (ytId) {
+                                return (
+                                  <iframe
+                                    width="560"
+                                    height="315"
+                                    src={`https://www.youtube.com/embed/${ytId}`}
+                                    title="YouTube video"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                  ></iframe>
+                                );
+                              }
+                              const url = result.url;
+                              const ext = url.split(".").pop().toLowerCase();
+                              if (["jpg", "jpeg", "png", "gif", "bmp", "webp"].includes(ext)) {
+                                return (
+                                  <img
+                                    src={url.startsWith("http") ? url : `${apiUrl}/${url}`}
+                                    alt="Uploaded result"
+                                  />
+                                );
+                              }
+                              if (["mp4", "webm", "mov"].includes(ext)) {
+                                return (
+                                  <video
+                                    controls
+                                    src={url.startsWith("http") ? url : `${apiUrl}/${url}`}
+                                  >
+                                    Your browser does not support the video tag.
+                                  </video>
+                                );
+                              }
+                              if (ext === "pdf") {
+                                return (
+                                  <a
+                                    href={url.startsWith("http") ? url : `${apiUrl}/${url}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="pdf-link"
+                                  >
+                                    📄 View PDF
+                                  </a>
+                                );
+                              }
+                              return (
+                                <div className="media-fallback">
+                                  Unable to display this result: "{url}"
+                                </div>
+                              );
+                            })()}
+                          </div>
+                        )}
 
+                        {result.freeText && (
+                          <div className="result-freetext">
+                            <FreeText text={result.freeText} />
+                          </div>
+                        )}
+                      </div>
                     </li>
-                    <hr style={{ margin: "16px 0", border: "none", borderTop: "1px solid #ccc" }} />
                   </React.Fragment>
                 );
               } else {
                 // User did not upload any results
                 return (
                   <React.Fragment key={idx}>
-                    <li>
-                      <span>{joinedUser}</span>
-                      <span style={{ marginLeft: 8, color: "#888" }}>
-                        did not upload any results
-                      </span>
+                    <li className="result-item">
+                      <div className="result-card result-card--muted">
+                        <div className="result-header">
+                          <div className="result-user">
+                            <div className="avatar-circle">{joinedUser}</div>
+                          </div>
+                          <span className="no-upload-text">did not upload any results</span>
+                        </div>
+                      </div>
                     </li>
-                    <hr style={{ margin: "16px 0", border: "none", borderTop: "1px solid #ccc" }} />
                   </React.Fragment>
                 );
               }
             })}
+
+
+
+
+
+
+
           </ul>
         ) : (
           <span> No results uploaded.</span>

@@ -7,6 +7,40 @@ function FinishedChallengeDetails({
   apiUrl, 
   fetchChallenge }) {
 
+  function FreeText({ text }) {
+    const [expanded, setExpanded] = useState(false);
+    const PREVIEW_LEN = 400;
+    if (!text) return null;
+    const needsTruncate = text.length > PREVIEW_LEN;
+    const display = !expanded && needsTruncate ? text.slice(0, PREVIEW_LEN) + "…" : text;
+    return (
+      <div style={{ marginTop: 8 }}>
+        <div
+          style={{
+            border: "1px solid #e6e6e6",
+            padding: 12,
+            borderRadius: 7,
+            color: "#bebebeff",
+            whiteSpace: "pre-wrap",
+            lineHeight: 1.5,
+            fontSize: 14
+          }}
+        >
+          {display}
+        </div>
+        {needsTruncate && (
+          <button
+            onClick={() => setExpanded(s => !s)}
+            style={{ marginTop: 6, padding: "6px 8px", cursor: "pointer" }}
+            aria-expanded={expanded}
+          >
+            {expanded ? "Show less" : "Show more"}
+          </button>
+        )}
+      </div>
+    );
+  }
+
  function extractYouTubeId(url) {
   // Handles regular, short, and shorts URLs
   const patterns = [
@@ -34,37 +68,70 @@ function FinishedChallengeDetails({
     .filter(r => (r.votes?.length || 0) === topVoteCount && topVoteCount > 0)
     .map(r => r.userName);
 
-  return (
+  // Users that have NOT uploaded any result
+  const uploadedUserNames = new Set(
+    (challenge.uploadedResults || [])
+      .map(r => r.userName ?? r.user?.userName)
+      .filter(Boolean)
+  );
+
+  let usersWithoutResult = [];
+
+  if (Array.isArray(challenge.joinedUsers) && challenge.joinedUsers.length > 0) {
+    usersWithoutResult = challenge.joinedUsers
+      .filter(name => !uploadedUserNames.has(name))
+      .map(name => ({ userName: name }));
+  } else {
+    const uploadedUserIds = new Set(
+      (challenge.uploadedResults || [])
+        .map(r => r.userId ?? r.user?.id)
+        .filter(Boolean)
+    );
+    const participants = challenge.participants || [];
+    usersWithoutResult = participants.filter(
+      p => !uploadedUserIds.has(p.id ?? p.userId)
+    );
+  }
+
+return (
     <>
-      {/* Display uploaded results */}
       <div>
-        <strong>Challenge is archived:</strong> {new Date(challenge.isTakenDown).toLocaleString('en-US', {year: 'numeric', month: 'long', day: 'numeric'})}
-        <br />
-        <strong>
-          Winner{winners.length > 1 ? "s" : ""}:{" "}
-          {winners.length > 0 ? winners.join(", ") : "No winner"}
-        </strong>
+        <div className="winners-banner">
+          <span className="trophy">🏆</span>
+          <span className="winners-text">
+            {winners.length > 0 ? winners.join(", ") : "No winner"}{" "}is the winner
+          </span>
+        </div>
+
         {sortedResults.length > 0 ? (
-          <ul>
+          <ul className="results-list">
             {sortedResults.map((result, idx) => {
               const voteCount = result.votes ? result.votes.length : 0;
+              const isWinner = winners.includes(result.userName);
+
               return (
-                <React.Fragment key={idx}>
-                  <li>
-                    <span>{result.userName}</span>
-                    <span style={{ marginLeft: 8, fontWeight: "bold" }}>
-                      Vote count: {voteCount}
-                    </span>
+                <li className="result-item" key={idx}>
+                  <div className={`result-card ${isWinner ? "result-card--winner" : ""}`}>
+                    <div className="result-header">
+                      <div className="result-user">
+                        <div className="avatar-circle">
+                          {result.userName ?? result.user?.userName ?? "Unknown"}
+                        </div>
+                      </div>
+                      <span className="vote-badge">
+                        {voteCount} vote{voteCount === 1 ? "" : "s"}
+                      </span>
+                    </div>
+
                     {result.url && (
-                      <div style={{ marginTop: 8 }}>
+                      <div className="result-media">
                         {(() => {
-                          // YouTube
                           const ytId = extractYouTubeId(result.url);
                           if (ytId) {
                             return (
                               <iframe
-                                width="320"
-                                height="180"
+                                width="560"
+                                height="315"
                                 src={`https://www.youtube.com/embed/${ytId}`}
                                 title="YouTube video"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -72,26 +139,20 @@ function FinishedChallengeDetails({
                               ></iframe>
                             );
                           }
-                          // File extension logic
                           const url = result.url;
-                          const ext = url.split('.').pop().toLowerCase();
+                          const ext = url.split(".").pop().toLowerCase();
                           if (["jpg", "jpeg", "png", "gif", "bmp", "webp"].includes(ext)) {
-                            // Image
                             return (
                               <img
                                 src={url.startsWith("http") ? url : `${apiUrl}/${url}`}
                                 alt="Uploaded result"
-                                style={{ maxWidth: 500, maxHeight: 500 }}
                               />
                             );
                           }
                           if (["mp4", "webm", "mov"].includes(ext)) {
-                            // Video
                             return (
                               <video
                                 controls
-                                width="320"
-                                height="180"
                                 src={url.startsWith("http") ? url : `${apiUrl}/${url}`}
                               >
                                 Your browser does not support the video tag.
@@ -99,32 +160,55 @@ function FinishedChallengeDetails({
                             );
                           }
                           if (ext === "pdf") {
-                            // PDF
                             return (
                               <a
                                 href={url.startsWith("http") ? url : `${apiUrl}/${url}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                style={{ display: "inline-block", marginTop: 8 }}
+                                className="pdf-link"
                               >
                                 📄 View PDF
                               </a>
                             );
                           }
-                          // Fallback
                           return (
-                            <div style={{ marginTop: 8 }}>
+                            <div className="media-fallback">
                               Unable to display this result: "{url}"
                             </div>
                           );
                         })()}
                       </div>
                     )}
-                  </li>
-                  <hr style={{ margin: "16px 0", border: "none", borderTop: "1px solid #ccc" }} />
-                </React.Fragment>
+
+                    {result.freeText && (
+                      <div className="result-freetext">
+                        <FreeText text={result.freeText} />
+                      </div>
+                    )}
+                  </div>
+                </li>
               );
             })}
+
+            {/* Users without uploaded results */}
+            {usersWithoutResult.length > 0 && (
+              <>
+                {usersWithoutResult.map((u, idx2) => (
+                  <li className="result-item" key={`nores-${u.id ?? u.userId ?? idx2}`}>
+                    <div className="result-card result-card--muted">
+                      <div className="result-header">
+                        <div className="result-user">
+                          <div className="avatar-circle">
+                            {u.userName ?? u.name ?? u.email ?? u.id ?? u.userId}
+                          </div>
+                        </div>
+                        <span className="no-upload-text">did not upload any results</span>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </>
+            )}
           </ul>
         ) : (
           <span> No results uploaded.</span>
