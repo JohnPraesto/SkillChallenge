@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 function FinishedChallengeDetails({ 
   challenge, 
@@ -114,9 +115,14 @@ return (
                   <div className={`result-card ${isWinner ? "result-card--winner" : ""}`}>
                     <div className="result-header">
                       <div className="result-user">
-                        <div className="avatar-circle">
+                        {/* <div className="avatar-circle">
                           {result.userName ?? result.user?.userName ?? "Unknown"}
-                        </div>
+                        </div> */}
+                        <Link to={`/users/username/${result.userName}`}>
+                          <div className="avatar-circle">
+                            {result.userName}
+                          </div>
+                        </Link>
                       </div>
                       <span className="vote-badge">
                         {voteCount} vote{voteCount === 1 ? "" : "s"}
@@ -198,9 +204,14 @@ return (
                     <div className="result-card result-card--muted">
                       <div className="result-header">
                         <div className="result-user">
-                          <div className="avatar-circle">
+                          {/* <div className="avatar-circle">
                             {u.userName ?? u.name ?? u.email ?? u.id ?? u.userId}
-                          </div>
+                          </div> */}
+                          <Link to={`/users/username/${u.userName}`}>
+                            <div className="avatar-circle">
+                              {u.userName}
+                            </div>
+                          </Link>
                         </div>
                         <span className="no-upload-text">did not upload any results</span>
                       </div>

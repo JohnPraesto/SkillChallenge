@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 function ClosedChallengeDetails({ 
   challenge, 
@@ -88,7 +89,11 @@ function ClosedChallengeDetails({
                       <div className="result-card">
                         <div className="result-header">
                           <div className="result-user">
-                            <div className="avatar-circle">{result.userName}</div>
+                            <Link to={`/users/username/${result.userName}`}>
+                              <div className="avatar-circle">
+                                {result.userName}
+                              </div>
+                             </Link>
                           </div>
                           <span className="vote-badge">
                             {voteCount} vote{voteCount === 1 ? "" : "s"}
@@ -192,9 +197,11 @@ function ClosedChallengeDetails({
                     <li className="result-item">
                       <div className="result-card result-card--muted">
                         <div className="result-header">
-                          <div className="result-user">
-                            <div className="avatar-circle">{joinedUser}</div>
-                          </div>
+                          <Link to={`/users/username/${joinedUser}`}>
+                            <div className="avatar-circle">
+                              {joinedUser}
+                            </div>
+                          </Link>
                           <span className="no-upload-text">did not upload any results</span>
                         </div>
                       </div>
@@ -203,13 +210,6 @@ function ClosedChallengeDetails({
                 );
               }
             })}
-
-
-
-
-
-
-
           </ul>
         ) : (
           <span> No results uploaded.</span>
