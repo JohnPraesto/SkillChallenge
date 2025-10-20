@@ -56,6 +56,7 @@ namespace SkillChallenge.Controllers
                     SubCategoryId = uc.SubCategoryId,
                     SubCategoryName = uc.SubCategoryName,
                     CategoryId = uc.CategoryId,
+                    ImagePath = uc.ImagePath,
                     CategoryName = uc.Category?.CategoryName ?? string.Empty,
                 })
                 .ToList();

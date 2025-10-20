@@ -144,7 +144,14 @@ function Users() {
                           border: "1.5px solid var(--primary-color)"
                         }}
                       />
-                      <span style={{ fontWeight: 500 }}>{user.userName}</span>
+                      <Link
+                        className="user-link"
+                        to={`/users/username/${user.userName}`}
+                        style={{ fontWeight: 600 }}
+                        title={`View ${user.userName}'s profile`}
+                      >
+                        {user.userName}
+                      </Link>
                       <span style={{
                         color: "var(--text-secondary)",
                         marginLeft: "auto",

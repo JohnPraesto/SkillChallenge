@@ -66,7 +66,7 @@ function CreateChallenge() {
       <h2>Create Challenge</h2>
       <form onSubmit={handleSubmit} className="card" style={{ padding: 24 }}>
         <div className="form-group">
-          <label>Challenge Name*</label>
+          <label>Challenge Name</label>
           <input
             className="form-control"
             value={challengeName}
@@ -98,7 +98,7 @@ function CreateChallenge() {
           </select>
         </div>
         <div className="form-group">
-          <label>End Date*</label>
+          <label>Submission closing & voting start date</label>
           <input
             type="date"
             className="form-control"
@@ -109,7 +109,7 @@ function CreateChallenge() {
           />
         </div>
         <div className="form-group">
-          <label>Category*</label>
+          <label>Category</label>
           <select
             className="form-control"
             value={categoryId}
@@ -128,7 +128,7 @@ function CreateChallenge() {
           </select>
         </div>
         <div className="form-group">
-          <label>Subcategory*</label>
+          <label>Subcategory</label>
           <select
             className="form-control"
             value={subCategoryId}

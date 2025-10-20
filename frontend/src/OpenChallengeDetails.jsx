@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 function OpenChallengeDetails({
   challenge,
@@ -12,6 +13,7 @@ function OpenChallengeDetails({
   const [joining, setJoining] = useState(false);
   const alreadyJoined = user && challenge.joinedUsers.includes(user.userName);
   const isFull = challenge.joinedUsers.length >= challenge.numberOfParticipants;
+  const endDateStr = new Date(challenge.endDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
   const handleJoin = async () => {
     if (!user) {
@@ -97,13 +99,16 @@ function OpenChallengeDetails({
             {challenge.joinedUsers.map((joinedUser, index) => {
               const hasResult = challenge.uploadedResults?.some(r => r.userName === joinedUser);
               return (
-              <li key={index} style={{ cursor: "pointer", color: "var(--primary-color)", display: "flex", alignItems: "center" }} onClick={() => navigate(`/users/username/${joinedUser}`)}>
-                {joinedUser}
-                {hasResult && (
-                  <span style={{ color: "green", marginLeft: 8, fontWeight: "bold" }}>
-                    ✔ Result uploaded
-                  </span>)}
-              </li>
+                <li key={index} style={{ display: "flex", alignItems: "center" }}>
+                  <Link className="user-link" to={`/users/username/${joinedUser}`}>
+                    {joinedUser}
+                  </Link>
+                  {hasResult && (
+                    <span className="result-uploaded">
+                      ✔ Result uploaded
+                    </span>
+                  )}
+                </li>
               );
             })}
           </ul>
@@ -111,6 +116,8 @@ function OpenChallengeDetails({
           <span> None</span>
         )}
       </div>
+
+      <p style={{textAlign:"center"}}>Uploads will be revealed when voting starts {endDateStr}</p>
 
       <button
         className="btn btn-primary"
@@ -135,7 +142,7 @@ function OpenChallengeDetails({
       {alreadyJoined && !hasUploadedResult && (
         <button
           className="btn btn-secondary"
-          style={{ marginLeft: 12, marginTop: 16 }}
+          style={{ marginBottom: 12, marginTop: 16 }}
           onClick={() => navigate("/upload-result", {state:{apiUrl, challengeId: challenge.challengeId}})}
         >
           Upload Result
@@ -144,7 +151,7 @@ function OpenChallengeDetails({
       {alreadyJoined && hasUploadedResult && (
       <button
         className="btn btn-danger"
-        style={{ marginLeft: 12, marginTop: 16 }}
+        style={{ marginBottom: 12, marginTop: 16 }}
         onClick={handleRemoveResult}
       >
         Remove Result

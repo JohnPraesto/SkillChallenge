@@ -59,6 +59,7 @@ namespace SkillChallenge.Controllers
             {
                 CategoryId = category.CategoryId,
                 CategoryName = category.CategoryName,
+                ImagePath = category.ImagePath,
                 SubCategories = category
                     .SubCategories.Select(uc => new SubCategoryDTO
                     {

@@ -53,81 +53,103 @@ function UploadResult(){
     };
     
     return (
-        <div>
-            <h2>Upload Your Result</h2>
-            <div style={{ marginBottom: 20 }}>
-                <button
-                    className={uploadType === "youtube" ? "btn btn-primary" : "btn"}
-                    style={{ marginRight: 10 }}
-                    onClick={() => setUploadType("youtube")}
-                >
-                    Youtube Link
-                </button>
-                <button
-                    className={uploadType === "file" ? "btn btn-primary" : "btn"}
-                    style={{ marginRight: 10 }}
-                    onClick={() => setUploadType("file")}
-                >
-                    Upload File
-                </button>
-                <button
-                    className={uploadType === "text" ? "btn btn-primary" : "btn"}
-                    onClick={() => setUploadType("text")}
-                >
-                    Free text
-                </button>
+        <div className="upload-container">
+            <div className="upload-card">
+                <h2 className="section-title">Upload Your Result</h2>
+
+                <div className="upload-type-toggle" role="tablist" aria-label="Choose upload type">
+                    <button
+                        className={`btn toggle-btn ${uploadType === "youtube" ? "active" : ""}`}
+                        onClick={() => setUploadType("youtube")}
+                        role="tab"
+                        aria-selected={uploadType === "youtube"}
+                    >
+                        YouTube Link
+                    </button>
+                    <button
+                        className={`btn toggle-btn ${uploadType === "file" ? "active" : ""}`}
+                        onClick={() => setUploadType("file")}
+                        role="tab"
+                        aria-selected={uploadType === "file"}
+                    >
+                        Upload File
+                    </button>
+                    <button
+                        className={`btn toggle-btn ${uploadType === "text" ? "active" : ""}`}
+                        onClick={() => setUploadType("text")}
+                        role="tab"
+                        aria-selected={uploadType === "text"}
+                    >
+                        Free text
+                    </button>
+                </div>
+
+                {uploadType === "youtube" && (
+                    <div className="form-group">
+                        <label htmlFor="yt-url" className="form-label">Paste YouTube link</label>
+                        <input
+                            id="yt-url"
+                            type="url"
+                            className="input"
+                            placeholder="https://youtu.be/..."
+                            value={youtubeLink}
+                            onChange={e => setYoutubeLink(e.target.value)}
+                        />
+                    </div>
+                )}
+
+                {uploadType === "file" && (
+                    <div className="form-group">
+                        <label htmlFor="file-input" className="form-label">Choose a file</label>
+                        <input
+                            id="file-input"
+                            type="file"
+                            accept="video/*,image/*,application/pdf"
+                            onChange={handleFileChange}
+                            className="input-file"
+                        />
+                        {file && (
+                            <div className="file-pill" title={file.name}>
+                                {file.name} <span className="file-size">({(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {uploadType === "text" && (
+                    <div className="form-group">
+                        <label htmlFor="free-text" className="form-label">Free text</label>
+                        <textarea
+                            id="free-text"
+                            className="textarea"
+                            placeholder="Write your description or text result..."
+                            value={freeText}
+                            onChange={e => setFreeText(e.target.value)}
+                        />
+                    </div>
+                )}
+
+                {uploadType && (
+                    <button
+                        className="btn btn-primary submit-btn"
+                        onClick={handleUpload}
+                        disabled={
+                            uploading ||
+                            (uploadType === "file" && !file) ||
+                            (uploadType === "youtube" && !youtubeLink) ||
+                            (uploadType === "text" && !freeText)
+                        }
+                    >
+                        {uploading ? "Uploading..." : "Submit"}
+                    </button>
+                )}
+
+                {message && (
+                    <div className={`status-msg ${message.startsWith("Failed") ? "error" : "success"}`}>
+                        {message}
+                    </div>
+                )}
             </div>
-
-            {uploadType === "youtube" && (
-                <div>
-                    <input
-                        type="text"
-                        placeholder="Paste Youtube link here"
-                        style={{ width: 300 }}
-                        value={youtubeLink}
-                        onChange={e => setYoutubeLink(e.target.value)}
-                    />
-                </div>
-            )}
-
-            {uploadType === "file" && (
-                <div>
-                    <input
-                        type="file"
-                        accept="video/*,image/*,application/pdf"
-                        onChange={handleFileChange}
-                    />
-                </div>
-            )}
-
-            {uploadType === "text" && (
-                <div>
-                    <textarea
-                        placeholder="Enter a short description or text result"
-                        style={{ width: 400, height: 120 }}
-                        value={freeText}
-                        onChange={e => setFreeText(e.target.value)}
-                    />
-                </div>
-            )}
-
-            {uploadType && (
-                <button
-                    className="btn btn-success"
-                    style={{ marginTop: 20 }}
-                    onClick={handleUpload}
-                    disabled={
-                        uploading ||
-                        (uploadType === "file" && !file) ||
-                        (uploadType === "youtube" && !youtubeLink) ||
-                        (uploadType === "text" && !freeText)
-                    }
-                >
-                    {uploading ? "Uploading..." : "Submit"}
-                </button>
-            )}
-
-            {message && <div style={{ marginTop: 12 }}>{message}</div>}
         </div>
     );
 }
