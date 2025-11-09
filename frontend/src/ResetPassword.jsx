@@ -31,8 +31,26 @@ function ResetPassword() {
         showSuccess("Password reset. Please log in.");
         navigate("/login");
       } else {
-        const err = await response.json().catch(() => ({}));
-        showError(err?.message || "Failed to reset password.");
+        let errorMsg = "Failed to reset password.";
+        try {
+          const errorData = await response.json();
+          if (Array.isArray(errorData)) {
+            errorMsg = errorData.map(e => e.description || e.code || JSON.stringify(e)).join(" ");
+          } else if (typeof errorData === "string") {
+            errorMsg = errorData;
+          } else if (errorData?.message) {
+            errorMsg = errorData.message;
+          }
+          else if (typeof errorData === "object" && errorData !== null) {
+            // Handle ASP.NET ModelState errors
+            errorMsg = Object.values(errorData)
+              .flat()
+              .join(" ");
+          }
+        } catch {
+          // fallback to default error message
+        }
+        showError(errorMsg);
       }
     } catch {
       showError("Connection error.");
