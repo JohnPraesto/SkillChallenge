@@ -16,7 +16,7 @@ namespace SkillChallenge.Controllers
         private readonly IChallengeRepository _challengeRepo;
         private readonly EloRatingService _eloRatingService;
         private readonly IMediaService _mediaService;
-        private static readonly string[] AllowedExtensions = { ".mp4", ".webm", ".mov", ".pdf", ".jpg", ".jpeg", ".png" };
+        private static readonly string[] AllowedExtensions = { ".mp3", ".wav", ".mp4", ".webm", ".mov", ".pdf", ".jpg", ".jpeg", ".png" };
 
 
         public ChallengeController(IChallengeRepository challengeRepo, EloRatingService eloRatingService, IMediaService mediaService)
@@ -373,10 +373,10 @@ namespace SkillChallenge.Controllers
             }
             else if (hasFile)
             {
-                var allowedExtensions = new[] { ".mp4", ".webm", ".mov", ".pdf", ".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp" };
+                var allowedExtensions = new[] { ".mp3", ".wav", ".mp4", ".webm", ".mov", ".pdf", ".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp" };
                 var ext = Path.GetExtension(uploadedResultRequest.File.FileName).ToLowerInvariant();
                 if (!allowedExtensions.Contains(ext))
-                    return BadRequest("Invalid file type. Allowed: mp4, webm, mov, pdf, jpg, jpeg, png.");
+                    return BadRequest("Invalid file type. Allowed: mp3, wav, mp4, webm, mov, pdf, jpg, jpeg, png.");
 
                 long fileSize = uploadedResultRequest.File.Length;
                 long MaxFileSizeBytes = 200 * 1024 * 1024; // 200 MB per file

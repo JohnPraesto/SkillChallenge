@@ -104,7 +104,7 @@ function UploadResult(){
                         <input
                             id="file-input"
                             type="file"
-                            accept="video/*,image/*,application/pdf"
+                            accept="video/*,image/*,application/pdf,audio/*"
                             onChange={handleFileChange}
                             className="input-file"
                         />

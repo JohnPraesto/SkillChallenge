@@ -165,6 +165,13 @@ return (
                               </video>
                             );
                           }
+                          if (["mp3", "wav"].includes(ext)) {
+                                return (
+                                  <audio controls src={url.startsWith("http") ? url : `${apiUrl}/${url}`}>
+                                    Your browser does not support the audio tag.
+                                  </audio>
+                                );
+                              }
                           if (ext === "pdf") {
                             return (
                               <a
