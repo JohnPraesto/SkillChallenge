@@ -152,12 +152,16 @@ function ClosedChallengeDetails({
                               }
                               if (["mp4", "webm", "mov"].includes(ext)) {
                                 return (
-                                  <video
-                                    controls
-                                    src={url.startsWith("http") ? url : `${apiUrl}/${url}`}
-                                  >
+                                  <video controls src={url.startsWith("http") ? url : `${apiUrl}/${url}`}>
                                     Your browser does not support the video tag.
                                   </video>
+                                );
+                              }
+                              if (["mp3", "wav"].includes(ext)) {
+                                return (
+                                  <audio controls src={url.startsWith("http") ? url : `${apiUrl}/${url}`}>
+                                    Your browser does not support the audio tag.
+                                  </audio>
                                 );
                               }
                               if (ext === "pdf") {
