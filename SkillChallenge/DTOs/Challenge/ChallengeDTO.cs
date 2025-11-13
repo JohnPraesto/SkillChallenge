@@ -19,5 +19,7 @@ namespace SkillChallenge.DTOs.Challenge
         public string CreatedBy { get; set; } = string.Empty;
         public string CreatorUserName { get; set; } = string.Empty;
         public bool ResultsSubmitted { get; set; }
+        public int? VotedResultIdForCurrentClient { get; set; } // Used during anonymous voting
+
     }
 }
