@@ -1,7 +1,6 @@
 using ASPNET_VisualStudio_Tutorial.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -55,7 +54,10 @@ public class Program
             options.AddPolicy(
                 "AllowFrontend",
                 policy =>
-                    policy.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod().AllowCredentials()
+                    policy.WithOrigins("http://localhost:5173", "https://skillchallenge.net")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials()
             );
         });
 

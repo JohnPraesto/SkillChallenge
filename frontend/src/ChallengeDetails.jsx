@@ -21,8 +21,6 @@ function ChallengeDetails() {
     })
       .then(res => res.ok ? res.json() : Promise.reject("Failed to fetch challenge"))
       .then(data => {
-        // Debug (temporary)
-        console.log("Fetched challenge votedResultIdForCurrentClient:", data.votedResultIdForCurrentClient);
         setChallenge(data);
       })
       .catch(err => setError(err.toString()));
