@@ -8,14 +8,15 @@ function ClosedChallengeDetails({
   apiUrl, 
   fetchChallenge }) {
     
+  // Authenticated voting:
   // Find the uploadedResultId the current user voted for (if any)
-  // const userVote = challenge.uploadedResults?.flatMap(r => r.votes || [])
-  //   .find(vote => vote.userId === user.id);
-  const userVote = user
-  ? challenge.uploadedResults?.flatMap(r => r.votes || []).find(vote => vote.userId === user.id)
-  : null;
+  // const userVote = user
+  // ? challenge.uploadedResults?.flatMap(r => r.votes || []).find(vote => vote.userId === user.id)
+  // : null;
+  // const votedResultId = userVote?.uploadedResultId;
 
-  const votedResultId = userVote?.uploadedResultId;
+  // Anonymous voting
+  const votedResultId = challenge.votedResultIdForCurrentClient ?? null;
 
   function FreeText({ text }) {
     const [expanded, setExpanded] = useState(false);
@@ -79,8 +80,14 @@ function ClosedChallengeDetails({
               const result = challenge.uploadedResults?.find(r => r.userName === joinedUser);
 
               if (result) {
-                const isVotedByUser = result.votes?.some(vote => vote.userId === user?.id) ?? false;
-                const userHasVoted = !!votedResultId;
+                
+                // Authenticated voting
+                // const isVotedByUser = result.votes?.some(vote => vote.userId === user?.id) ?? false;
+                // const userHasVoted = !!votedResultId;
+                // const voteCount = result.votes ? result.votes.length : 0;
+
+                // Anonymous voting
+                const isVotedByClient = result && votedResultId === result.uploadedResultId;
                 const voteCount = result.votes ? result.votes.length : 0;
 
                 return (
@@ -98,10 +105,51 @@ function ClosedChallengeDetails({
                           <span className="vote-badge">
                             {voteCount} vote{voteCount === 1 ? "" : "s"}
                           </span>
+
+
+
+
+                          {/* Anonymous voting */}
                           <button
+                            className={`btn vote-btn ${isVotedByClient ? "voted" : votedResultId ? "dimmed" : ""}`}
+                            aria-pressed={isVotedByClient}
+                            // Allow moving or toggling; no disable
+                            onClick={async () => {
+                              try {
+                                const res = await fetch(
+                                  `${apiUrl}/api/challenges/${challenge.challengeId}/uploaded-result/vote/${result.uploadedResultId}`,
+                                  {
+                                    method: "POST",
+                                    credentials: "include"
+                                  }
+                                );
+                                if (res.status === 429) {
+                                  alert("Too many votes too quickly. Please wait a minute and try again.");
+                                  return;
+                                }
+                                if (!res.ok) {
+                                  const t = await res.text();
+                                  alert(`Vote failed: ${t}`);
+                                } else if (typeof fetchChallenge === "function") {
+                                  fetchChallenge();
+                                }
+                              } catch (err) {
+                                alert("Error voting: " + err.message);
+                              }
+                            }}
+                          >
+                            {isVotedByClient ? <strong>Voted</strong> : "Vote"}
+                          </button>
+
+
+
+
+                          {/* Authenticated voting */}
+                          {/* <button
                             className={`btn vote-btn ${isVotedByUser ? "voted" : ""}`}
                             aria-pressed={isVotedByUser}
                             disabled={userHasVoted && !isVotedByUser}
+
                             onClick={async () => {
                               if (!user) {
                                 alert("Log in to place your vote!");
@@ -120,8 +168,13 @@ function ClosedChallengeDetails({
                             }}
                           >
                             {isVotedByUser ? <strong>Voted</strong> : "Vote"}
-                          </button>
-                          {/* </div> */}
+                          </button> */}
+
+
+
+
+
+
                         </div>
 
                         {result.url && (

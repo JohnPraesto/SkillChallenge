@@ -1,11 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using SkillChallenge.DTOs.Challenge;
 using SkillChallenge.DTOs.SubCategory;
 using SkillChallenge.Interfaces;
 using SkillChallenge.Models;
 using SkillChallenge.Services;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace SkillChallenge.Controllers
 {
@@ -107,11 +110,16 @@ namespace SkillChallenge.Controllers
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetChallengeById([FromRoute] int id, CancellationToken ct)
         {
+            var clientId = EnsureClientIdCookie();
+
             var challenge = await _challengeRepo.GetChallengeByIdAsync(id, ct);
+
             if (challenge == null)
             {
                 return NotFound($"Challenge with id {id} was not found in the database");
             }
+
+            var votedResultId = challenge.UploadedResults.SelectMany(ur => ur.Votes).FirstOrDefault(v => v.ClientId == clientId)?.UploadedResultId;
 
             var challengeDTO = new ChallengeDTO
             {
@@ -147,13 +155,13 @@ namespace SkillChallenge.Controllers
                     {
                         Id = vote.Id,
                         ChallengeId = vote.ChallengeId,
-                        UploadedResultId = vote.UploadedResultId,
-                        UserId = vote.UserId,
+                        UploadedResultId = vote.UploadedResultId
                     }).ToList()
                 }).ToList(),
                 CreatedBy = challenge.CreatedBy,
                 CreatorUserName = challenge.Creator?.UserName ?? "Unknown",
                 ResultsSubmitted = challenge.ResultsSubmitted,
+                VotedResultIdForCurrentClient = votedResultId,
             };
 
             return Ok(challengeDTO);
@@ -459,20 +467,41 @@ namespace SkillChallenge.Controllers
             return NoContent();
         }
 
+        // This method is for anonymous voting
         [HttpPost("{challengeId:int}/uploaded-result/vote/{uploadedResultId:int}")]
-        [Authorize]
+        [AllowAnonymous]
+        [EnableRateLimiting("votes")]
         public async Task<IActionResult> AddVote([FromRoute] int challengeId, [FromRoute] int uploadedResultId, CancellationToken ct)
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId))
-                return Unauthorized();
+            var clientId = EnsureClientIdCookie();
 
-            var success = await _challengeRepo.AddOrMoveVoteAsync(challengeId, uploadedResultId, userId, ct);
+            var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
+            var ua = Request.Headers.UserAgent.ToString();
+            var ipHash = Sha256HexOrNull(ip);
+            var uaHash = Sha256HexOrNull(ua);
+
+            var success = await _challengeRepo.AddOrMoveVoteAsync(challengeId, uploadedResultId, clientId, ipHash, uaHash, ct);
             if (!success)
-                return NotFound($"Uploaded result not found.");
+                return NotFound("Uploaded result not found.");
 
             return Ok("Voted successfully.");
         }
+
+        // This method is for authenticated voting
+        //[HttpPost("{challengeId:int}/uploaded-result/vote/{uploadedResultId:int}")]
+        //[Authorize]
+        //public async Task<IActionResult> AddVote([FromRoute] int challengeId, [FromRoute] int uploadedResultId, CancellationToken ct)
+        //{
+        //    var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        //    if (string.IsNullOrEmpty(userId))
+        //        return Unauthorized();
+
+        //    var success = await _challengeRepo.AddOrMoveVoteAsync(challengeId, uploadedResultId, userId, ct);
+        //    if (!success)
+        //        return NotFound($"Uploaded result not found.");
+
+        //    return Ok("Voted successfully.");
+        //}
 
         [HttpPost("{challengeId:int}/submit-result")]
         [Authorize]
@@ -509,6 +538,66 @@ namespace SkillChallenge.Controllers
 
             // if false is returned then url is probably a youtube link
             // and not link to a file in a storage
+        }
+
+
+
+
+
+
+
+
+
+
+
+        // Helper method for anonymous voting
+        private string EnsureClientIdCookie()
+        {
+            const string cookieName = "voter_id";
+
+            if (Request.Cookies.TryGetValue(cookieName, out var existing) && !string.IsNullOrWhiteSpace(existing))
+                return existing;
+
+            var clientId = GenerateClientId();
+
+            var options = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = DateTimeOffset.UtcNow.AddYears(1),
+                Path = "/"
+            };
+
+            Response.Cookies.Append(cookieName, clientId, options);
+            return clientId;
+        }
+
+        // Helper method for anonymous voting
+        private static string GenerateClientId()
+        {
+            Span<byte> buf = stackalloc byte[16]; // 128-bit
+            RandomNumberGenerator.Fill(buf);
+            return ToBase64Url(buf);
+        }
+
+        // Helper method for anonymous voting
+        private static string ToBase64Url(ReadOnlySpan<byte> bytes)
+        {
+            return Convert.ToBase64String(bytes)
+                .Replace('+', '-')
+                .Replace('/', '_')
+                .TrimEnd('=');
+        }
+
+        private static string? Sha256HexOrNull(string? input)
+        {
+            if (string.IsNullOrWhiteSpace(input)) return null;
+            using var sha = SHA256.Create();
+            var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(input));
+            var sb = new StringBuilder(bytes.Length * 2);
+            foreach (var b in bytes) sb.Append(b.ToString("x2"));
+            return sb.ToString();
         }
     }
 }

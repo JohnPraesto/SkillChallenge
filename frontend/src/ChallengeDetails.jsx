@@ -13,12 +13,28 @@ function ChallengeDetails() {
   const { user } = useAuth();
   const apiUrl = import.meta.env.VITE_API_URL;
 
+  // Anonymous voting
   const fetchChallenge = () => {
-    fetch(`${apiUrl}/api/challenges/${id}`)
+    fetch(`${apiUrl}/api/challenges/${id}`, {
+      method: "GET",
+      credentials: "include"
+    })
       .then(res => res.ok ? res.json() : Promise.reject("Failed to fetch challenge"))
-      .then(data => setChallenge(data))
+      .then(data => {
+        // Debug (temporary)
+        console.log("Fetched challenge votedResultIdForCurrentClient:", data.votedResultIdForCurrentClient);
+        setChallenge(data);
+      })
       .catch(err => setError(err.toString()));
   };
+
+  // // Authenticated voting
+  // const fetchChallenge = () => {
+  //   fetch(`${apiUrl}/api/challenges/${id}`)
+  //     .then(res => res.ok ? res.json() : Promise.reject("Failed to fetch challenge"))
+  //     .then(data => setChallenge(data))
+  //     .catch(err => setError(err.toString()));
+  // };
 
   useEffect(() => 
     {

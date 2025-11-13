@@ -353,6 +353,16 @@ body {
   filter: none;
 }
 
+.vote-btn.dimmed {
+  background: linear-gradient(135deg, #a73d83, #5c278d);
+  color: #ececec;
+  box-shadow: none;
+  filter: grayscale(40%) brightness(0.9);
+}
+.vote-btn.dimmed:hover {
+  filter: grayscale(20%) brightness(1);
+}
+
 .result-item.dimmed {
   opacity: 0.55;
   filter: grayscale(40%);

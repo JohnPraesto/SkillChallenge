@@ -1,6 +1,7 @@
 using ASPNET_VisualStudio_Tutorial.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -9,6 +10,7 @@ using SkillChallenge.Interfaces;
 using SkillChallenge.Models;
 using SkillChallenge.Repositories;
 using SkillChallenge.Services;
+using System.Threading.RateLimiting;
 
 public class Program
 {
@@ -16,12 +18,44 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        // In use when anonymous voting
+        builder.Services.AddRateLimiter(options =>
+        {
+            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+            options.OnRejected = (ctx, _) =>
+            {
+                return ValueTask.CompletedTask;
+            };
+
+            options.AddPolicy("votes", httpContext =>
+            {
+                // Partition key = ClientId cookie if present, else IP
+                var clientId = httpContext.Request.Cookies.TryGetValue("voter_id", out var c) ? c : null;
+                var ip = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown-ip";
+                var key = clientId ?? $"ip:{ip}";
+
+                // Token bucket: up to 10 votes per 10s (bursts allowed), no queue
+                return RateLimitPartition.GetTokenBucketLimiter(
+                    key,
+                    _ => new TokenBucketRateLimiterOptions
+                    {
+                        TokenLimit = 10,
+                        TokensPerPeriod = 10,
+                        ReplenishmentPeriod = TimeSpan.FromSeconds(60),
+                        AutoReplenishment = true,
+                        QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                        QueueLimit = 0
+                    });
+            });
+        });
+        // Stop
+
         builder.Services.AddCors(options =>
         {
             options.AddPolicy(
                 "AllowFrontend",
                 policy =>
-                    policy.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod()
+                    policy.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod().AllowCredentials()
             );
         });
 
@@ -170,6 +204,7 @@ public class Program
         app.UseRouting();
         app.UseAuthentication();
         app.UseAuthorization();
+        app.UseRateLimiter();
 
         app.MapControllers();
 

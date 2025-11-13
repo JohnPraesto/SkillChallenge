@@ -182,40 +182,102 @@ namespace SkillChallenge.Repositories
             return true;
         }
 
-        public async Task<bool> AddOrMoveVoteAsync(int challengeId, int uploadedResultId, string userId, CancellationToken ct = default)
+        // BELOW IS FOR ANONYMOUS VOTING
+        public async Task<bool> AddOrMoveVoteAsync(int challengeId, int uploadedResultId, string clientId, string? ipHash, string? userAgentHash, CancellationToken ct = default)
         {
+            // Dont think this is necessary?
+            // Ensure the target uploaded result belongs to this challenge
+            var target = await _context.UploadedResults
+               .AsNoTracking()
+               .FirstOrDefaultAsync(r => r.UploadedResultId == uploadedResultId && r.ChallengeId == challengeId, ct);
+            if (target == null)
+               return false;
+
             var existingVote = await _context.VoteEntities
-                .FirstOrDefaultAsync(v => v.ChallengeId == challengeId && v.UserId == userId, ct);
+                .FirstOrDefaultAsync(v => v.ChallengeId == challengeId && v.ClientId == clientId, ct);
 
             if (existingVote != null)
             {
                 if (existingVote.UploadedResultId == uploadedResultId)
                 {
-                    // User is toggling their vote off (unvoting)
+                    // Toggle off
                     _context.VoteEntities.Remove(existingVote);
                     await _context.SaveChangesAsync(ct);
-                    return true; // Vote removed
+                    return true;
                 }
 
-                // Move vote to new uploaded result
+                // Move vote
                 existingVote.UploadedResultId = uploadedResultId;
-                await _context.SaveChangesAsync(ct);
-                return true; // Vote moved
-            }
-            else
-            {
-                // Add new vote
-                var newVote = new VoteEntity
-                {
-                    ChallengeId = challengeId,
-                    UploadedResultId = uploadedResultId,
-                    UserId = userId
-                };
-                _context.VoteEntities.Add(newVote);
+
+                if (string.IsNullOrEmpty(existingVote.IpHash) && !string.IsNullOrEmpty(ipHash))
+                    existingVote.IpHash = ipHash;
+                if (string.IsNullOrEmpty(existingVote.UserAgentHash) && !string.IsNullOrEmpty(userAgentHash))
+                    existingVote.UserAgentHash = userAgentHash;
+
                 await _context.SaveChangesAsync(ct);
                 return true;
             }
+
+            // New vote
+            var newVote = new VoteEntity
+            {
+                ChallengeId = challengeId,
+                UploadedResultId = uploadedResultId,
+                ClientId = clientId,
+                IpHash = ipHash,
+                UserAgentHash = userAgentHash
+            };
+            _context.VoteEntities.Add(newVote);
+
+            try
+            {
+                await _context.SaveChangesAsync(ct);
+                return true;
+            }
+            catch (DbUpdateException)
+            {
+                // Rare race: another vote inserted concurrently. Could retry fetch once.
+                return false;
+            }
         }
+
+
+
+        // BELOW IS FOR AUTHENTICATED VOTING
+        //public async Task<bool> AddOrMoveVoteAsync(int challengeId, int uploadedResultId, string userId, CancellationToken ct = default)
+        //{
+        //    var existingVote = await _context.VoteEntities
+        //        .FirstOrDefaultAsync(v => v.ChallengeId == challengeId && v.UserId == userId, ct);
+
+        //    if (existingVote != null)
+        //    {
+        //        if (existingVote.UploadedResultId == uploadedResultId)
+        //        {
+        //            // User is toggling their vote off (unvoting)
+        //            _context.VoteEntities.Remove(existingVote);
+        //            await _context.SaveChangesAsync(ct);
+        //            return true; // Vote removed
+        //        }
+
+        //        // Move vote to new uploaded result
+        //        existingVote.UploadedResultId = uploadedResultId;
+        //        await _context.SaveChangesAsync(ct);
+        //        return true; // Vote moved
+        //    }
+        //    else
+        //    {
+        //        // Add new vote
+        //        var newVote = new VoteEntity
+        //        {
+        //            ChallengeId = challengeId,
+        //            UploadedResultId = uploadedResultId,
+        //            UserId = userId
+        //        };
+        //        _context.VoteEntities.Add(newVote);
+        //        await _context.SaveChangesAsync(ct);
+        //        return true;
+        //    }
+        //}
 
         public async Task<long> GetTotalUploadedFileSizeAsync(CancellationToken ct = default)
         {

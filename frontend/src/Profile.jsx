@@ -125,7 +125,7 @@ function Profile() {
 
   const handleChangePassword = async () => {
     try {
-      const res = await fetch(`${apiUrl}/api/users/${userData.id}/change-password`, {
+      const res = await fetch(`${apiUrl}/api/users/${user.id}/change-password`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
