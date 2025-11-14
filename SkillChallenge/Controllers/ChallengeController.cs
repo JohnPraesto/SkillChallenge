@@ -110,7 +110,9 @@ namespace SkillChallenge.Controllers
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetChallengeById([FromRoute] int id, CancellationToken ct)
         {
-            var clientId = EnsureClientIdCookie();
+            
+            // var clientId = EnsureClientIdCookie();
+            var clientId = ResolveClientId();
 
             var challenge = await _challengeRepo.GetChallengeByIdAsync(id, ct);
 
@@ -473,7 +475,8 @@ namespace SkillChallenge.Controllers
         [EnableRateLimiting("votes")]
         public async Task<IActionResult> AddVote([FromRoute] int challengeId, [FromRoute] int uploadedResultId, CancellationToken ct)
         {
-            var clientId = EnsureClientIdCookie();
+            // var clientId = EnsureClientIdCookie();
+            var clientId = ResolveClientId();
 
             var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
             var ua = Request.Headers.UserAgent.ToString();
@@ -590,6 +593,7 @@ namespace SkillChallenge.Controllers
                 .TrimEnd('=');
         }
 
+        // Helper method for anonymous voting
         private static string? Sha256HexOrNull(string? input)
         {
             if (string.IsNullOrWhiteSpace(input)) return null;
@@ -598,6 +602,16 @@ namespace SkillChallenge.Controllers
             var sb = new StringBuilder(bytes.Length * 2);
             foreach (var b in bytes) sb.Append(b.ToString("x2"));
             return sb.ToString();
+        }
+
+        // Helper method for anonymous voting
+        private string ResolveClientId()
+        {
+            if (Request.Headers.TryGetValue("X-Voter", out var hdr) && !string.IsNullOrWhiteSpace(hdr))
+                return hdr.ToString();
+
+            // Fallback to your existing cookie-based ID
+            return EnsureClientIdCookie();
         }
     }
 }

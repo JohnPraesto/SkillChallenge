@@ -14,10 +14,22 @@ function ChallengeDetails() {
   const apiUrl = import.meta.env.VITE_API_URL;
 
   // Anonymous voting
+  function getVoterId() {
+    let v = localStorage.getItem("voter_id");
+    if (!v) {
+      v = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now();
+      localStorage.setItem("voter_id", v);
+    }
+    return v;
+  }
+  const VOTER_ID = getVoterId();
+
+  // Anonymous voting
   const fetchChallenge = () => {
     fetch(`${apiUrl}/api/challenges/${id}`, {
       method: "GET",
-      credentials: "include"
+      // credentials: "include"
+      headers: { "X-Voter": VOTER_ID }
     })
       .then(res => res.ok ? res.json() : Promise.reject("Failed to fetch challenge"))
       .then(data => {
@@ -125,6 +137,7 @@ const now = new Date();
           navigate={navigate}
           apiUrl={apiUrl}
           fetchChallenge={fetchChallenge}
+          voterId={VOTER_ID}
         />
       )}
       {isFinished && (
