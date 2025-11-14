@@ -6,7 +6,8 @@ function ClosedChallengeDetails({
   user, 
   navigate, 
   apiUrl, 
-  fetchChallenge }) {
+  fetchChallenge,
+  voterId }) {
     
   // Authenticated voting:
   // Find the uploadedResultId the current user voted for (if any)
@@ -120,7 +121,8 @@ function ClosedChallengeDetails({
                                   `${apiUrl}/api/challenges/${challenge.challengeId}/uploaded-result/vote/${result.uploadedResultId}`,
                                   {
                                     method: "POST",
-                                    credentials: "include"
+                                    // credentials: "include"
+                                    headers: { "X-Voter": voterId }
                                   }
                                 );
                                 if (res.status === 429) {

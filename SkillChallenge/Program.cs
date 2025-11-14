@@ -28,12 +28,27 @@ public class Program
 
             options.AddPolicy("votes", httpContext =>
             {
-                // Partition key = ClientId cookie if present, else IP
+                // Prefer header token (works on Safari)
+                if (httpContext.Request.Headers.TryGetValue("X-Voter", out var hdr) && !string.IsNullOrWhiteSpace(hdr))
+                {
+                    return RateLimitPartition.GetTokenBucketLimiter(
+                        hdr.ToString(),
+                        _ => new TokenBucketRateLimiterOptions
+                        {
+                            TokenLimit = 10,
+                            TokensPerPeriod = 10,
+                            ReplenishmentPeriod = TimeSpan.FromSeconds(60),
+                            AutoReplenishment = true,
+                            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                            QueueLimit = 0
+                        });
+                }
+
+                // Fallback to cookie or IP
                 var clientId = httpContext.Request.Cookies.TryGetValue("voter_id", out var c) ? c : null;
                 var ip = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown-ip";
                 var key = clientId ?? $"ip:{ip}";
 
-                // Token bucket: up to 10 votes per 10s (bursts allowed), no queue
                 return RateLimitPartition.GetTokenBucketLimiter(
                     key,
                     _ => new TokenBucketRateLimiterOptions
