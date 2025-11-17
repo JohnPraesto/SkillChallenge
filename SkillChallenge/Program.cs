@@ -167,6 +167,8 @@ public class Program
                     IssuerSigningKey = new SymmetricSecurityKey(
                         System.Text.Encoding.UTF8.GetBytes(signingKey)
                     ),
+                    ValidateLifetime = true,
+                    // ClockSkew = TimeSpan.Zero, // endast för local testing
                 };
             });
 
