@@ -12,11 +12,20 @@ export function AuthProvider({ children }) {
     if (token) {
       try {
         const decoded = jwtDecode(token);
-        setUser({
-          id: decoded.sub,
-          userName: decoded.userName || decoded.sub || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],
-          roles: decoded.role || decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || []
-        });
+        const nowSec = Math.floor(Date.now() / 1000);
+        const exp = decoded.exp;
+        if (exp && exp <= nowSec) {
+          // Token expired – clear and treat as logged out
+          localStorage.removeItem("token");
+          setUser(null);
+          setToken(null);
+        } else {
+          setUser({
+            id: decoded.sub,
+            userName: decoded.userName || decoded.sub || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],
+            roles: decoded.role || decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || []
+          });
+        }
       } catch {
         setUser(null);
       }
@@ -24,6 +33,26 @@ export function AuthProvider({ children }) {
       setUser(null);
     }
     setLoading(false);
+  }, [token]);
+
+  // Optional: auto-logout when token is about to expire
+  useEffect(() => {
+    if (!token) return;
+    let timeoutId;
+    try {
+      const decoded = jwtDecode(token);
+      if (decoded?.exp) {
+        const msUntilExpiry = decoded.exp * 1000 - Date.now();
+        if (msUntilExpiry <= 0) {
+          logout();
+        } else {
+          timeoutId = setTimeout(() => logout(), msUntilExpiry);
+        }
+      }
+    } catch {
+      // ignore
+    }
+    return () => clearTimeout(timeoutId);
   }, [token]);
 
   useEffect(() => {

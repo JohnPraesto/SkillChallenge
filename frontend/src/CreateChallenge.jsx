@@ -53,8 +53,12 @@ function CreateChallenge() {
         setMessage("Challenge created!");
         setTimeout(() => navigate("/"), 1200);
       } else {
-        const text = await res.text();
-        setError("Failed to create challenge: " + text);
+        if (res.status === 401 || res.status === 403) {
+          setError("Your session has expired or you are not authorized. Please log in again.");
+        } else {
+          const text = await res.text();
+          setError("Failed to create challenge: " + (text || `HTTP ${res.status}`));
+        }
       }
     } catch (err) {
       setError("Failed to create challenge: " + err.message);
