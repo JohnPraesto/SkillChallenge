@@ -33,8 +33,12 @@ function OpenChallengeDetails({
         setMessage("You joined the challenge!");
         fetchChallenge(); // Refresh challenge data to update joined users
       } else {
-        const text = await res.text();
-        setMessage("Failed to join: " + text);
+        if (res.status === 401 || res.status === 403) {
+          setMessage("Failed to join: your session expired or you are not authorized. Please log in again.");
+        } else {
+          const text = await res.text();
+          setMessage("Failed to join: " + (text || `HTTP ${res.status}`));
+        }
       }
     } catch (err) {
       setMessage("Failed to join: " + err.message);
@@ -56,8 +60,12 @@ function OpenChallengeDetails({
         setMessage("You left the challenge.");
         fetchChallenge();
       } else {
-        const text = await res.text();
-        setMessage("Failed to leave: " + text);
+        if (res.status === 401 || res.status === 403) {
+          setMessage("Failed to leave: your session expired or you are not authorized. Please log in again.");
+        } else {
+          const text = await res.text();
+          setMessage("Failed to leave: " + (text || `HTTP ${res.status}`));
+        }
       }
     } catch (err) {
       setMessage("Failed to leave: " + err.message);

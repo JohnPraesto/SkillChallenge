@@ -162,6 +162,7 @@ namespace SkillChallenge.Controllers
         }
 
         [HttpPost("{id}/upload-profile-picture")]
+        [Authorize]
         public async Task<IActionResult> UploadProfilePicture(string id, IFormFile file, [FromServices] IMediaService imageService)
         {
             try
@@ -175,6 +176,13 @@ namespace SkillChallenge.Controllers
                 if (user == null)
                 {
                     return NotFound();
+                }
+
+                var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+                if (userRole != "Admin" && currentUserId != id)
+                {
+                    return Forbid();
                 }
 
                 if (!string.IsNullOrEmpty(user.ProfilePicture))
