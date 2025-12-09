@@ -28,6 +28,7 @@ namespace SkillChallenge.AzureFunctions
                 .Include(c => c.SubCategory)
                 .Include(c => c.UploadedResults).ThenInclude(ur => ur.Votes)
                 .Where(c => c.VotePeriodEnd < now && !c.ResultsSubmitted)
+                .AsSplitQuery()
                 .ToListAsync();
 
             foreach (var challenge in challengesToSubmit)
