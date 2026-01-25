@@ -10,6 +10,7 @@ using SkillChallenge.Models;
 using SkillChallenge.Repositories;
 using SkillChallenge.Services;
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.Http.Features;
 
 public class Program
 {
@@ -62,7 +63,6 @@ public class Program
                     });
             });
         });
-        // Stop
 
         builder.Services.AddCors(options =>
         {
@@ -74,6 +74,16 @@ public class Program
                     .AllowAnyMethod()
                     .AllowCredentials()
             );
+        });
+
+        builder.Services.Configure<FormOptions>(o =>
+        {
+            o.MultipartBodyLengthLimit = 200_000_000;
+        });
+
+        builder.WebHost.ConfigureKestrel(o =>
+        {
+            o.Limits.MaxRequestBodySize = 200_000_000;
         });
 
         // Add services to the container.
@@ -192,6 +202,8 @@ public class Program
         {
             builder.Services.AddScoped<IMediaService, MediaService>();
         }
+
+        
 
         var app = builder.Build();
 
