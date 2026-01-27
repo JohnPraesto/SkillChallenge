@@ -1,22 +1,5 @@
 :root {
-  --primary-color: #646cff;
-  --primary-hover: #535bf2;
-  --background: #ffffff;
-  --surface: #f9f9f9;
-  --text: #213547;
-  --text-secondary: #666;
-  --border: #e0e0e0;
-  --shadow: 0 2px 8px rgba(0,0,0,0.1);
-  --shadow-hover: 0 4px 16px rgba(0,0,0,0.15);
-  --border-radius: 12px;
-  --spacing: 1rem;
-  --transition-fast: 0.15s ease;
-  --transition-normal: 0.3s ease;
-  --transition-slow: 0.5s ease;
-}
-
-/* Dark Mode Variables */
-.dark-mode {
+  color-scheme: dark;
   --primary-color: #7c7cff;
   --primary-hover: #9999ff;
   --background: #1a1a1a;
@@ -26,6 +9,11 @@
   --border: #404040;
   --shadow: 0 2px 8px rgba(0,0,0,0.3);
   --shadow-hover: 0 4px 16px rgba(0,0,0,0.4);
+  --border-radius: 12px;
+  --spacing: 1rem;
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
 }
 
 .dark-mode .auth-container {
@@ -86,7 +74,7 @@ body {
   width: 100%;
   z-index: 1000;
   padding: 1rem 2rem;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(45, 45, 45, 0.95);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
   box-shadow: var(--shadow);
@@ -1098,35 +1086,6 @@ body {
 
 .checkbox-label input[type="checkbox"] {
   width: auto;
-}
-
-/* Theme Toggle */
-.theme-toggle {
-  background: none;
-  border: 2px solid var(--border);
-  border-radius: 50%;
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all var(--transition-normal);
-  margin-left: 0.5rem;
-}
-
-.theme-toggle:hover {
-  border-color: var(--primary-color);
-  transform: rotate(180deg);
-}
-
-.theme-icon {
-  font-size: 1.2rem;
-  transition: transform var(--transition-normal);
-}
-
-.theme-toggle:hover .theme-icon {
-  transform: scale(1.1);
 }
 
 /* User Icon Styles */
