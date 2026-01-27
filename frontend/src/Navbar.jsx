@@ -2,7 +2,6 @@ import React from "react";
 import { useNavigate, Link } from "react-router-dom";
 import userIcon from "./assets/user_icon_001.jpg";
 import { useAuth } from "./AuthContext";
-import { ThemeToggle } from "./ThemeToggle";
 
 function Navbar() {
   const navigate = useNavigate();
@@ -35,10 +34,6 @@ function Navbar() {
             <span className="nav-icon">👥</span>
             Leaderboard
           </Link>
-          
-          <div className="nav-link">
-            <ThemeToggle />
-          </div>
           
           {user?.userName ? (
             <>
